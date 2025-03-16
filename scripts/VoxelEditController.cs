@@ -6,7 +6,7 @@ public partial class VoxelEditController : Node3D
 {
 	private Vector2 mouse_delta;
 	[Export] float voxel_size = 0.8f;
-	private Voxel current_cell_type = Voxel.SOLID;
+	private Voxel current_cell_type = new Voxel(1, 0);
 	
 	[Export] public VoxelGrid voxel_grid { get; private set; }
 
