@@ -48,7 +48,7 @@ public partial class VoxelEditController : Node3D
 			InputEventMouseButton button = @event as InputEventMouseButton;
 			if (button.Pressed == true)
 				mouse_delta = Vector2.Zero;
-			else if (mouse_delta.Length() < 10.0f)
+			else if (mouse_delta.Length() < 10.0f && button.ButtonIndex == MouseButton.Left)
 				PerformInteraction();
 		}
 		else if (@event is InputEventMouseMotion)

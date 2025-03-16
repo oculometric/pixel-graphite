@@ -33,6 +33,16 @@ animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
+"meshes": {
+"Walkway_Cube_013": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"save_to_file/enabled": true,
+"save_to_file/path": "res://meshes/building_demo.res"
+}
+},
 "nodes": {
 "PATH:Cube_069": {
 "generate/physics": true,

@@ -23,3 +23,10 @@ window/size/viewport_height=1024
 [dotnet]
 
 project/assembly_name="pixel-graphite"
+
+[rendering]
+
+environment/ssao/quality=3
+environment/ssao/half_size=false
+global_illumination/sdfgi/probe_ray_count=4
+global_illumination/sdfgi/frames_to_update_lights=3
