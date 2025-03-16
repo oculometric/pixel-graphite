@@ -65,7 +65,7 @@ public partial class VoxelGrid : MeshInstance3D
 
 		int o = (((int)initial_size - 1) / 2);
 		voxel_origin = new Vector3I(o, o, o);
-		GD.Print("origin: " + voxel_origin + " dimensions: " + voxel_map[0][0].Count + "," + voxel_map[0].Count + "," + voxel_map.Count);
+		//GD.Print("origin: " + voxel_origin + " dimensions: " + voxel_map[0][0].Count + "," + voxel_map[0].Count + "," + voxel_map.Count);
 
 		SetCellValue(new Vector3I(0, 0, 0), new Voxel(voxel_types[1], 0));
 		Rebuild();
@@ -78,7 +78,7 @@ public partial class VoxelGrid : MeshInstance3D
 		int array_y_pos = position.Y + voxel_origin.Y;
 		int array_z_pos = position.Z + voxel_origin.Z;
 
-		GD.Print("set voxel: " + position + " in arrays: " + array_x_pos + "," + array_y_pos + "," + array_z_pos);
+		//GD.Print("set voxel: " + position + " in arrays: " + array_x_pos + "," + array_y_pos + "," + array_z_pos);
 
 		// expand if necessary, in each of the three dimensions one after another
 		if (array_x_pos < 0)
@@ -177,7 +177,7 @@ public partial class VoxelGrid : MeshInstance3D
 		}
 		voxel_origin += offset;
 
-		GD.Print("new origin: " + voxel_origin + " new dimensions: " + voxel_map[0][0].Count + "," + voxel_map[0].Count + "," + voxel_map.Count);
+		//GD.Print("new origin: " + voxel_origin + " new dimensions: " + voxel_map[0][0].Count + "," + voxel_map[0].Count + "," + voxel_map.Count);
 	}
 
 	private Vector3 Swizzle(Vector3 vec, byte orientation)

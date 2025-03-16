@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=16 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="1_3mqji"]
 [ext_resource type="Script" uid="uid://c4gsrcqvnkxot" path="res://scripts/VoxelEditController.cs" id="2_x4av3"]
@@ -45,8 +45,6 @@ name = "slope"
 geometry = ExtResource("9_p5x2j")
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
-[sub_resource type="SphereMesh" id="SphereMesh_a814b"]
-
 [node name="MainScene" type="Node3D"]
 
 [node name="Camera" parent="." instance=ExtResource("1_3mqji")]
@@ -71,7 +69,3 @@ light_energy = 1.4
 light_angular_distance = 16.0
 shadow_enabled = true
 directional_shadow_max_distance = 500.0
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.592703, 0, 0, 0, 0.592703, 0, 0, 0, 0.592703, 0, 1.6, 0)
-mesh = SubResource("SphereMesh_a814b")

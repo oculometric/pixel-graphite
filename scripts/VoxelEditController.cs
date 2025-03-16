@@ -6,6 +6,7 @@ public partial class VoxelEditController : Node3D
 {
 	private Vector2 mouse_delta;
 	private Voxel current_cell_type;
+	private bool erase_mode = false;
 	
 	[Export] public VoxelGrid voxel_grid { get; private set; }
 
@@ -30,13 +31,13 @@ public partial class VoxelEditController : Node3D
 			hit_cell = ray_params.From + (ray_direction * t);
 		}
 		else
-			hit_cell = ((Vector3)result["position"]) + ((Vector3)result["normal"] * voxel_grid.voxel_size * 0.5f);
+			hit_cell = ((Vector3)result["position"]) + ((Vector3)result["normal"] * voxel_grid.voxel_size * (erase_mode ? -0.5f : 0.5f));
 
 		// calculate highlighted cell in grid
 		Vector3I highlighted_cell = (Vector3I)(hit_cell / voxel_grid.voxel_size).Round();
 
 		// set that part of the block grid to the assigned block type
-		voxel_grid.SetCellValue(highlighted_cell, current_cell_type);
+		voxel_grid.SetCellValue(highlighted_cell, erase_mode ? new Voxel(voxel_grid.voxel_types[0], 0) : current_cell_type);
 		voxel_grid.Rebuild();
 	}
 	
@@ -70,6 +71,7 @@ public partial class VoxelEditController : Node3D
 					case Key.Key5: current_cell_type = new Voxel(voxel_grid.voxel_types[5], 0); break;
 					case Key.A: current_cell_type.orientation = (byte)((current_cell_type.orientation + 3) % 4); break;
 					case Key.D: current_cell_type.orientation = (byte)((current_cell_type.orientation + 1) % 4); break;
+					case Key.X: erase_mode = !erase_mode; break;
                 }
 			}
 		}
