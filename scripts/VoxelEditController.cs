@@ -5,11 +5,14 @@ using System;
 public partial class VoxelEditController : Node3D
 {
 	private Vector2 mouse_delta;
-	[Export] float voxel_size = 0.8f;
-	private Voxel current_cell_type = new Voxel(1, 0);
+	private Voxel current_cell_type;
 	
 	[Export] public VoxelGrid voxel_grid { get; private set; }
 
+    public override void _Ready()
+    {
+		current_cell_type = new Voxel(voxel_grid.voxel_types[1], 0);
+    }
 
     private void PerformInteraction()
 	{
@@ -17,7 +20,7 @@ public partial class VoxelEditController : Node3D
 		PhysicsRayQueryParameters3D ray_params = new PhysicsRayQueryParameters3D();
 		ray_params.From = GetViewport().GetCamera3D().GlobalPosition;
 		Vector3 ray_direction = GetViewport().GetCamera3D().ProjectRayNormal(GetViewport().GetMousePosition());
-        ray_params.To = ray_params.From + (ray_direction * 2000.0f);
+		ray_params.To = ray_params.From + (ray_direction * 2000.0f);
 		Dictionary result = GetWorld3D().DirectSpaceState.IntersectRay(ray_params);
 		// if none, check use intersection with world floor
 		Vector3 hit_cell = Vector3.Zero;
@@ -27,10 +30,10 @@ public partial class VoxelEditController : Node3D
 			hit_cell = ray_params.From + (ray_direction * t);
 		}
 		else
-			hit_cell = ((Vector3)result["position"]) + ((Vector3)result["normal"] * voxel_size * 0.5f);
+			hit_cell = ((Vector3)result["position"]) + ((Vector3)result["normal"] * voxel_grid.voxel_size * 0.5f);
 
 		// calculate highlighted cell in grid
-        Vector3I highlighted_cell = (Vector3I)(hit_cell / voxel_size).Round();
+		Vector3I highlighted_cell = (Vector3I)(hit_cell / voxel_grid.voxel_size).Round();
 
 		// set that part of the block grid to the assigned block type
 		voxel_grid.SetCellValue(highlighted_cell, current_cell_type);
