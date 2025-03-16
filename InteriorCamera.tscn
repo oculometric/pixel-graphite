@@ -13,7 +13,7 @@ max_pan_velocity = 20.0
 transform = Transform3D(-0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, 0, 0, 0)
 
 [node name="CameraPitch" type="Node3D" parent="CameraSpin"]
-transform = Transform3D(1, 0, 0, 0, 0.819152, 0.573577, 0, -0.573577, 0.819152, 0.00262322, 0.0554113, 0.00969108)
+transform = Transform3D(1, 0, 0, 0, 0.819152, 0.573577, 0, -0.573577, 0.819152, 0, 0, 0)
 
 [node name="Camera3D" type="Camera3D" parent="CameraSpin/CameraPitch"]
 transform = Transform3D(1, 0, 0, 0, 1, -2.98023e-08, 0, 0, 1, 0, 0, 65)

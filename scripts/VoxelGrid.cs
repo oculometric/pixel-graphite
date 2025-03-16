@@ -40,24 +40,26 @@ public partial class VoxelGrid : MeshInstance3D
 		Mesh = new ArrayMesh();
 		collider.Shape = new ConcavePolygonShape3D();
 
+		for (int i = 0; i < voxel_types.Length; i++)
+		{
+			if (voxel_types[i].geometry == null)
+				GD.Print("voxel name: " + voxel_types[i].name);
+			else
+				GD.Print("voxel name: " + voxel_types[i].name + " geometry size: " + voxel_types[i].geometry.SurfaceGetArrays(0)[0].AsVector3Array().Length);
+		}
+
         // init voxel map
         voxel_map = new List<List<List<Voxel>>>();
 		for (int i = 0; i < initial_size; i++)
 		{
 			List<List<Voxel>> area = new List<List<Voxel>>();
-
 			for (int j = 0; j < initial_size; j++)
 			{
 				List<Voxel> row = new List<Voxel>();
-
 				for (int k = 0; k < initial_size; k++)
-				{
 					row.Add(new Voxel(voxel_types[0], 0));
-				}
-
 				area.Add(row);
 			}
-
 			voxel_map.Add(area);
 		}
 
@@ -178,10 +180,78 @@ public partial class VoxelGrid : MeshInstance3D
 		GD.Print("new origin: " + voxel_origin + " new dimensions: " + voxel_map[0][0].Count + "," + voxel_map[0].Count + "," + voxel_map.Count);
 	}
 
+	private Vector3 Swizzle(Vector3 vec, byte orientation)
+	{
+		float angle = 0;
+		switch (orientation & 0b11)
+		{
+			case 0b00: angle = 0; break;
+			case 0b01: angle = Mathf.Pi * 0.5f; break;
+			case 0b10: angle = Mathf.Pi; break;
+			case 0b11: angle = Mathf.Pi * 1.5f; break;
+		}
+
+		vec = vec.Rotated(Vector3.Up, angle);
+		vec.Y *= ((orientation & 0b100) > 0) ? -1 : 1;
+
+		return vec;
+	}
+
 	public void Rebuild()
 	{
 		(Mesh as ArrayMesh).ClearSurfaces();
-		List<Vector3> verts = new List<Vector3>();
+		Vector3[] box_collider =
+		{
+			new Vector3(-0.4f, 0.4f, 0.4f),
+			new Vector3(0.4f, 0.4f, 0.4f),
+			new Vector3(0.4f, -0.4f, 0.4f),
+
+			new Vector3(0.4f, -0.4f, 0.4f),
+			new Vector3(-0.4f, -0.4f, 0.4f),
+			new Vector3(-0.4f, 0.4f, 0.4f),
+
+			new Vector3(-0.4f, 0.4f, -0.4f),
+			new Vector3(-0.4f, 0.4f, 0.4f),
+			new Vector3(-0.4f, -0.4f, 0.4f),
+
+            new Vector3(-0.4f, -0.4f, 0.4f),
+			new Vector3(-0.4f, -0.4f, -0.4f),
+			new Vector3(-0.4f, 0.4f, -0.4f),
+
+			new Vector3(0.4f, 0.4f, -0.4f),
+			new Vector3(-0.4f, 0.4f, -0.4f),
+			new Vector3(-0.4f, -0.4f, -0.4f),
+
+            new Vector3(-0.4f, -0.4f, -0.4f),
+			new Vector3(0.4f, -0.4f, -0.4f),
+            new Vector3(0.4f, 0.4f, -0.4f),
+
+			new Vector3(0.4f, 0.4f, 0.4f),
+			new Vector3(0.4f, 0.4f, -0.4f),
+			new Vector3(0.4f, -0.4f, -0.4f),
+
+            new Vector3(0.4f, -0.4f, -0.4f),
+			new Vector3(0.4f, -0.4f, 0.4f),
+            new Vector3(0.4f, 0.4f, 0.4f),
+
+			new Vector3(0.4f, 0.4f, 0.4f),
+			new Vector3(-0.4f, 0.4f, 0.4f),
+			new Vector3(-0.4f, 0.4f, -0.4f),
+
+			new Vector3(-0.4f, 0.4f, -0.4f),
+			new Vector3(0.4f, 0.4f, -0.4f),
+			new Vector3(0.4f, 0.4f, 0.4f),
+
+			new Vector3(0.4f, -0.4f, -0.4f),
+			new Vector3(-0.4f, -0.4f, -0.4f),
+			new Vector3(-0.4f, -0.4f, 0.4f),
+
+            new Vector3(-0.4f, -0.4f, 0.4f),
+			new Vector3(0.4f, -0.4f, 0.4f),
+            new Vector3(0.4f, -0.4f, -0.4f),
+        };
+
+        List<Vector3> verts = new List<Vector3>();
 
 		for (int i = 0; i < voxel_map.Count; i++)
 		{
@@ -195,11 +265,22 @@ public partial class VoxelGrid : MeshInstance3D
 					if (geom == null) continue;
 
 					Godot.Collections.Array arrays = geom.SurfaceGetArrays(0);
-					Vector3[] arr = arrays[(int)(ArrayMesh.ArrayType.Vertex)].AsVector3Array();
-					for (int t = 0; t < arr.Length; t++)
-						arr[t] += new Vector3(k - voxel_origin.X, j - voxel_origin.Y, i - voxel_origin.Z) * voxel_size;
-					arrays[(int)(ArrayMesh.ArrayType.Vertex)] = arr;
-					verts.AddRange(arr);
+					Vector3[] v_arr = arrays[(int)(ArrayMesh.ArrayType.Vertex)].AsVector3Array();
+					Vector3[] n_arr = arrays[(int)(ArrayMesh.ArrayType.Normal)].AsVector3Array();
+                    for (int t = 0; t < v_arr.Length; t++)
+					{
+						v_arr[t] = Swizzle(v_arr[t], v.orientation);
+						n_arr[t] = Swizzle(n_arr[t], v.orientation);
+						v_arr[t] += new Vector3(k - voxel_origin.X, j - voxel_origin.Y, i - voxel_origin.Z) * voxel_size;
+					}
+					arrays[(int)(ArrayMesh.ArrayType.Vertex)] = v_arr;
+					arrays[(int)(ArrayMesh.ArrayType.Normal)] = n_arr;
+
+					Vector3[] coll_arr = new Vector3[box_collider.Length];
+					box_collider.CopyTo(coll_arr, 0);
+                    for (int t = 0; t < coll_arr.Length; t++)
+                        coll_arr[t] += new Vector3(k - voxel_origin.X, j - voxel_origin.Y, i - voxel_origin.Z) * voxel_size;
+                    verts.AddRange(coll_arr);
 
                     (Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
 				}
@@ -207,5 +288,6 @@ public partial class VoxelGrid : MeshInstance3D
 		}
 
 		(collider.Shape as ConcavePolygonShape3D).SetFaces(verts.ToArray());
+		(Mesh as ArrayMesh).ShadowMesh = (Mesh.Duplicate() as ArrayMesh);
 	}
 }

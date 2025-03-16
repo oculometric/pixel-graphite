@@ -56,5 +56,22 @@ public partial class VoxelEditController : Node3D
 			if (Input.IsMouseButtonPressed(MouseButton.Left))
 				mouse_delta += motion.Relative;
 		}
+		else if (@event is InputEventKey)
+		{
+			InputEventKey key = @event as InputEventKey;
+			if (key.IsPressed())
+			{
+				switch (key.Keycode)
+				{
+					case Key.Key1: current_cell_type = new Voxel(voxel_grid.voxel_types[1], 0); break;
+					case Key.Key2: current_cell_type = new Voxel(voxel_grid.voxel_types[2], 0); break;
+					case Key.Key3: current_cell_type = new Voxel(voxel_grid.voxel_types[3], 0); break;
+					case Key.Key4: current_cell_type = new Voxel(voxel_grid.voxel_types[4], 0); break;
+					case Key.Key5: current_cell_type = new Voxel(voxel_grid.voxel_types[5], 0); break;
+					case Key.A: current_cell_type.orientation = (byte)((current_cell_type.orientation + 3) % 4); break;
+					case Key.D: current_cell_type.orientation = (byte)((current_cell_type.orientation + 1) % 4); break;
+                }
+			}
+		}
 	}
 }
