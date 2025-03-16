@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3 uid="uid://cigil3d6vwhwp"]
+
+[ext_resource type="Script" uid="uid://duksao1xs4eae" path="res://scripts/CameraController.cs" id="1_uhs5l"]
+
+[node name="InteriorCamera" type="Node3D" node_paths=PackedStringArray("camera_spin", "camera_pitch", "camera")]
+script = ExtResource("1_uhs5l")
+camera_spin = NodePath("CameraSpin")
+camera_pitch = NodePath("CameraSpin/CameraPitch")
+camera = NodePath("CameraSpin/CameraPitch/Camera3D")
+max_pan_velocity = 20.0
+
+[node name="CameraSpin" type="Node3D" parent="."]
+transform = Transform3D(-0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, 0, 0, 0)
+
+[node name="CameraPitch" type="Node3D" parent="CameraSpin"]
+transform = Transform3D(1, 0, 0, 0, 0.819152, 0.573577, 0, -0.573577, 0.819152, 0.00262322, 0.0554113, 0.00969108)
+
+[node name="Camera3D" type="Camera3D" parent="CameraSpin/CameraPitch"]
+transform = Transform3D(1, 0, 0, 0, 1, -2.98023e-08, 0, 0, 1, 0, 0, 65)
+current = true
+fov = 10.0
+size = 16.0
+near = 0.1
+far = 500.0

@@ -1,0 +1,140 @@
+[gd_scene load_steps=7 format=3 uid="uid://btcypf82vp58i"]
+
+[ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="1_3mqji"]
+[ext_resource type="Script" uid="uid://c4gsrcqvnkxot" path="res://scripts/VoxelEditController.cs" id="2_x4av3"]
+[ext_resource type="Script" uid="uid://bq5xvx6j8hb3h" path="res://scripts/VoxelGrid.cs" id="3_rpqi1"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1305s"]
+size = Vector3(0.8, 0.8, 0.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_x4av3"]
+size = Vector3(0.8, 0.8, 0.8)
+
+[sub_resource type="SphereMesh" id="SphereMesh_x4av3"]
+radius = 0.4
+height = 0.8
+radial_segments = 12
+rings = 6
+
+[node name="MainScene" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_1305s")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
+shape = SubResource("BoxShape3D_x4av3")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
+visible = false
+mesh = SubResource("BoxMesh_1305s")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+visible = false
+mesh = SubResource("BoxMesh_1305s")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+visible = false
+mesh = SubResource("BoxMesh_1305s")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+visible = false
+mesh = SubResource("BoxMesh_1305s")
+
+[node name="Camera" parent="." instance=ExtResource("1_3mqji")]
+
+[node name="VoxelEditController" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid")]
+script = ExtResource("2_x4av3")
+voxel_grid = NodePath("../VoxelGrid")
+
+[node name="VoxelGrid" type="MeshInstance3D" parent="."]
+script = ExtResource("3_rpqi1")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D17" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, -0.8, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D18" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, -1.6, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D19" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, -2.4, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D20" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, -3.2, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D21" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, -4, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D24" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 4, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D25" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 3.2, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D26" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 2.4, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D27" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 1.6, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D28" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0.8, 0, 0)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, 0.8)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, 1.6)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, 2.4)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, 3.2)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D11" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, 4)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D12" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, -4)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D13" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, -3.2)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D14" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, -2.4)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D15" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, -1.6)
+mesh = SubResource("SphereMesh_x4av3")
+
+[node name="MeshInstance3D16" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.1, 0, 0, 0, 1, 0, 0, -0.8)
+mesh = SubResource("SphereMesh_x4av3")
