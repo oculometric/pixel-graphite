@@ -59,3 +59,13 @@ stretch_mode = 2
 layout_mode = 2
 text = "(X) erase"
 label_settings = SubResource("LabelSettings_1xopk")
+
+[node name="Label2" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 17.0
+grow_horizontal = 2
+text = "(A) <- rotate -> (D)"
+label_settings = SubResource("LabelSettings_1xopk")
+horizontal_alignment = 1

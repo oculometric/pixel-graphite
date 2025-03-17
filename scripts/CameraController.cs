@@ -16,6 +16,8 @@ public partial class CameraController : Node3D
 	public override void _PhysicsProcess(double delta)
 	{
 		ProcessCameraInput((float)delta);
+
+		GetWindow().Title = "pixel graphite (" + Engine.GetFramesPerSecond().ToString("000.0") + " fps)";
 	}
 
 	private void ProcessCameraInput(float delta)
