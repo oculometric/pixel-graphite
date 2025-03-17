@@ -78,7 +78,7 @@ public partial class VoxelGrid : MeshInstance3D
 		int array_y_pos = position.Y + voxel_origin.Y;
 		int array_z_pos = position.Z + voxel_origin.Z;
 
-		//GD.Print("set voxel: " + position + " in arrays: " + array_x_pos + "," + array_y_pos + "," + array_z_pos);
+		GD.Print("set voxel: " + position + " in arrays: " + array_x_pos + "," + array_y_pos + "," + array_z_pos);
 
 		// expand if necessary, in each of the three dimensions one after another
 		if (array_x_pos < 0)
@@ -104,7 +104,28 @@ public partial class VoxelGrid : MeshInstance3D
 			ExtendInDirection(Axis.POS_Z, (array_z_pos - voxel_map.Count) + 1);
 
 		// set value
-		voxel_map[array_z_pos][array_y_pos][array_x_pos] = type;
+		try
+		{
+			voxel_map[array_z_pos][array_y_pos][array_x_pos] = type;
+		} catch (ArgumentOutOfRangeException)
+		{
+			PrintMap();
+		}
+	}
+
+	private void PrintMap()
+	{
+		GD.Print("number of slices along Z: " + voxel_map.Count);
+		for (int i = 0; i < voxel_map.Count; i++)
+		{
+			GD.Print("  number of rows in slice " + i + ": " + voxel_map[i].Count);
+			for (int j = 0; j < voxel_map[i].Count; j++)
+			{
+				GD.Print("    number of tiles in row " + j + ": " + voxel_map[i][j].Count);
+			}
+		}
+
+		GD.Print("done");
 	}
 	
 	public void ExtendInDirection(Axis dir, int amount)
@@ -135,7 +156,7 @@ public partial class VoxelGrid : MeshInstance3D
 					for (int _ = 0; _ < amount; _++)
 					{
 						List<Voxel> arr = new List<Voxel>();
-						for (int j = 0; j < voxel_map[i].Count; j++)
+						for (int j = 0; j < voxel_map[i][0].Count; j++)
 							arr.Add(new Voxel(voxel_types[0], 0));
 						if (dir == Axis.POS_Y)
 							voxel_map[i].Add(arr);
@@ -177,7 +198,7 @@ public partial class VoxelGrid : MeshInstance3D
 		}
 		voxel_origin += offset;
 
-		//GD.Print("new origin: " + voxel_origin + " new dimensions: " + voxel_map[0][0].Count + "," + voxel_map[0].Count + "," + voxel_map.Count);
+		GD.Print("new origin: " + voxel_origin + " new dimensions: " + voxel_map[0][0].Count + "," + voxel_map[0].Count + "," + voxel_map.Count);
 	}
 
 	private Vector3 Swizzle(Vector3 vec, byte orientation)
