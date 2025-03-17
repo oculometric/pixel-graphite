@@ -31,7 +31,7 @@ float linear_depth(vec2 uv, mat4 inv_proj)
 	vec3 ndc = vec3(uv * 2.0 - 1.0, raw_depth);
 	vec4 view_position = inv_proj * vec4(ndc, 1.0);
 	float depth_sample = -view_position.z / view_position.w;
-	
+
 	return depth_sample;
 }
 
@@ -43,13 +43,13 @@ float edge_mask(vec2 uv, vec2 pixel_step, mat4 inv_proj)
 						+ texture(normal_tex, uv + (pixel_step * vec2(1, 1))).rgb
 						+ texture(normal_tex, uv + (pixel_step * vec2(1, -1))).rgb
 						+ texture(normal_tex, uv + (pixel_step * vec2(-1, 1))).rgb);
-	
+
 	float depth_sharpen = (linear_depth(uv, inv_proj) * 5.0f)
 						- linear_depth(uv + (pixel_step * vec2(-1, -1)), inv_proj)
 						- linear_depth(uv + (pixel_step * vec2(1, 1)), inv_proj)
 						- linear_depth(uv + (pixel_step * vec2(1, -1)),inv_proj)
 						- linear_depth(uv + (pixel_step * vec2(-1, 1)), inv_proj);
-	
+
 	float normal_value = length(normal_sharpen) / sqrt(3.0f);
 	float depth_value = clamp(abs(depth_sharpen) - linear_depth(uv, inv_proj), 0, 1);
 	float final_value = smoothstep(0.71f, 1.0f, pow(normal_value + depth_value, 2.0f));
@@ -63,9 +63,9 @@ void fragment()
 	float screen_value = dot(screen_sample, vec3(0.2126f, 0.7151f, 0.0722f));
 	if (texture(depth_tex, SCREEN_UV).r == 0.0f)
 		screen_value = 1.0f;
-		
+
 	// TODO: move ambient occlusion into a separate shader? if we can render the same scene twice into different viewports then we can do custom AO in one
-	
+
 	// displace edge UV
 	vec2 edge_displace = vec2(
 		fbm((SCREEN_UV + 0.00f) / 0.01f, 3, 2.0f, 0.5f),
@@ -74,7 +74,7 @@ void fragment()
 	// compute edge mask via sharpen filters
 	float edges = edge_mask(SCREEN_UV + (edge_displace * 1.2f / VIEWPORT_SIZE), 1.0f / VIEWPORT_SIZE, INV_PROJECTION_MATRIX);
 	float edged_value = mix(screen_value, screen_value * 0.151f, edges);
-	
+
 	// add pixel noise
 	float noise = round((fbm(SCREEN_UV / 0.0005f, 2, 2.0f, 0.03f) - 0.5f) * 8.0f) / 8.0f;
 	float noised_value = edged_value + (noise * 0.025f);
@@ -86,9 +86,9 @@ void fragment()
 	float sin_c = (float(sin_a > 0.3f) - 0.5f) + (float(sin_b > 0.3f) - 0.5f);
 	float sketched_value = posterised_value + (clamp(0, 1, sqrt(posterised_value)) * sin_c * 0.091);
 	// TODO: displace
-	
+
 	// TODO: move downscaling and colouring code into separate shader combining rendered scene and UI
 	vec3 final_colour = mix(linear_to_srgb(low_colour), linear_to_srgb(high_colour), clamp(smoothstep(0.0f, 1.0f, sketched_value), 0.0f, 1.0f));
-	
+
 	ALBEDO = vec3(final_colour);
 }

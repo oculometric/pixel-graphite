@@ -26,6 +26,11 @@ window/size/sharp_corners=true
 
 project/assembly_name="pixel-graphite"
 
+[gui]
+
+theme/custom="uid://citnlivn3ux3n"
+theme/custom_font="uid://caf4xeemp7i8x"
+
 [rendering]
 
 environment/ssao/quality=3

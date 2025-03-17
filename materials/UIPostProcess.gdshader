@@ -11,7 +11,7 @@ void vertex()
 float sample_overlay(vec2 uv)
 {
 	vec4 sample = texture(ui_texture, uv);
-	return float(length(sample.rgb) > 0.01f && sample.a > 0.0f);
+	return float(length(sample.rgb) > 0.01f && sample.a > 0.25f);
 }
 
 float bloom(vec2 center, vec2 pixel_size, int steps, float weight)
