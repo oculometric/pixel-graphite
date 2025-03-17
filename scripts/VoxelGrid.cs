@@ -71,6 +71,100 @@ public partial class VoxelGrid : MeshInstance3D
 		Rebuild();
 	}
 
+	private void WriteInt32(Int32 i, ref byte[] arr, uint offset)
+	{
+        arr[offset] = (byte)(i & 0xFF);
+        arr[offset + 1] = (byte)((i >> 8) & 0xFF);
+        arr[offset + 2] = (byte)((i >> 16) & 0xFF);
+        arr[offset + 3] = (byte)((i >> 24) & 0xFF);
+    }
+
+	public byte[] Serialize()
+	{
+		// header consists of:
+		// 4 byte x size
+		// 4 byte y size
+		// 4 byte z size
+		// 4 byte x origin
+		// 4 byte y origin
+		// 4 byte z origin
+		// 4 byte offset of the start of the name index
+		// 4 byte size of the name index
+		// 4 byte offset of the start of the data
+		// 4 byte size of the data
+		
+		// 4 byte padding
+
+		// name index entry consists of:
+		// 4 byte size of entry
+		// string name
+
+		// 4 byte padding
+
+		// data consists of:
+		// 1 byte orientation
+		// 3 byte index into name index
+
+		List<string> voxel_names = new List<string>();
+		foreach (VoxelType type in voxel_types)
+			voxel_names.Add(type.name);
+
+		List<byte> index = new List<byte>();
+		foreach (string name in voxel_names)
+		{
+			Int32 entry_size = name.Length;
+			index.Add((byte)((entry_size >> 0) & 0xFF));
+			index.Add((byte)((entry_size >> 8) & 0xFF));
+			index.Add((byte)((entry_size >> 16) & 0xFF));
+			index.Add((byte)((entry_size >> 24) & 0xFF));
+
+			index.AddRange(name.ToAsciiBuffer());
+        }
+		Int32 index_size = index.Count;
+
+		Int32 data_size = 4 * voxel_map.Count * voxel_map[0].Count * voxel_map[0][0].Count;
+		byte[] data = new byte[data_size];
+        uint offset = 0;
+		for (int i = 0; i < voxel_map.Count; i++)
+		{
+			for (int j = 0; j < voxel_map[0].Count; j++)
+			{
+				for (int k = 0; k < voxel_map[0][0].Count; k++)
+				{
+					Int32 data_element = voxel_map[i][j][k].orientation << 24;
+					data_element |= voxel_names.FindIndex(a => a == voxel_map[i][j][k].type.name) & 0x00FFFFFF;
+					WriteInt32(data_element, ref data, offset);
+                    offset += 4;
+				}
+			}
+		}
+
+		Int32 header_size = 4 * 10;
+        byte[] header = new byte[header_size];
+		WriteInt32(voxel_map[0][0].Count, ref header, 0);
+		WriteInt32(voxel_map[0].Count, ref header, 4);
+		WriteInt32(voxel_map.Count, ref header, 8);
+        WriteInt32(voxel_origin.X, ref header, 12);
+        WriteInt32(voxel_origin.Y, ref header, 16);
+        WriteInt32(voxel_origin.Z, ref header, 20);
+        Int32 index_offset = header_size + 4;
+        WriteInt32(index_offset, ref header, 24);
+		WriteInt32(index_size, ref header, 28);
+		Int32 data_offset = index_offset + index_size + 4;
+        WriteInt32(data_offset, ref header, 32);
+		WriteInt32(data_size, ref header, 36);
+
+		byte[] final_array = new byte[header_size + 4 + index_size + 4 + data_size + 4];
+		header.CopyTo(final_array, 0);
+		WriteInt32(0x4a4a4a4a, ref final_array, (uint)(index_offset - 4));
+		index.CopyTo(final_array, index_offset);
+		WriteInt32(0x4a4a4a4a, ref final_array, (uint)(data_offset - 4));
+		data.CopyTo(final_array, data_offset);
+		WriteInt32(0x4a4a4a4a, ref final_array, (uint)(data_offset + data_size));
+
+		return final_array;
+    }
+
 	public void SetCellValue(Vector3I position, Voxel type)
 	{
 		// calculate position in the array based on position and voxel_origin

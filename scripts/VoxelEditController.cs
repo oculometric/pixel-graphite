@@ -68,6 +68,14 @@ public partial class VoxelEditController : Node3D
 		return highlighted_cell;
     }
 	
+	public void Save()
+	{
+		byte[] save_data = voxel_grid.Serialize();
+		FileAccess file = Godot.FileAccess.Open("res://save.dat", FileAccess.ModeFlags.Write);
+		file.StoreBuffer(save_data);
+		file.Close();
+	}
+
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (@event is InputEventMouseButton)
@@ -102,6 +110,7 @@ public partial class VoxelEditController : Node3D
 					case Key.A: current_cell_type.orientation = (byte)((current_cell_type.orientation + 1) % 4); break;
 					case Key.X: erase_mode = !erase_mode; break;
 					case Key.H: ui_controller.Visible = !ui_controller.Visible; outline_object.Visible = ui_controller.Visible; break;
+					case Key.S: Save(); break;
                 }
                 current_cell_type = new Voxel(voxel_grid.voxel_types[cell_type_index], current_cell_type.orientation);
                 ui_controller.UpdateUI(cell_type_index, erase_mode, current_cell_type.orientation);
