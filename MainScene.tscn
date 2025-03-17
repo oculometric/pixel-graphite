@@ -170,6 +170,7 @@ environment = SubResource("Environment_8xkvn")
 
 [node name="BuildingDemo" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.46527, 4, -0.924759)
+visible = false
 material_override = ExtResource("11_yvb8b")
 mesh = ExtResource("11_p5x2j")
 

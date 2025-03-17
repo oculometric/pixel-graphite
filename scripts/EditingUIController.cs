@@ -33,7 +33,6 @@ public partial class EditingUIController : Control
 		style_box.BorderWidthRight = 1;
 		style_box.DrawCenter = false;
 		style_box.BorderColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
-		GD.Print("update ui, erase " + erase_mode);
 		for (int i = 0; i < voxel_type_container.GetChildCount(); i++)
 		{
 			if ((i == 0 && erase_mode) || (i == selected_voxel_type && !erase_mode))

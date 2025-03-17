@@ -66,20 +66,29 @@ void fragment()
 		
 	// TODO: move ambient occlusion into a separate shader? if we can render the same scene twice into different viewports then we can do custom AO in one
 	
-	// TODO: displace edge UV
+	// displace edge UV
+	vec2 edge_displace = vec2(
+		fbm((SCREEN_UV + 0.00f) / 0.01f, 3, 2.0f, 0.5f),
+		fbm((SCREEN_UV + 15.0f) / 0.01f, 3, 2.0f, 0.5f)
+		);
 	// compute edge mask via sharpen filters
-	float edges = edge_mask(SCREEN_UV, 1.0f / VIEWPORT_SIZE, INV_PROJECTION_MATRIX);
+	float edges = edge_mask(SCREEN_UV + (edge_displace * 1.2f / VIEWPORT_SIZE), 1.0f / VIEWPORT_SIZE, INV_PROJECTION_MATRIX);
 	float edged_value = mix(screen_value, screen_value * 0.151f, edges);
 	
-	// TODO: add pixel noise
+	// add pixel noise
+	float noise = round((fbm(SCREEN_UV / 0.0005f, 2, 2.0f, 0.03f) - 0.5f) * 8.0f) / 8.0f;
+	float noised_value = edged_value + (noise * 0.025f);
 	// posterise
-	float posterised_value = round(edged_value * 64.0f) / 64.0f;
-	// TODO: add sketch effect
+	float posterised_value = round(noised_value * 64.0f) / 64.0f;
+	// add sketch effect
+	float sin_a = pow(sin(dot(SCREEN_UV * 20.0f, vec2(0.5f, -0.5f) * vec2(250, -500))), 2.0f);
+	float sin_b = pow(sin(dot(SCREEN_UV * 20.0f, vec2(0.5f, -0.5f) * vec2(250, 450))), 2.0f);
+	float sin_c = (float(sin_a > 0.3f) - 0.5f) + (float(sin_b > 0.3f) - 0.5f);
+	float sketched_value = posterised_value + (clamp(0, 1, sqrt(posterised_value)) * sin_c * 0.091);
 	// TODO: displace
 	
 	// TODO: move downscaling and colouring code into separate shader combining rendered scene and UI
-	vec3 final_colour = mix(linear_to_srgb(low_colour), linear_to_srgb(high_colour), clamp(smoothstep(0.0f, 1.0f, posterised_value), 0.0f, 1.0f));
+	vec3 final_colour = mix(linear_to_srgb(low_colour), linear_to_srgb(high_colour), clamp(smoothstep(0.0f, 1.0f, sketched_value), 0.0f, 1.0f));
 	
 	ALBEDO = vec3(final_colour);
-	ALBEDO = vec3(fbm(vec3(SCREEN_UV, 0) / 0.05f, 2, 2.0f, 0.03f));
 }

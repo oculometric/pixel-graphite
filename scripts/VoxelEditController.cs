@@ -98,8 +98,8 @@ public partial class VoxelEditController : Node3D
 					case Key.Key3: cell_type_index = 3; erase_mode = false; break;
 					case Key.Key4: cell_type_index = 4; erase_mode = false; break;
 					case Key.Key5: cell_type_index = 5; erase_mode = false; break;
-					case Key.A: current_cell_type.orientation = (byte)((current_cell_type.orientation + 3) % 4); break;
-					case Key.D: current_cell_type.orientation = (byte)((current_cell_type.orientation + 1) % 4); break;
+					case Key.D: current_cell_type.orientation = (byte)((current_cell_type.orientation + 3) % 4); break;
+					case Key.A: current_cell_type.orientation = (byte)((current_cell_type.orientation + 1) % 4); break;
 					case Key.X: erase_mode = !erase_mode; break;
                 }
                 current_cell_type = new Voxel(voxel_grid.voxel_types[cell_type_index], current_cell_type.orientation);
