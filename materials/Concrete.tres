@@ -9,6 +9,6 @@ render_priority = 0
 shader = ExtResource("1_s862j")
 shader_parameter/use_triplanar = true
 shader_parameter/triplanar_size = 6.4
-shader_parameter/triplanar_offset = 0.8
+shader_parameter/triplanar_offset = 0.063
 shader_parameter/albedo = ExtResource("1_yxyrm")
 shader_parameter/normal = ExtResource("2_unvix")
