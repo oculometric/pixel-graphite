@@ -93,7 +93,8 @@ sdfgi_energy = 0.5
 
 [node name="MainScene" type="Node3D"]
 
-[node name="Camera" parent="." instance=ExtResource("1_3mqji")]
+[node name="Camera" parent="." node_paths=PackedStringArray("vox_controller") instance=ExtResource("1_3mqji")]
+vox_controller = NodePath("../VoxelEditController")
 
 [node name="VoxelEditController" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid")]
 script = ExtResource("2_x4av3")

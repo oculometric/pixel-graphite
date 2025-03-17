@@ -33,18 +33,18 @@ public partial class VoxelEditController : Node3D
 		outline_object.Mesh = erase_mode ? outline_mesh : current_cell_type.type.geometry;
 		outline_object.RotationDegrees = new Vector3(0, 90.0f * current_cell_type.orientation, 0);
 
-		Vector3I cell = GetHighlightedCell();
+		Vector3I cell = GetHighlightedCell(erase_mode);
         outline_object.GlobalPosition = new Vector3(cell.X, cell.Y, cell.Z) * voxel_grid.voxel_size;
 	}
 
     private void PerformInteraction()
 	{
 		// set that part of the block grid to the assigned block type
-		voxel_grid.SetCellValue(GetHighlightedCell(), erase_mode ? new Voxel(voxel_grid.voxel_types[0], 0) : current_cell_type);
+		voxel_grid.SetCellValue(GetHighlightedCell(erase_mode), erase_mode ? new Voxel(voxel_grid.voxel_types[0], 0) : current_cell_type);
 		voxel_grid.Rebuild();
 	}
 
-	private Vector3I GetHighlightedCell()
+	public Vector3I GetHighlightedCell(bool inside)
 	{
         // raycast to find geometry intersection
         PhysicsRayQueryParameters3D ray_params = new PhysicsRayQueryParameters3D();
@@ -60,7 +60,7 @@ public partial class VoxelEditController : Node3D
             hit_cell = ray_params.From + (ray_direction * t);
         }
         else
-            hit_cell = ((Vector3)result["position"]) + ((Vector3)result["normal"] * voxel_grid.voxel_size * (erase_mode ? -0.5f : 0.5f));
+            hit_cell = ((Vector3)result["position"]) + ((Vector3)result["normal"] * voxel_grid.voxel_size * (inside ? -0.5f : 0.5f));
 
         // calculate highlighted cell in grid
         Vector3I highlighted_cell = (Vector3I)(hit_cell / voxel_grid.voxel_size).Round();

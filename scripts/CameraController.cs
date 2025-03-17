@@ -8,16 +8,28 @@ public partial class CameraController : Node3D
 	[Export] Node3D camera_pitch;
 	[Export] Camera3D camera;
 
+	[Export] VoxelEditController vox_controller;
+
 	[Export] float max_pan_velocity = 16.0f;
 
 	Vector2 pan_velocity = Vector2.Zero;
 	Vector2 mouse_delta = Vector2.Zero;
+	Vector3 lerp_target = Vector3.Zero;
 
 	public override void _PhysicsProcess(double delta)
 	{
-		ProcessCameraInput((float)delta);
-
 		GetWindow().Title = "pixel graphite (" + Engine.GetFramesPerSecond().ToString("000.0") + " fps)";
+
+		ProcessCameraInput((float)delta);
+		Vector3 towards_target = lerp_target - GlobalPosition;
+		if (towards_target.LengthSquared() < 0.001f)
+		{
+			GlobalPosition = lerp_target;
+			return;
+		}
+		float length = towards_target.Length();
+		Vector3 direction = towards_target.Normalized();
+		GlobalPosition = GlobalPosition + (direction * Mathf.Clamp(((10.0f * Mathf.Log(length + 1.0f)) + 0.1f) * (float)delta * 1.0f, 0.0f, length));
 	}
 
 	private void ProcessCameraInput(float delta)
@@ -34,10 +46,6 @@ public partial class CameraController : Node3D
 		mouse_delta = Vector2.Zero;
 	}
 
-	public override void _Ready()
-	{
-	}
-
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (@event is InputEventMouseMotion)
@@ -46,6 +54,17 @@ public partial class CameraController : Node3D
 
 			if (Input.IsMouseButtonPressed(MouseButton.Left))
 				mouse_delta += motion.Relative * -0.0016f;
+		}
+		if (@event is InputEventMouseButton)
+		{
+			InputEventMouseButton button = @event as InputEventMouseButton;
+			if (button.IsPressed() && button.ButtonIndex == MouseButton.Right)
+			{
+				Vector3I cell = vox_controller.GetHighlightedCell(true);
+				GlobalPosition = camera_pitch.GlobalPosition;
+				camera_pitch.GlobalPosition = GlobalPosition;
+				lerp_target = new Vector3(cell.X, cell.Y, cell.Z) * vox_controller.voxel_grid.voxel_size;
+			}
 		}
 	}
 }
