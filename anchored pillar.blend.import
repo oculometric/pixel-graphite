@@ -33,6 +33,20 @@ animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
+"materials": {
+"Concrete": {
+"use_external/enabled": true,
+"use_external/path": "uid://bbujphjvx5nh"
+},
+"Mapped Concrete": {
+"use_external/enabled": true,
+"use_external/path": "uid://bbujphjvx5nh"
+},
+"Sand": {
+"use_external/enabled": true,
+"use_external/path": "uid://batdsgo0fie3g"
+}
+},
 "meshes": {
 "Walkway_Cube_013": {
 "generate/lightmap_uv": 0,
@@ -40,7 +54,15 @@ _subresources={
 "generate/shadow_meshes": 0,
 "lods/normal_merge_angle": 60.0,
 "save_to_file/enabled": true,
-"save_to_file/path": "res://meshes/building_demo.res"
+"save_to_file/path": "uid://b1y77sbgpk1f5"
+},
+"Walkway_Plane_004": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"save_to_file/enabled": true,
+"save_to_file/path": "res://meshes/sand_demo.res"
 }
 },
 "nodes": {

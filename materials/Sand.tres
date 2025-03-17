@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://batdsgo0fie3g"]
+
+[ext_resource type="Shader" uid="uid://c53f2762hjch5" path="res://materials/SimpleLit.gdshader" id="1_v54ri"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_v54ri")
+shader_parameter/use_triplanar = false
+shader_parameter/triplanar_size = 1.0
+shader_parameter/triplanar_offset = 0.0
