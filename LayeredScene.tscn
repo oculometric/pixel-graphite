@@ -1,0 +1,63 @@
+[gd_scene load_steps=6 format=3 uid="uid://i1fk5a026gc"]
+
+[ext_resource type="Script" uid="uid://dolmre20q0lk8" path="res://scripts/UpdateUIRender.cs" id="1_0d3v3"]
+[ext_resource type="PackedScene" uid="uid://btcypf82vp58i" path="res://MainScene.tscn" id="1_cfnn4"]
+[ext_resource type="Shader" uid="uid://52yfamflet0j" path="res://materials/UIPostProcess.gdshader" id="1_yl516"]
+[ext_resource type="PackedScene" uid="uid://bw5buyyqs4iuj" path="res://EditingUI.tscn" id="4_b0fql"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_b0fql"]
+shader = ExtResource("1_yl516")
+shader_parameter/pixel_scale = 1.0
+
+[node name="LayeredScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GameViewportContainer" type="SubViewportContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="GameViewport" type="SubViewport" parent="GameViewportContainer"]
+own_world_3d = true
+handle_input_locally = false
+size = Vector2i(1024, 1024)
+render_target_update_mode = 4
+
+[node name="CanvasLayer" type="CanvasLayer" parent="GameViewportContainer/GameViewport"]
+layer = 2
+follow_viewport_enabled = true
+
+[node name="UIOverlay" type="ColorRect" parent="GameViewportContainer/GameViewport/CanvasLayer" node_paths=PackedStringArray("hud_viewport")]
+material = SubResource("ShaderMaterial_b0fql")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_0d3v3")
+hud_viewport = NodePath("../../../../UIViewport")
+
+[node name="MainScene" parent="GameViewportContainer/GameViewport" instance=ExtResource("1_cfnn4")]
+
+[node name="VoxelEditController" parent="GameViewportContainer/GameViewport/MainScene" index="1" node_paths=PackedStringArray("ui_controller")]
+ui_controller = NodePath("../../../../UIViewport/EditingUI")
+
+[node name="UIViewport" type="SubViewport" parent="."]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 4
+
+[node name="EditingUI" parent="UIViewport" instance=ExtResource("4_b0fql")]
+
+[editable path="GameViewportContainer/GameViewport/MainScene"]

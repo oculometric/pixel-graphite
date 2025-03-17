@@ -1,7 +1,8 @@
-[gd_scene load_steps=25 format=4 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=29 format=4 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="1_3mqji"]
 [ext_resource type="Script" uid="uid://c4gsrcqvnkxot" path="res://scripts/VoxelEditController.cs" id="2_x4av3"]
+[ext_resource type="Shader" uid="uid://bqr45337p5krw" path="res://materials/Wireframe.gdshader" id="3_3hf6u"]
 [ext_resource type="Script" uid="uid://bq5xvx6j8hb3h" path="res://scripts/VoxelGrid.cs" id="3_rpqi1"]
 [ext_resource type="Script" uid="uid://c53hk58dbog3k" path="res://scripts/VoxelType.cs" id="4_uxrcv"]
 [ext_resource type="ArrayMesh" uid="uid://c1nmghua3b2pi" path="res://meshes/voxels_Solid.res" id="5_rf2cd"]
@@ -12,6 +13,17 @@
 [ext_resource type="Shader" uid="uid://d3jpc35xkq8br" path="res://materials/PostProcess.gdshader" id="10_8xkvn"]
 [ext_resource type="ArrayMesh" uid="uid://b1y77sbgpk1f5" path="res://meshes/building_demo.res" id="11_p5x2j"]
 [ext_resource type="Material" uid="uid://bbujphjvx5nh" path="res://materials/Solid.tres" id="11_yvb8b"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4mcbk"]
+render_priority = 0
+shader = ExtResource("3_3hf6u")
+
+[sub_resource type="BoxMesh" id="BoxMesh_mctxq"]
+material = SubResource("ShaderMaterial_4mcbk")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3hf6u"]
+render_priority = 0
+shader = ExtResource("3_3hf6u")
 
 [sub_resource type="Resource" id="Resource_rf2cd"]
 script = ExtResource("4_uxrcv")
@@ -130,6 +142,8 @@ shadow_mesh = SubResource("ArrayMesh_eqe7j")
 [node name="VoxelEditController" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid")]
 script = ExtResource("2_x4av3")
 voxel_grid = NodePath("../VoxelGrid")
+outline_mesh = SubResource("BoxMesh_mctxq")
+outline_material = SubResource("ShaderMaterial_3hf6u")
 
 [node name="VoxelGrid" type="MeshInstance3D" parent="." node_paths=PackedStringArray("collider")]
 material_override = ExtResource("11_yvb8b")
