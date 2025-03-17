@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=4 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=28 format=4 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="1_3mqji"]
 [ext_resource type="Script" uid="uid://c4gsrcqvnkxot" path="res://scripts/VoxelEditController.cs" id="2_x4av3"]
@@ -20,10 +20,6 @@ shader = ExtResource("3_3hf6u")
 
 [sub_resource type="BoxMesh" id="BoxMesh_mctxq"]
 material = SubResource("ShaderMaterial_4mcbk")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_3hf6u"]
-render_priority = 0
-shader = ExtResource("3_3hf6u")
 
 [sub_resource type="Resource" id="Resource_rf2cd"]
 script = ExtResource("4_uxrcv")
@@ -143,7 +139,6 @@ shadow_mesh = SubResource("ArrayMesh_eqe7j")
 script = ExtResource("2_x4av3")
 voxel_grid = NodePath("../VoxelGrid")
 outline_mesh = SubResource("BoxMesh_mctxq")
-outline_material = SubResource("ShaderMaterial_3hf6u")
 
 [node name="VoxelGrid" type="MeshInstance3D" parent="." node_paths=PackedStringArray("collider")]
 material_override = ExtResource("11_yvb8b")
@@ -175,7 +170,6 @@ environment = SubResource("Environment_8xkvn")
 
 [node name="BuildingDemo" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.46527, 4, -0.924759)
-visible = false
 material_override = ExtResource("11_yvb8b")
 mesh = ExtResource("11_p5x2j")
 
