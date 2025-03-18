@@ -1,8 +1,22 @@
 shader_type canvas_item;
 
+uniform sampler2D game_texture : source_color, hint_default_white, repeat_disable, filter_nearest;
 uniform sampler2D ui_texture : source_color, hint_default_transparent, repeat_disable, filter_nearest;
 
+uniform vec3 low_colour : source_color = vec3(0.023f, 0.021f, 0.060f);
+uniform vec3 high_colour : source_color = vec3(2.400f, 1.831f, 1.728f);
+
 uniform float pixel_scale = 1.0f;
+
+vec3 srgb_to_linear(vec3 v)
+{
+	return mix(v / 12.92, pow((v + 0.055f) / 1.055f, vec3(2.4f)), vec3(greaterThan(v, vec3(0.04045f))));
+}
+
+vec3 linear_to_srgb(vec3 v)
+{
+	return mix(v * 12.92, (pow(v, vec3(1.0f / 2.4f)) * 1.055f) - 0.055f, vec3(greaterThan(v, vec3(0.0031308f))));
+}
 
 void vertex()
 {
@@ -14,32 +28,16 @@ float sample_overlay(vec2 uv)
 	return float(length(sample.rgb) > 0.01f && sample.a > 0.25f);
 }
 
-float bloom(vec2 center, vec2 pixel_size, int steps, float weight)
-{
-	float center_sample = sample_overlay(center);
-	float sum = center_sample * weight;
-	vec2 uv = center - (pixel_size * float(steps));
-	float uv_y_start = uv.y;
-	for (int i = -steps; i <= steps; i++)
-	{
-		for (int j = -steps; j <= steps; j++)
-		{
-			float dist = 1.0f / ((1.0f * sqrt(float((i * i) + (j * j)))) + 1.0f);
-			sum += sample_overlay(uv) * dist;
-			uv.y += pixel_size.y;
-		}
-		uv.y = uv_y_start;
-		uv.x += pixel_size.x;
-	}
-	return (sum / ((weight + 1.0f) * float(steps))) + center_sample;
-}
-
 void fragment() {
 	vec2 downscaled_size = (1.0f / SCREEN_PIXEL_SIZE) / pixel_scale;
 	vec2 rounded_uv = (floor(SCREEN_UV * downscaled_size) + 0.5f) / downscaled_size;
 
-	//float original_pixel = pow(bloom(rounded_uv, 1.0f / downscaled_size, 8, 2.5f), 1.9f);
+	// TODO: displace
+	float game_value = (vec3(texture(game_texture, rounded_uv).r)).r;
 	float original_pixel = sample_overlay(rounded_uv);
-	COLOR.rgb = vec3(0.0f);
-	COLOR.a = float(original_pixel > 0.5f);
+	float final_value = mix(game_value, game_value < 0.5f ? 1.0f : 0.0f, original_pixel);
+
+	vec3 final_colour = mix(low_colour, high_colour, clamp(smoothstep(0.0f, 1.0f, final_value), 0.0f, 1.0f));
+
+	COLOR.rgb = linear_to_srgb(final_colour);
 }

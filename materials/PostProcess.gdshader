@@ -7,22 +7,10 @@ render_mode unshaded, cull_back, fog_disabled;
 uniform sampler2D screen_tex : source_color, filter_nearest, hint_screen_texture;
 uniform sampler2D normal_tex : filter_nearest, hint_normal_roughness_texture;
 uniform sampler2D depth_tex : filter_nearest, hint_depth_texture;
-uniform vec3 low_colour : source_color = vec3(0.023f, 0.021f, 0.060f);
-uniform vec3 high_colour : source_color = vec3(2.400f, 1.831f, 1.728f);
 
 void vertex()
 {
 	POSITION = vec4(VERTEX.xy, 1, 1);
-}
-
-vec3 srgb_to_linear(vec3 v)
-{
-	return mix(v / 12.92, pow((v + 0.055f) / 1.055f, vec3(2.4f)), vec3(greaterThan(v, vec3(0.04045f))));
-}
-
-vec3 linear_to_srgb(vec3 v)
-{
-	return mix(v * 12.92, (pow(v, vec3(1.0f / 2.4f)) * 1.055f) - 0.055f, vec3(greaterThan(v, vec3(0.0031308f))));
 }
 
 float linear_depth(vec2 uv, mat4 inv_proj)
@@ -77,18 +65,14 @@ void fragment()
 
 	// add pixel noise
 	float noise = round((fbm(SCREEN_UV / 0.0005f, 2, 2.0f, 0.03f) - 0.5f) * 8.0f) / 8.0f;
-	float noised_value = edged_value + (noise * 0.025f);
+	float noised_value = edged_value + (noise * 0.018f);
 	// posterise
 	float posterised_value = round(noised_value * 64.0f) / 64.0f;
 	// add sketch effect
 	float sin_a = pow(sin(dot(SCREEN_UV * 20.0f, vec2(0.5f, -0.5f) * vec2(250, -500))), 2.0f);
 	float sin_b = pow(sin(dot(SCREEN_UV * 20.0f, vec2(0.5f, -0.5f) * vec2(250, 450))), 2.0f);
 	float sin_c = (float(sin_a > 0.3f) - 0.5f) + (float(sin_b > 0.3f) - 0.5f);
-	float sketched_value = posterised_value + (clamp(0, 1, sqrt(posterised_value)) * sin_c * 0.091);
-	// TODO: displace
+	float sketched_value = posterised_value + (clamp(0, 1, sqrt(posterised_value)) * sin_c * 0.061);
 
-	// TODO: move downscaling and colouring code into separate shader combining rendered scene and UI
-	vec3 final_colour = mix(linear_to_srgb(low_colour), linear_to_srgb(high_colour), clamp(smoothstep(0.0f, 1.0f, sketched_value), 0.0f, 1.0f));
-
-	ALBEDO = vec3(final_colour);
+	ALBEDO = vec3(sketched_value);
 }

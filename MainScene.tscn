@@ -60,8 +60,6 @@ metadata/_custom_type_script = "uid://c53hk58dbog3k"
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_p5x2j"]
 render_priority = -128
 shader = ExtResource("10_8xkvn")
-shader_parameter/low_colour = Color(0.023, 0.021, 0.06, 1)
-shader_parameter/high_colour = Color(2.4, 1.831, 1.728, 1)
 
 [sub_resource type="QuadMesh" id="QuadMesh_torvr"]
 material = SubResource("ShaderMaterial_p5x2j")
@@ -70,15 +68,13 @@ size = Vector2(2, 2)
 
 [sub_resource type="Environment" id="Environment_8xkvn"]
 background_mode = 1
-background_color = Color(0.204, 0.204, 0.204, 1)
+background_color = Color(0.28, 0.28, 0.28, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.204, 0.204, 0.204, 1)
-tonemap_mode = 2
-tonemap_exposure = 0.95
+ambient_light_color = Color(0.28, 0.28, 0.28, 1)
 tonemap_white = 1.1
 ssao_enabled = true
 ssao_radius = 3.0
-ssao_intensity = 5.12
+ssao_intensity = 8.6
 ssao_power = 1.30583
 ssao_detail = 0.89
 ssao_horizon = 0.0

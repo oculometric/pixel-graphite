@@ -24,16 +24,16 @@ public partial class EditingUIController : Control
 			i++;
 		}
 
-        file_dialog.FileSelected += (string path) =>
+		file_dialog.FileSelected += (string path) =>
 		{
 			if (file_dialog.FileMode == FileDialog.FileModeEnum.SaveFile)
 				vec.Save(path);
 			else if (file_dialog.FileMode == FileDialog.FileModeEnum.OpenFile)
 				vec.Load(path);
 		};
-    }
+	}
 
-    public void UpdateUI(int selected_voxel_type, bool erase_mode, byte orientation)
+	public void UpdateUI(int selected_voxel_type, bool erase_mode, byte orientation)
 	{
 		StyleBoxFlat style_box = new StyleBoxFlat();
 		style_box.AntiAliasing = false;
@@ -65,6 +65,6 @@ public partial class EditingUIController : Control
 	public void ShowLoadDialog()
 	{
 		file_dialog.FileMode = FileDialog.FileModeEnum.OpenFile;
-        file_dialog.Show();
-    }
+		file_dialog.Show();
+	}
 }
