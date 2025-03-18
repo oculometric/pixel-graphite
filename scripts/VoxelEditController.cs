@@ -27,6 +27,7 @@ public partial class VoxelEditController : Node3D
 		{
             outline_object = new MeshInstance3D();
 			outline_object.MaterialOverride = outline_mesh.SurfaceGetMaterial(0);
+			outline_object.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
             GetParent().AddChild(outline_object);
         }
 
@@ -68,15 +69,26 @@ public partial class VoxelEditController : Node3D
 		return highlighted_cell;
     }
 	
-	public void Save()
+	public void Save(string path)
 	{
-		byte[] save_data = voxel_grid.Serialize();
-		FileAccess file = Godot.FileAccess.Open("res://save.dat", FileAccess.ModeFlags.Write);
+		byte[] save_data = voxel_grid.Serialise();
+		FileAccess file = Godot.FileAccess.Open(path, FileAccess.ModeFlags.Write);
 		file.StoreBuffer(save_data);
 		file.Close();
-	}
+        GD.Print("successfully saved voxel data");
+    }
 
-	public override void _UnhandledInput(InputEvent @event)
+    public void Load(string path)
+	{
+        FileAccess file = Godot.FileAccess.Open(path, FileAccess.ModeFlags.Read);
+		if (file == null)
+			return;
+		byte[] save_data = file.GetBuffer((long)file.GetLength());
+		voxel_grid.Deserialise(save_data);
+		file.Close();
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
 	{
 		if (@event is InputEventMouseButton)
 		{
@@ -110,7 +122,8 @@ public partial class VoxelEditController : Node3D
 					case Key.A: current_cell_type.orientation = (byte)((current_cell_type.orientation + 1) % 4); break;
 					case Key.X: erase_mode = !erase_mode; break;
 					case Key.H: ui_controller.Visible = !ui_controller.Visible; outline_object.Visible = ui_controller.Visible; break;
-					case Key.S: Save(); break;
+					case Key.O: ui_controller.ShowSaveDialog(); break;
+					case Key.I: ui_controller.ShowLoadDialog(); break;
                 }
                 current_cell_type = new Voxel(voxel_grid.voxel_types[cell_type_index], current_cell_type.orientation);
                 ui_controller.UpdateUI(cell_type_index, erase_mode, current_cell_type.orientation);

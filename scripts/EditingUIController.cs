@@ -1,9 +1,11 @@
 using Godot;
 using System;
+using System.Threading.Tasks;
 
 public partial class EditingUIController : Control
 {
 	[Export] private VBoxContainer voxel_type_container;
+	[Export] private FileDialog file_dialog;
 
 	public void ConfigureUI(VoxelEditController vec)
 	{
@@ -21,9 +23,17 @@ public partial class EditingUIController : Control
 			template.GetParent().AddChild(copy);
 			i++;
 		}
-	}
 
-	public void UpdateUI(int selected_voxel_type, bool erase_mode, byte orientation)
+        file_dialog.FileSelected += (string path) =>
+		{
+			if (file_dialog.FileMode == FileDialog.FileModeEnum.SaveFile)
+				vec.Save(path);
+			else if (file_dialog.FileMode == FileDialog.FileModeEnum.OpenFile)
+				vec.Load(path);
+		};
+    }
+
+    public void UpdateUI(int selected_voxel_type, bool erase_mode, byte orientation)
 	{
 		StyleBoxFlat style_box = new StyleBoxFlat();
 		style_box.AntiAliasing = false;
@@ -46,4 +56,15 @@ public partial class EditingUIController : Control
 		}
 	}
 
+	public void ShowSaveDialog()
+	{
+		file_dialog.FileMode = FileDialog.FileModeEnum.SaveFile;
+		file_dialog.Show();
+	}
+
+	public void ShowLoadDialog()
+	{
+		file_dialog.FileMode = FileDialog.FileModeEnum.OpenFile;
+        file_dialog.Show();
+    }
 }

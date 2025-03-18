@@ -48,6 +48,9 @@ public partial class VoxelGrid : MeshInstance3D
 				GD.Print("voxel name: " + voxel_types[i].name + " geometry size: " + voxel_types[i].geometry.SurfaceGetArrays(0)[0].AsVector3Array().Length);
 		}
 
+		if (voxel_map != null)
+			return;
+
         // init voxel map
         voxel_map = new List<List<List<Voxel>>>();
 		for (int i = 0; i < initial_size; i++)
@@ -79,7 +82,7 @@ public partial class VoxelGrid : MeshInstance3D
         arr[offset + 3] = (byte)((i >> 24) & 0xFF);
     }
 
-	public byte[] Serialize()
+	public byte[] Serialise()
 	{
 		// header consists of:
 		// 4 byte x size
@@ -131,8 +134,7 @@ public partial class VoxelGrid : MeshInstance3D
 			{
 				for (int k = 0; k < voxel_map[0][0].Count; k++)
 				{
-					Int32 data_element = voxel_map[i][j][k].orientation << 24;
-					data_element |= voxel_names.FindIndex(a => a == voxel_map[i][j][k].type.name) & 0x00FFFFFF;
+					Int32 data_element = (voxel_map[i][j][k].orientation << 24) | (voxel_names.FindIndex(a => a == voxel_map[i][j][k].type.name) & 0x00FFFFFF);
 					WriteInt32(data_element, ref data, offset);
                     offset += 4;
 				}
@@ -165,7 +167,89 @@ public partial class VoxelGrid : MeshInstance3D
 		return final_array;
     }
 
-	public void SetCellValue(Vector3I position, Voxel type)
+    private Int32 ReadInt32(ref byte[] arr, uint offset)
+    {
+        return (arr[offset + 3] << 24) | (arr[offset + 2] << 16) | (arr[offset + 1] << 8) | arr[offset];
+    }
+
+    public void Deserialise(byte[] bytes)
+	{
+		voxel_map = new List<List<List<Voxel>>>();
+
+		Int32 header_size = 4 * 10;
+		if (bytes.Length < header_size)
+			throw new Exception("invalid data length");
+		Int32 size_x = ReadInt32(ref bytes, 0);
+		Int32 size_y = ReadInt32(ref bytes, 4);
+		Int32 size_z = ReadInt32(ref bytes, 8);
+		Int32 origin_x = ReadInt32(ref bytes, 12);
+		Int32 origin_y = ReadInt32(ref bytes, 16);
+		Int32 origin_z = ReadInt32(ref bytes, 20);
+		Int32 index_offset = ReadInt32(ref bytes, 24);
+		Int32 index_size = ReadInt32(ref bytes, 28);
+		Int32 data_offset = ReadInt32(ref bytes, 32);
+		Int32 data_size = ReadInt32(ref bytes, 36);
+
+		if (index_offset + index_size > bytes.Length)
+			throw new Exception("invalid data length");
+		if (data_offset + data_size > bytes.Length)
+			throw new Exception("invalid data length");
+
+		voxel_origin = new Vector3I(origin_x, origin_y, origin_z);
+
+		List<string> type_names = new List<string>();
+		List<VoxelType> types = new List<VoxelType>();
+		for (uint b = (uint)index_offset; b < index_offset + index_size; b++)
+		{
+			Int32 entry_length = ReadInt32(ref bytes, b);
+			string s = "";
+			b += 4;
+			for (int i = 0; i < entry_length; i++)
+			{
+				s += (char)bytes[b];
+				b++;
+			}
+			type_names.Add(s);
+			b--;
+			VoxelType v = null;
+			foreach (VoxelType vt in voxel_types)
+			{
+				if (vt.name == s)
+				{
+					v = vt;
+					break;
+				}
+			}
+			types.Add(v);
+		}
+
+        Int32 d_size = 4 * size_x * size_y * size_z;
+		if (d_size != data_size)
+			throw new Exception("data size does not match");
+
+        uint offset = (uint)data_offset;
+		for (int i = 0; i < size_z; i++)
+		{
+			voxel_map.Add(new List<List<Voxel>>());
+			for (int j = 0; j < size_y; j++)
+			{
+				voxel_map[i].Add(new List<Voxel>());
+				for (int k = 0; k < size_x; k++)
+				{
+					byte orientation = bytes[offset + 3];
+					Int32 index = ReadInt32(ref bytes, offset) & 0x00FFFFFF;
+					Voxel v = new Voxel(types[index], orientation);
+					voxel_map[i][j].Add(v);
+					offset += 4;
+				}
+			}
+		}
+
+		GD.Print("successfully loaded mesh");
+		Rebuild();
+    }
+
+    public void SetCellValue(Vector3I position, Voxel type)
 	{
 		// calculate position in the array based on position and voxel_origin
 		int array_x_pos = position.X + voxel_origin.X;
