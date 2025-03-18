@@ -16,11 +16,38 @@ public partial class CameraController : Node3D
 	Vector2 mouse_delta = Vector2.Zero;
 	Vector3 lerp_target = Vector3.Zero;
 
-	public override void _PhysicsProcess(double delta)
+	float angle_target;
+
+    public override void _Ready()
+    {
+		angle_target = camera_pitch.Rotation.X;
+    }
+
+    public override void _PhysicsProcess(double delta)
 	{
 		GetWindow().Title = "pixel graphite (" + Engine.GetFramesPerSecond().ToString("000.0") + " fps)";
 
 		ProcessCameraInput((float)delta);
+		LerpCameraPosition((float)delta);
+		LerpCameraAngle((float)delta);
+		
+	}
+
+	private void LerpCameraAngle(float delta)
+	{
+		float towards_target = angle_target - camera_pitch.Rotation.X;
+		if (Mathf.Abs(towards_target) < 0.001f)
+		{
+			camera_pitch.Rotation = new Vector3(angle_target, 0, 0);
+			return;
+		}
+		float length = Mathf.Abs(towards_target);
+		float direction = Mathf.Sign(towards_target);
+		camera_pitch.RotateX(direction * Mathf.Clamp(((10.0f * Mathf.Log(length + 1.0f)) + 0.1f) * delta * 1.0f, 0.0f, length));
+	}
+
+	private void LerpCameraPosition(float delta)
+	{
 		Vector3 towards_target = lerp_target - GlobalPosition;
 		if (towards_target.LengthSquared() < 0.001f)
 		{
@@ -29,7 +56,7 @@ public partial class CameraController : Node3D
 		}
 		float length = towards_target.Length();
 		Vector3 direction = towards_target.Normalized();
-		GlobalPosition = GlobalPosition + (direction * Mathf.Clamp(((10.0f * Mathf.Log(length + 1.0f)) + 0.1f) * (float)delta * 1.0f, 0.0f, length));
+		GlobalPosition = GlobalPosition + (direction * Mathf.Clamp(((10.0f * Mathf.Log(length + 1.0f)) + 0.1f) * delta * 1.0f, 0.0f, length));
 	}
 
 	private void ProcessCameraInput(float delta)
@@ -55,7 +82,7 @@ public partial class CameraController : Node3D
 			if (Input.IsMouseButtonPressed(MouseButton.Left))
 				mouse_delta += motion.Relative * -0.0016f;
 		}
-		if (@event is InputEventMouseButton)
+		else if (@event is InputEventMouseButton)
 		{
 			InputEventMouseButton button = @event as InputEventMouseButton;
 			if (button.IsPressed() && button.ButtonIndex == MouseButton.Right)
@@ -64,6 +91,14 @@ public partial class CameraController : Node3D
 				GlobalPosition = camera_pitch.GlobalPosition;
 				camera_pitch.GlobalPosition = GlobalPosition;
 				lerp_target = new Vector3(cell.X, cell.Y, cell.Z) * vox_controller.voxel_grid.voxel_size;
+			}
+		}
+		else if (@event is InputEventKey)
+		{
+			InputEventKey key = @event as InputEventKey;
+			if (key.IsPressed() && key.Keycode == Key.Z)
+			{
+				angle_target = -angle_target;
 			}
 		}
 	}

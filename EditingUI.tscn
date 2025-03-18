@@ -84,7 +84,7 @@ offset_right = 4.0
 offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 0
-text = "(H) toggle ui    (F) screenshot"
+text = "(H) toggle ui    (F) screenshot    (Z) toggle viewpoint"
 label_settings = SubResource("LabelSettings_1xopk")
 vertical_alignment = 2
 
