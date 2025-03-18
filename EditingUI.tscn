@@ -107,4 +107,5 @@ vertical_alignment = 2
 
 [node name="FileDialog" type="FileDialog" parent="."]
 initial_position = 2
+access = 2
 filters = PackedStringArray("*.dat")
