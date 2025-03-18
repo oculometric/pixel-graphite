@@ -1,8 +1,8 @@
 [gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://bbujphjvx5nh"]
 
 [ext_resource type="Shader" uid="uid://c53f2762hjch5" path="res://materials/SimpleLit.gdshader" id="1_s862j"]
-[ext_resource type="Texture2D" uid="uid://cb5ysvhgx605x" path="res://Concrete_t.png" id="1_yxyrm"]
-[ext_resource type="Texture2D" uid="uid://74egtt68xkrw" path="res://Concrete_n.png" id="2_unvix"]
+[ext_resource type="Texture2D" uid="uid://cb5ysvhgx605x" path="res://textures/Concrete_t.png" id="1_yxyrm"]
+[ext_resource type="Texture2D" uid="uid://74egtt68xkrw" path="res://textures/Concrete_n.png" id="2_unvix"]
 
 [resource]
 render_priority = 0

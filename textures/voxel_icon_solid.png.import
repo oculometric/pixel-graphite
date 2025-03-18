@@ -2,20 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cb5ysvhgx605x"
-path="res://.godot/imported/Concrete_t.png-04fae8c5563b476930610363360a3700.ctex"
+uid="uid://d3qc4eqgt35cs"
+path="res://.godot/imported/voxel_icon_solid.png-56ed1bbe7338042cc62d84b5de710406.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Concrete_t.png"
-dest_files=["res://.godot/imported/Concrete_t.png-04fae8c5563b476930610363360a3700.ctex"]
+source_file="res://textures/voxel_icon_solid.png"
+dest_files=["res://.godot/imported/voxel_icon_solid.png-56ed1bbe7338042cc62d84b5de710406.ctex"]
 
 [params]
 
-compress/mode=3
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
@@ -30,5 +30,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=512
-detect_3d/compress_to=0
+process/size_limit=0
+detect_3d/compress_to=1

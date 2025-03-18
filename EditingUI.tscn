@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://bw5buyyqs4iuj"]
 
-[ext_resource type="Texture2D" uid="uid://d3qc4eqgt35cs" path="res://voxel_icon_solid.png" id="1_1xopk"]
+[ext_resource type="Texture2D" uid="uid://d3qc4eqgt35cs" path="res://textures/voxel_icon_solid.png" id="1_1xopk"]
 [ext_resource type="Script" uid="uid://1pkd87ctx612" path="res://scripts/EditingUIController.cs" id="1_5ympb"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ympb"]
