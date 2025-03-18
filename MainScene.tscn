@@ -16,7 +16,7 @@
 [ext_resource type="ArrayMesh" uid="uid://ckkm2enqeh8nb" path="res://meshes/sand_demo.res" id="14_4mcbk"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4mcbk"]
-render_priority = 0
+render_priority = -48
 shader = ExtResource("3_3hf6u")
 
 [sub_resource type="BoxMesh" id="BoxMesh_mctxq"]
@@ -74,13 +74,13 @@ ambient_light_color = Color(0.28, 0.28, 0.28, 1)
 tonemap_white = 1.1
 ssao_enabled = true
 ssao_radius = 3.0
-ssao_intensity = 8.6
+ssao_intensity = 7.5
 ssao_power = 1.30583
-ssao_detail = 0.89
+ssao_detail = 0.44
 ssao_horizon = 0.0
 ssao_sharpness = 1.0
 ssao_light_affect = 1.0
-ssao_ao_channel_affect = 1.0
+ssao_ao_channel_affect = 0.45
 sdfgi_min_cell_size = 0.292969
 sdfgi_cascade0_distance = 18.75
 sdfgi_max_distance = 300.0
