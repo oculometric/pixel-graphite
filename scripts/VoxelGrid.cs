@@ -472,7 +472,18 @@ public partial class VoxelGrid : MeshInstance3D
 						n_arr[t] = Swizzle(n_arr[t], v.orientation);
 						v_arr[t] += new Vector3(k - voxel_origin.X, j - voxel_origin.Y, i - voxel_origin.Z) * voxel_size;
 					}
-					arrays[(int)(ArrayMesh.ArrayType.Vertex)] = v_arr;
+					if ((v.orientation & 0b100) > 0)
+					{
+						int[] i_arr = arrays[(int)(ArrayMesh.ArrayType.Index)].AsInt32Array();
+						for (int t = 0; t < i_arr.Length - 2; t += 3)
+						{
+							int tmp = i_arr[t];
+							i_arr[t] = i_arr[t + 2];
+							i_arr[t + 2] = tmp;
+						}
+						arrays[(int)(ArrayMesh.ArrayType.Index)] = i_arr;
+                    }
+                    arrays[(int)(ArrayMesh.ArrayType.Vertex)] = v_arr;
 					arrays[(int)(ArrayMesh.ArrayType.Normal)] = n_arr;
 
 					Vector3[] coll_arr = new Vector3[box_collider.Length];

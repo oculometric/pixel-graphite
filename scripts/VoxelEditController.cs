@@ -33,6 +33,7 @@ public partial class VoxelEditController : Node3D
 
 		outline_object.Mesh = erase_mode ? outline_mesh : current_cell_type.type.geometry;
 		outline_object.RotationDegrees = new Vector3(0, 90.0f * current_cell_type.orientation, 0);
+		outline_object.Scale = new Vector3(1, (current_cell_type.orientation & 0b100) > 0 ? -1 : 1, 1);
 
 		Vector3I cell = GetHighlightedCell(erase_mode);
         outline_object.GlobalPosition = new Vector3(cell.X, cell.Y, cell.Z) * voxel_grid.voxel_size;
@@ -118,8 +119,9 @@ public partial class VoxelEditController : Node3D
 					case Key.Key3: cell_type_index = 3; erase_mode = false; break;
 					case Key.Key4: cell_type_index = 4; erase_mode = false; break;
 					case Key.Key5: cell_type_index = 5; erase_mode = false; break;
-					case Key.D: current_cell_type.orientation = (byte)((current_cell_type.orientation + 3) % 4); break;
-					case Key.A: current_cell_type.orientation = (byte)((current_cell_type.orientation + 1) % 4); break;
+					case Key.D: current_cell_type.orientation = (byte)((((current_cell_type.orientation & 0b11) + 3) % 4) | (current_cell_type.orientation & 0b100)); break;
+					case Key.A: current_cell_type.orientation = (byte)((((current_cell_type.orientation & 0b11) + 1) % 4) | (current_cell_type.orientation & 0b100)); break;
+					case Key.F: current_cell_type.orientation = (byte)(current_cell_type.orientation ^ 0b100); break;
 					case Key.X: erase_mode = !erase_mode; break;
 					case Key.H: ui_controller.Visible = !ui_controller.Visible; outline_object.Visible = ui_controller.Visible; break;
 					case Key.O: ui_controller.ShowSaveDialog(); break;
