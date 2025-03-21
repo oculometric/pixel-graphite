@@ -11,7 +11,7 @@
 shader = ExtResource("1_yl516")
 shader_parameter/lut = ExtResource("3_qqdg4")
 shader_parameter/low_colour = Color(0.166, 0.158, 0.269, 1)
-shader_parameter/high_colour = Color(1.22, 1.16, 1.1, 1)
+shader_parameter/high_colour = Color(1, 0.97, 0.93, 1)
 shader_parameter/pixel_scale = 2.0
 shader_parameter/e = 2.2
 shader_parameter/exposure = 0.82

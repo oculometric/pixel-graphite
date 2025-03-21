@@ -6,7 +6,7 @@ uniform sampler2D ui_texture : source_color, hint_default_transparent, repeat_di
 uniform sampler2D lut : source_color, hint_default_white, filter_linear;
 
 uniform vec3 low_colour : source_color = vec3(0.166f, 0.158f, 0.269f);
-uniform vec3 high_colour : source_color = vec3(1.22f, 1.16, 1.1f);
+uniform vec3 high_colour : source_color = vec3(1.0f, 0.97f, 0.93f);
 
 uniform float pixel_scale = 1.0f;
 
