@@ -12,6 +12,7 @@ public partial class VoxelEditController : Node3D
 	
 	[Export] public VoxelGrid voxel_grid { get; private set; }
 	[Export] public EditingUIController ui_controller;
+	[Export] public UpdateUIRender render_controller;
 	[Export] private Mesh outline_mesh;
  
     public override void _Ready()

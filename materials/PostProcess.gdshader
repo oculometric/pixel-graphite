@@ -60,7 +60,7 @@ void fragment()
 		fbm((SCREEN_UV + 15.0f) / 0.01f, 3, 2.0f, 0.5f)
 		);
 	// compute edge mask via sharpen filters
-	float edges = edge_mask(SCREEN_UV + (edge_displace * 1.2f / VIEWPORT_SIZE), 1.0f / VIEWPORT_SIZE, INV_PROJECTION_MATRIX);
+	float edges = edge_mask(SCREEN_UV + (edge_displace * 1.1f / VIEWPORT_SIZE), 1.0f / VIEWPORT_SIZE, INV_PROJECTION_MATRIX);
 	float edged_value = mix(screen_value, screen_value * 0.151f, edges);
 
 	// add pixel noise

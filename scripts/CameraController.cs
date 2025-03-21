@@ -18,12 +18,12 @@ public partial class CameraController : Node3D
 
 	float angle_target;
 
-    public override void _Ready()
-    {
+	public override void _Ready()
+	{
 		angle_target = camera_pitch.Rotation.X;
-    }
+	}
 
-    public override void _PhysicsProcess(double delta)
+	public override void _PhysicsProcess(double delta)
 	{
 		GetWindow().Title = "pixel graphite (" + Engine.GetFramesPerSecond().ToString("000.0") + " fps)";
 
@@ -96,9 +96,13 @@ public partial class CameraController : Node3D
 		else if (@event is InputEventKey)
 		{
 			InputEventKey key = @event as InputEventKey;
-			if (key.IsPressed() && key.Keycode == Key.Z)
+			if (key.IsPressed())
 			{
-				angle_target = -angle_target;
+				switch (key.Keycode)
+				{
+					case Key.Z: angle_target = -angle_target; break;
+					case Key.P: vox_controller.render_controller.TakeScreenshot(); break;
+				}
 			}
 		}
 	}

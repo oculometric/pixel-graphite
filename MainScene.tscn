@@ -68,19 +68,17 @@ size = Vector2(2, 2)
 
 [sub_resource type="Environment" id="Environment_8xkvn"]
 background_mode = 1
-background_color = Color(0.28, 0.28, 0.28, 1)
+background_color = Color(0.46, 0.46, 0.46, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.28, 0.28, 0.28, 1)
+ambient_light_color = Color(0.46, 0.46, 0.46, 1)
 tonemap_white = 1.1
 ssao_enabled = true
 ssao_radius = 3.0
-ssao_intensity = 7.5
-ssao_power = 1.30583
-ssao_detail = 0.44
-ssao_horizon = 0.0
+ssao_intensity = 4.0
+ssao_detail = 0.2
 ssao_sharpness = 1.0
 ssao_light_affect = 1.0
-ssao_ao_channel_affect = 0.45
+ssao_ao_channel_affect = 1.0
 sdfgi_min_cell_size = 0.292969
 sdfgi_cascade0_distance = 18.75
 sdfgi_max_distance = 300.0
@@ -110,8 +108,8 @@ collider = NodePath("StaticBody3D/CollisionShape3D")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.857148, 0.420812, 0.297009, -0.47465, 0.421414, 0.772734, 0.200012, -0.803322, 0.560953, 0, 0, 0)
-light_energy = 0.4
-light_angular_distance = 6.0
+light_energy = 0.44
+light_angular_distance = 3.5
 shadow_enabled = true
 directional_shadow_max_distance = 500.0
 sky_mode = 1
