@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bw5buyyqs4iuj"]
+[gd_scene load_steps=7 format=3 uid="uid://bw5buyyqs4iuj"]
 
 [ext_resource type="Texture2D" uid="uid://d3qc4eqgt35cs" path="res://textures/voxel_icon_solid.png" id="1_1xopk"]
 [ext_resource type="Script" uid="uid://1pkd87ctx612" path="res://scripts/EditingUIController.cs" id="1_5ympb"]
@@ -17,7 +17,16 @@ anti_aliasing = false
 [sub_resource type="LabelSettings" id="LabelSettings_1xopk"]
 font_size = 12
 
-[node name="EditingUi" type="Control" node_paths=PackedStringArray("voxel_type_container", "file_dialog")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0g3py"]
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.8, 0.8, 0)
+anti_aliasing = false
+
+[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "file_dialog", "voxel_type_container", "voxel_top_label")]
 texture_filter = 1
 layout_mode = 3
 anchors_preset = 15
@@ -28,10 +37,13 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_5ympb")
-voxel_type_container = NodePath("VBoxContainer")
+editing_mode_label = NodePath("EditingModeLabel")
+mode_modal = NodePath("ModeSwitcher")
 file_dialog = NodePath("FileDialog")
+voxel_type_container = NodePath("VoxelPalette")
+voxel_top_label = NodePath("VoxelTopLabel")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="VoxelPalette" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
@@ -40,28 +52,28 @@ offset_right = 204.0
 grow_vertical = 2
 alignment = 1
 
-[node name="Container" type="PanelContainer" parent="VBoxContainer"]
+[node name="Container2" type="PanelContainer" parent="VoxelPalette"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_5ympb")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/Container"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VoxelPalette/Container2"]
 layout_mode = 2
 theme = SubResource("Theme_5ympb")
 
-[node name="TextureRect" type="TextureRect" parent="VBoxContainer/Container/HBoxContainer"]
+[node name="TextureRect" type="TextureRect" parent="VoxelPalette/Container2/HBoxContainer"]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 0
 texture = ExtResource("1_1xopk")
 stretch_mode = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/Container/HBoxContainer"]
+[node name="Label" type="Label" parent="VoxelPalette/Container2/HBoxContainer"]
 layout_mode = 2
 text = "(X) erase"
 label_settings = SubResource("LabelSettings_1xopk")
 
-[node name="Label2" type="Label" parent="."]
+[node name="VoxelTopLabel" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -73,7 +85,7 @@ text = "(A) << rotate >> (D)
 label_settings = SubResource("LabelSettings_1xopk")
 horizontal_alignment = 1
 
-[node name="Label3" type="Label" parent="."]
+[node name="BottomLeftLabel" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -89,7 +101,7 @@ text = "(H) toggle ui    (P) screenshot    (Z) toggle viewpoint"
 label_settings = SubResource("LabelSettings_1xopk")
 vertical_alignment = 2
 
-[node name="Label4" type="Label" parent="."]
+[node name="BottomRightLabel" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -106,7 +118,141 @@ label_settings = SubResource("LabelSettings_1xopk")
 horizontal_alignment = 2
 vertical_alignment = 2
 
+[node name="EditingModeLabel" type="Label" parent="."]
+layout_mode = 1
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 75.0
+offset_bottom = 16.0
+text = "editing: voxels"
+label_settings = SubResource("LabelSettings_1xopk")
+
 [node name="FileDialog" type="FileDialog" parent="."]
 initial_position = 2
 access = 2
 filters = PackedStringArray("*.dat")
+
+[node name="ModeSwitcher" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -256.0
+offset_top = -40.0
+offset_right = 256.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="ModeSwitcher"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ModeSwitcher/PanelContainer"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="ModeSwitcher/PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_1xopk")
+stretch_mode = 2
+
+[node name="Label" type="Label" parent="ModeSwitcher/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "(1) voxels"
+label_settings = SubResource("LabelSettings_1xopk")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="PanelContainer2" type="PanelContainer" parent="ModeSwitcher"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ModeSwitcher/PanelContainer2"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="ModeSwitcher/PanelContainer2/VBoxContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_1xopk")
+stretch_mode = 2
+
+[node name="Label" type="Label" parent="ModeSwitcher/PanelContainer2/VBoxContainer"]
+layout_mode = 2
+text = "(2) object"
+label_settings = SubResource("LabelSettings_1xopk")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="PanelContainer3" type="PanelContainer" parent="ModeSwitcher"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ModeSwitcher/PanelContainer3"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="ModeSwitcher/PanelContainer3/VBoxContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_1xopk")
+stretch_mode = 2
+
+[node name="Label" type="Label" parent="ModeSwitcher/PanelContainer3/VBoxContainer"]
+layout_mode = 2
+text = "(3) sand & grass"
+label_settings = SubResource("LabelSettings_1xopk")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="PanelContainer4" type="PanelContainer" parent="ModeSwitcher"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ModeSwitcher/PanelContainer4"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="ModeSwitcher/PanelContainer4/VBoxContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_1xopk")
+stretch_mode = 2
+
+[node name="Label" type="Label" parent="ModeSwitcher/PanelContainer4/VBoxContainer"]
+layout_mode = 2
+text = "(4) light"
+label_settings = SubResource("LabelSettings_1xopk")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="PanelContainer5" type="PanelContainer" parent="ModeSwitcher"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ModeSwitcher/PanelContainer5"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="ModeSwitcher/PanelContainer5/VBoxContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_1xopk")
+stretch_mode = 2
+
+[node name="Label" type="Label" parent="ModeSwitcher/PanelContainer5/VBoxContainer"]
+layout_mode = 2
+text = "(5) none"
+label_settings = SubResource("LabelSettings_1xopk")
+horizontal_alignment = 1
+vertical_alignment = 2

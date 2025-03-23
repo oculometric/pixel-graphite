@@ -1,6 +1,7 @@
-[gd_scene load_steps=26 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=27 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="1_3mqji"]
+[ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
 [ext_resource type="Script" uid="uid://c4gsrcqvnkxot" path="res://scripts/VoxelEditController.cs" id="2_x4av3"]
 [ext_resource type="Shader" uid="uid://bqr45337p5krw" path="res://materials/Wireframe.gdshader" id="3_3hf6u"]
 [ext_resource type="Script" uid="uid://bq5xvx6j8hb3h" path="res://scripts/VoxelGrid.cs" id="3_rpqi1"]
@@ -85,14 +86,17 @@ sdfgi_max_distance = 300.0
 sdfgi_y_scale = 2
 sdfgi_energy = 0.5
 
-[node name="MainScene" type="Node3D"]
+[node name="MainScene" type="Node3D" node_paths=PackedStringArray("voxel_editor")]
+script = ExtResource("1_mctxq")
+voxel_editor = NodePath("VoxelEditController")
 
-[node name="Camera" parent="." node_paths=PackedStringArray("vox_controller") instance=ExtResource("1_3mqji")]
-vox_controller = NodePath("../VoxelEditController")
+[node name="Camera" parent="." node_paths=PackedStringArray("scene_controller") instance=ExtResource("1_3mqji")]
+scene_controller = NodePath("..")
 
-[node name="VoxelEditController" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid")]
+[node name="VoxelEditController" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid", "scene_controller")]
 script = ExtResource("2_x4av3")
 voxel_grid = NodePath("../VoxelGrid")
+scene_controller = NodePath("..")
 outline_mesh = SubResource("BoxMesh_mctxq")
 
 [node name="VoxelGrid" type="MeshInstance3D" parent="." node_paths=PackedStringArray("collider")]

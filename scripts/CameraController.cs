@@ -8,7 +8,7 @@ public partial class CameraController : Node3D
 	[Export] Node3D camera_pitch;
 	[Export] Camera3D camera;
 
-	[Export] VoxelEditController vox_controller;
+	[Export] MainSceneController scene_controller;
 
 	[Export] float max_pan_velocity = 16.0f;
 
@@ -87,10 +87,10 @@ public partial class CameraController : Node3D
 			InputEventMouseButton button = @event as InputEventMouseButton;
 			if (button.IsPressed() && button.ButtonIndex == MouseButton.Right)
 			{
-				Vector3I cell = vox_controller.GetHighlightedCell(true);
+				Vector3I cell = scene_controller.voxel_editor.GetHighlightedCell(true);
 				GlobalPosition = camera_pitch.GlobalPosition;
 				camera_pitch.GlobalPosition = GlobalPosition;
-				lerp_target = new Vector3(cell.X, cell.Y, cell.Z) * vox_controller.voxel_grid.voxel_size;
+				lerp_target = new Vector3(cell.X, cell.Y, cell.Z) * scene_controller.voxel_editor.voxel_grid.voxel_size;
 			}
 		}
 		else if (@event is InputEventKey)
@@ -101,7 +101,6 @@ public partial class CameraController : Node3D
 				switch (key.Keycode)
 				{
 					case Key.Z: angle_target = -angle_target; break;
-					case Key.P: vox_controller.render_controller.TakeScreenshot(); break;
 				}
 			}
 		}

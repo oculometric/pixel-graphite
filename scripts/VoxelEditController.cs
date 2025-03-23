@@ -8,18 +8,17 @@ public partial class VoxelEditController : Node3D
 	private Voxel current_cell_type;
 	private int cell_type_index = 1;
 	private bool erase_mode = false;
-	private MeshInstance3D outline_object;
+	public MeshInstance3D outline_object;
 	
 	[Export] public VoxelGrid voxel_grid { get; private set; }
-	[Export] public EditingUIController ui_controller;
-	[Export] public UpdateUIRender render_controller;
+	[Export] public MainSceneController scene_controller;
 	[Export] private Mesh outline_mesh;
  
     public override void _Ready()
     {
 		current_cell_type = new Voxel(voxel_grid.voxel_types[cell_type_index], 0);
-		ui_controller.ConfigureUI(this);
-        ui_controller.UpdateUI(cell_type_index, erase_mode, current_cell_type.orientation);
+		scene_controller.ui_controller.ConfigureUI(this);
+        scene_controller.ui_controller.UpdateVoxelUI(cell_type_index, erase_mode, current_cell_type.orientation);
     }
 
 	private void UpdateOutlineMesh()
@@ -124,12 +123,9 @@ public partial class VoxelEditController : Node3D
 					case Key.A: current_cell_type.orientation = (byte)((((current_cell_type.orientation & 0b11) + 1) % 4) | (current_cell_type.orientation & 0b100)); break;
 					case Key.F: current_cell_type.orientation = (byte)(current_cell_type.orientation ^ 0b100); break;
 					case Key.X: erase_mode = !erase_mode; break;
-					case Key.H: ui_controller.Visible = !ui_controller.Visible; outline_object.Visible = ui_controller.Visible; break;
-					case Key.O: ui_controller.ShowSaveDialog(); break;
-					case Key.I: ui_controller.ShowLoadDialog(); break;
                 }
                 current_cell_type = new Voxel(voxel_grid.voxel_types[cell_type_index], current_cell_type.orientation);
-                ui_controller.UpdateUI(cell_type_index, erase_mode, current_cell_type.orientation);
+                scene_controller.ui_controller.UpdateVoxelUI(cell_type_index, erase_mode, current_cell_type.orientation);
 				UpdateOutlineMesh();
             }
 		}
