@@ -70,6 +70,7 @@ public partial class EditingUIController : Control
 	public void ToggleModeModal(bool visible, int current_mode)
 	{
 		voxel_type_container.Visible = !visible;
+
 		top_label.Visible = !visible;
 
 		mode_modal.Visible = visible;

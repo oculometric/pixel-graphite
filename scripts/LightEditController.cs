@@ -21,9 +21,6 @@ public partial class LightEditController : Node3D
 		}
 	}
 
-    // TODO: light UI that describes the angles of the light
-    // TODO: indicator arrow
-
     public override void _Process(double delta)
     {
         if (Input.IsKeyPressed(Key.Shift) && IsProcessingUnhandledInput())

@@ -52,6 +52,7 @@ file_dialog = NodePath("FileDialog")
 voxel_type_container = NodePath("VoxelPalette")
 
 [node name="VoxelPalette" type="VBoxContainer" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
