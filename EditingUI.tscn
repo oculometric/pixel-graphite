@@ -1,7 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://bw5buyyqs4iuj"]
+[gd_scene load_steps=12 format=3 uid="uid://bw5buyyqs4iuj"]
 
-[ext_resource type="Texture2D" uid="uid://d3qc4eqgt35cs" path="res://textures/voxel_icon_solid.png" id="1_1xopk"]
 [ext_resource type="Script" uid="uid://1pkd87ctx612" path="res://scripts/EditingUIController.cs" id="1_5ympb"]
+[ext_resource type="Texture2D" uid="uid://4a37vsvgw02t" path="res://textures/voxel_icon_empty.png" id="2_0g3py"]
+[ext_resource type="Texture2D" uid="uid://ymq46kicj5lt" path="res://textures/mode_icon_voxel.png" id="3_dnh2e"]
+[ext_resource type="Texture2D" uid="uid://x6qjs3sr151m" path="res://textures/mode_icon_object.png" id="4_c7spg"]
+[ext_resource type="Texture2D" uid="uid://drqteo1u0bkgf" path="res://textures/mode_icon_sandgrass.png" id="5_lfx6u"]
+[ext_resource type="Texture2D" uid="uid://12vw8x0vukrq" path="res://textures/mode_icon_lighting.png" id="6_4nd0v"]
+[ext_resource type="Texture2D" uid="uid://dl04wadlwujmh" path="res://textures/mode_icon_none.png" id="7_4nd0v"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ympb"]
 draw_center = false
@@ -65,7 +70,7 @@ theme = SubResource("Theme_5ympb")
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_horizontal = 0
-texture = ExtResource("1_1xopk")
+texture = ExtResource("2_0g3py")
 stretch_mode = 2
 
 [node name="Label" type="Label" parent="VoxelPalette/Container2/HBoxContainer"]
@@ -159,7 +164,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 4
-texture = ExtResource("1_1xopk")
+texture = ExtResource("3_dnh2e")
 stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer/VBoxContainer"]
@@ -181,7 +186,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 4
-texture = ExtResource("1_1xopk")
+texture = ExtResource("4_c7spg")
 stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer2/VBoxContainer"]
@@ -203,7 +208,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 4
-texture = ExtResource("1_1xopk")
+texture = ExtResource("5_lfx6u")
 stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer3/VBoxContainer"]
@@ -225,12 +230,12 @@ layout_mode = 2
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 4
-texture = ExtResource("1_1xopk")
+texture = ExtResource("6_4nd0v")
 stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer4/VBoxContainer"]
 layout_mode = 2
-text = "(4) light"
+text = "(4) lighting"
 label_settings = SubResource("LabelSettings_1xopk")
 horizontal_alignment = 1
 vertical_alignment = 2
@@ -247,7 +252,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 4
-texture = ExtResource("1_1xopk")
+texture = ExtResource("7_4nd0v")
 stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer5/VBoxContainer"]

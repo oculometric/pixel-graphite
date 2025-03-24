@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=33 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="1_3mqji"]
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
@@ -10,11 +10,17 @@
 [ext_resource type="ArrayMesh" uid="uid://3tt62ymw14en" path="res://meshes/voxels_Stairs.res" id="6_a814b"]
 [ext_resource type="ArrayMesh" uid="uid://c3koqu3rikmap" path="res://meshes/voxels_Arch.res" id="7_torvr"]
 [ext_resource type="ArrayMesh" uid="uid://bnaw8i1b0c6je" path="res://meshes/voxels_NarrowArch.res" id="8_8xkvn"]
+[ext_resource type="Texture2D" uid="uid://4a37vsvgw02t" path="res://textures/voxel_icon_empty.png" id="8_anuui"]
 [ext_resource type="ArrayMesh" uid="uid://c1k8806eeonoq" path="res://meshes/voxels_Slope.res" id="9_p5x2j"]
+[ext_resource type="Texture2D" uid="uid://d3qc4eqgt35cs" path="res://textures/voxel_icon_solid.png" id="9_xtmsi"]
 [ext_resource type="Shader" uid="uid://d3jpc35xkq8br" path="res://materials/PostProcess.gdshader" id="10_8xkvn"]
+[ext_resource type="Texture2D" uid="uid://0v8bgju3b5bp" path="res://textures/voxel_icon_stairs.png" id="11_anuui"]
 [ext_resource type="ArrayMesh" uid="uid://b1y77sbgpk1f5" path="res://meshes/building_demo.res" id="11_p5x2j"]
 [ext_resource type="Material" uid="uid://bbujphjvx5nh" path="res://materials/Concrete.tres" id="11_yvb8b"]
+[ext_resource type="Texture2D" uid="uid://b1jbbjk8bw4tf" path="res://textures/voxel_icon_arch.png" id="13_8qg48"]
 [ext_resource type="ArrayMesh" uid="uid://ckkm2enqeh8nb" path="res://meshes/sand_demo.res" id="14_4mcbk"]
+[ext_resource type="Texture2D" uid="uid://db7bana4t4w2q" path="res://textures/voxel_icon_narrowarch.png" id="15_1ms6g"]
+[ext_resource type="Texture2D" uid="uid://dmfwu725xlh5m" path="res://textures/voxel_icon_slope.png" id="17_h86nx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4mcbk"]
 render_priority = -48
@@ -26,36 +32,42 @@ material = SubResource("ShaderMaterial_4mcbk")
 [sub_resource type="Resource" id="Resource_rf2cd"]
 script = ExtResource("4_uxrcv")
 name = "empty"
+ui_texture = ExtResource("8_anuui")
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_a814b"]
 script = ExtResource("4_uxrcv")
 name = "solid"
 geometry = ExtResource("5_rf2cd")
+ui_texture = ExtResource("9_xtmsi")
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_5crlr"]
 script = ExtResource("4_uxrcv")
 name = "stairs"
 geometry = ExtResource("6_a814b")
+ui_texture = ExtResource("11_anuui")
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_yvb8b"]
 script = ExtResource("4_uxrcv")
 name = "arch"
 geometry = ExtResource("7_torvr")
+ui_texture = ExtResource("13_8qg48")
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_3hf6u"]
 script = ExtResource("4_uxrcv")
 name = "narrow_arch"
 geometry = ExtResource("8_8xkvn")
+ui_texture = ExtResource("15_1ms6g")
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_4mcbk"]
 script = ExtResource("4_uxrcv")
 name = "slope"
 geometry = ExtResource("9_p5x2j")
+ui_texture = ExtResource("17_h86nx")
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_p5x2j"]

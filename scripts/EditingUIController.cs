@@ -25,6 +25,7 @@ public partial class EditingUIController : Control
 			}
 			Node copy = template.Duplicate();
 			copy.GetChild(0).GetChild<Label>(1).Text = "(" + i + ") " + vt.name;
+			copy.GetChild(0).GetChild<TextureRect>(0).Texture = vt.ui_texture;
 			template.GetParent().AddChild(copy);
 			i++;
 		}
