@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bw5buyyqs4iuj"]
+[gd_scene load_steps=13 format=3 uid="uid://bw5buyyqs4iuj"]
 
 [ext_resource type="Script" uid="uid://1pkd87ctx612" path="res://scripts/EditingUIController.cs" id="1_5ympb"]
 [ext_resource type="Texture2D" uid="uid://4a37vsvgw02t" path="res://textures/voxel_icon_empty.png" id="2_0g3py"]
@@ -22,6 +22,9 @@ anti_aliasing = false
 [sub_resource type="LabelSettings" id="LabelSettings_1xopk"]
 font_size = 12
 
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_4nd0v"]
+color = Color(1, 1, 1, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0g3py"]
 draw_center = false
 border_width_left = 1
@@ -31,7 +34,7 @@ border_width_bottom = 1
 border_color = Color(0.8, 0.8, 0.8, 0)
 anti_aliasing = false
 
-[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "file_dialog", "voxel_type_container", "voxel_top_label")]
+[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "top_label", "file_dialog", "voxel_type_container")]
 texture_filter = 1
 layout_mode = 3
 anchors_preset = 15
@@ -44,9 +47,9 @@ size_flags_vertical = 3
 script = ExtResource("1_5ympb")
 editing_mode_label = NodePath("EditingModeLabel")
 mode_modal = NodePath("ModeSwitcher")
+top_label = NodePath("TopLabel")
 file_dialog = NodePath("FileDialog")
 voxel_type_container = NodePath("VoxelPalette")
-voxel_top_label = NodePath("VoxelTopLabel")
 
 [node name="VoxelPalette" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -78,7 +81,7 @@ layout_mode = 2
 text = "(X) erase"
 label_settings = SubResource("LabelSettings_1xopk")
 
-[node name="VoxelTopLabel" type="Label" parent="."]
+[node name="TopLabel" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -125,12 +128,23 @@ vertical_alignment = 2
 
 [node name="EditingModeLabel" type="Label" parent="."]
 layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
 offset_left = 4.0
-offset_top = 4.0
+offset_top = -36.0
 offset_right = 75.0
-offset_bottom = 16.0
+offset_bottom = -24.0
+grow_vertical = 0
 text = "editing: voxels"
 label_settings = SubResource("LabelSettings_1xopk")
+
+[node name="HSeparator" type="HSeparator" parent="EditingModeLabel"]
+layout_mode = 1
+offset_top = 12.0
+offset_right = 180.0
+offset_bottom = 16.0
+theme_override_styles/separator = SubResource("StyleBoxLine_4nd0v")
 
 [node name="FileDialog" type="FileDialog" parent="."]
 initial_position = 2

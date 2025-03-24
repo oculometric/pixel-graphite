@@ -6,11 +6,14 @@ public partial class EditingUIController : Control
 {
 	[Export] private Label editing_mode_label;
 	[Export] private HBoxContainer mode_modal;
+	[Export] private Label top_label;
 
 	[Export] private FileDialog file_dialog;
 
 	[Export] private VBoxContainer voxel_type_container;
-	[Export] private Label voxel_top_label;
+
+	private string[] mode_names = [ "voxels", "object", "sand & grass", "lighting", "none" ];
+	private string[] mode_controls = [ "(A) << rotate >> (D)\n(F) flip vertical", "...", "...", "(A) << rotate >> (D)    (W/S) rotate up/down    (SHIFT) disable snap\n(Q) toggle sun    (E) toggle ambient    (R) toggle shadows", "..." ];
 
 	public void ConfigureUI(VoxelEditController vec)
 	{
@@ -67,7 +70,7 @@ public partial class EditingUIController : Control
 	public void ToggleModeModal(bool visible, int current_mode)
 	{
 		voxel_type_container.Visible = !visible;
-		voxel_top_label.Visible = !visible;
+		top_label.Visible = !visible;
 
 		mode_modal.Visible = visible;
 		if (visible)
@@ -97,32 +100,25 @@ public partial class EditingUIController : Control
 	public void SetEditingMode(int mode)
 	{
 		// TODO: hide/show different bits of the UI
+		editing_mode_label.Text = "editing: " + mode_names[mode];
+		top_label.Text = mode_controls[mode];
+
 		switch (mode)
 		{
 			case 0:
-				editing_mode_label.Text = "editing: voxels";
 				voxel_type_container.Visible = true;
-				voxel_top_label.Visible = true;
 				break;
 			case 1:
-				editing_mode_label.Text = "editing: object";
 				voxel_type_container.Visible = false;
-				voxel_top_label.Visible = false;
 				break;
 			case 2:
-				editing_mode_label.Text = "editing: sand & grass";
 				voxel_type_container.Visible = false;
-				voxel_top_label.Visible = false;
 				break;
 			case 3:
-				editing_mode_label.Text = "editing: lighting";
 				voxel_type_container.Visible = false;
-				voxel_top_label.Visible = false;
 				break;
 			case 4:
-				editing_mode_label.Text = "editing: none";
 				voxel_type_container.Visible = false;
-				voxel_top_label.Visible = false;
 				break;
 		}
 	}

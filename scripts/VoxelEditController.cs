@@ -21,6 +21,20 @@ public partial class VoxelEditController : Node3D
         scene_controller.ui_controller.UpdateVoxelUI(cell_type_index, erase_mode, current_cell_type.orientation);
     }
 
+	public void SetEditingEnabled(bool enabled)
+	{
+		if (enabled)
+		{
+			if (outline_object != null) outline_object.Visible = scene_controller.ui_controller.Visible;
+			SetProcessUnhandledInput(true);
+		}
+		else
+		{
+			outline_object.Visible = false;
+			SetProcessUnhandledInput(false);
+		}
+	}
+
 	private void UpdateOutlineMesh()
 	{
 		if (outline_object == null)
@@ -34,6 +48,7 @@ public partial class VoxelEditController : Node3D
 		outline_object.Mesh = erase_mode ? outline_mesh : current_cell_type.type.geometry;
 		outline_object.RotationDegrees = new Vector3(0, 90.0f * current_cell_type.orientation, 0);
 		outline_object.Scale = new Vector3(1, (current_cell_type.orientation & 0b100) > 0 ? -1 : 1, 1);
+		outline_object.Visible = scene_controller.ui_controller.Visible;
 
 		Vector3I cell = GetHighlightedCell(erase_mode);
         outline_object.GlobalPosition = new Vector3(cell.X, cell.Y, cell.Z) * voxel_grid.voxel_size;
@@ -73,7 +88,7 @@ public partial class VoxelEditController : Node3D
 	public void Save(string path)
 	{
 		byte[] save_data = voxel_grid.Serialise();
-		FileAccess file = Godot.FileAccess.Open(path, FileAccess.ModeFlags.Write);
+		FileAccess file = FileAccess.Open(path, FileAccess.ModeFlags.Write);
 		file.StoreBuffer(save_data);
 		file.Close();
         GD.Print("successfully saved voxel data");
@@ -81,7 +96,7 @@ public partial class VoxelEditController : Node3D
 
     public void Load(string path)
 	{
-        FileAccess file = Godot.FileAccess.Open(path, FileAccess.ModeFlags.Read);
+        FileAccess file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
 		if (file == null)
 			return;
 		byte[] save_data = file.GetBuffer((long)file.GetLength());

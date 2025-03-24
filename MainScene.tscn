@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=34 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="1_3mqji"]
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
@@ -21,6 +21,7 @@
 [ext_resource type="ArrayMesh" uid="uid://ckkm2enqeh8nb" path="res://meshes/sand_demo.res" id="14_4mcbk"]
 [ext_resource type="Texture2D" uid="uid://db7bana4t4w2q" path="res://textures/voxel_icon_narrowarch.png" id="15_1ms6g"]
 [ext_resource type="Texture2D" uid="uid://dmfwu725xlh5m" path="res://textures/voxel_icon_slope.png" id="17_h86nx"]
+[ext_resource type="Script" uid="uid://bv402urnm2ct7" path="res://scripts/LightEditController.cs" id="22_8qg48"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4mcbk"]
 render_priority = -48
@@ -98,9 +99,10 @@ sdfgi_max_distance = 300.0
 sdfgi_y_scale = 2
 sdfgi_energy = 0.5
 
-[node name="MainScene" type="Node3D" node_paths=PackedStringArray("voxel_editor")]
+[node name="MainScene" type="Node3D" node_paths=PackedStringArray("voxel_editor", "light_editor")]
 script = ExtResource("1_mctxq")
 voxel_editor = NodePath("VoxelEditController")
+light_editor = NodePath("LightEditController")
 
 [node name="Camera" parent="." node_paths=PackedStringArray("scene_controller") instance=ExtResource("1_3mqji")]
 scene_controller = NodePath("..")
@@ -123,7 +125,7 @@ collider = NodePath("StaticBody3D/CollisionShape3D")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="VoxelGrid/StaticBody3D"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.857148, 0.420812, 0.297009, -0.47465, 0.421414, 0.772734, 0.200012, -0.803322, 0.560953, 0, 0, 0)
+transform = Transform3D(0.883766, -0.361585, 0.297009, 0, 0.634731, 0.772734, -0.46793, -0.682915, 0.560953, 0, 6.01163, 0)
 light_energy = 0.44
 light_angular_distance = 3.5
 shadow_enabled = true
@@ -141,9 +143,15 @@ environment = SubResource("Environment_8xkvn")
 
 [node name="BuildingDemo" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 4.4, 2)
-visible = false
 mesh = ExtResource("11_p5x2j")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.520292, 0.147134, -0.841218, -0.184127, 0.981205, 0.0577359, 0.833902, 0.124851, 0.537605, 0, 0, 0)
 mesh = ExtResource("14_4mcbk")
+
+[node name="LightEditController" type="Node3D" parent="." node_paths=PackedStringArray("scene_controller", "sun")]
+script = ExtResource("22_8qg48")
+scene_controller = NodePath("..")
+sun = NodePath("../DirectionalLight3D")
+granular_pan_speed = 50.0
+snap_angle = 15.0

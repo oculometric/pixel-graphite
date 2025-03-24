@@ -7,6 +7,7 @@ public partial class MainSceneController : Node3D
 	[Export] public UpdateUIRender render_controller;
 
 	[Export] public VoxelEditController voxel_editor;
+	[Export] public LightEditController light_editor;
 
 	private int editing_mode = 0;   // editing modes:
 									// 0 - voxel editing
@@ -16,60 +17,30 @@ public partial class MainSceneController : Node3D
 									// 4 - no editing
 	private bool is_modal = false;
 
-	private void SetEditingMode(int new_editing_mode)
+    public override void _Ready()
+    {
+		SetEditingMode(0);
+    }
+
+    private void SetEditingMode(int new_editing_mode)
 	{
 		is_modal = false;
 		ui_controller.ToggleModeModal(is_modal, new_editing_mode);
 
-		switch (editing_mode)
-		{
-			case 0:
-				voxel_editor.outline_object.Visible = false;
-				voxel_editor.SetProcessUnhandledInput(false);
-				break;
-			case 1:
-				// TODO: disable object editor
-				break;
-			case 2:
-				// TODO: disable grass editor
-				break;
-			case 3:
-				// TODO: disable light editor
-				break;
-		}
-
-		switch (new_editing_mode)
-		{
-			case 0:
-				voxel_editor.outline_object.Visible = ui_controller.Visible;
-				voxel_editor.SetProcessUnhandledInput(true);
-				break;
-			case 1:
-				// TODO: enable object editor
-				break;
-			case 2:
-				// TODO: enable grass editor
-				break;
-			case 3:
-				// TODO: enable light editor
-				break;
-		}
+		voxel_editor.SetEditingEnabled(new_editing_mode == 0);
+		light_editor.SetEditingEnabled(new_editing_mode == 3);
 
 		editing_mode = new_editing_mode;
 		ui_controller.SetEditingMode(editing_mode);
 	}
 
-	private void SetModal(bool modal)
+	private void SetModal()
 	{
-		is_modal = modal;
-		if (is_modal)
-		{
-			ui_controller.Visible = true;
-			voxel_editor.outline_object.Visible = ui_controller.Visible && editing_mode == 0;
-		}
+		is_modal = true;
+		ui_controller.Visible = true;
 
-		voxel_editor.outline_object.Visible = false;
-		voxel_editor.SetProcessUnhandledInput(false);
+		voxel_editor.SetEditingEnabled(false);
+		light_editor.SetEditingEnabled(false);
 		// TODO: disable input to all other editors during modal
 
 		ui_controller.ToggleModeModal(is_modal, editing_mode);
@@ -93,7 +64,7 @@ public partial class MainSceneController : Node3D
 					case Key.O: ui_controller.ShowSaveDialog(); break;
 					case Key.I: ui_controller.ShowLoadDialog(); break;
 					case Key.Tab:
-						if (!is_modal) SetModal(true);
+						if (!is_modal) SetModal();
 						else SetEditingMode(editing_mode);
 						break;
 					case Key.Key1: if (is_modal) SetEditingMode(0); break;
