@@ -14,12 +14,13 @@ public partial class CameraController : Node3D
 
 	Vector2 pan_velocity = Vector2.Zero;
 	Vector2 mouse_delta = Vector2.Zero;
-	Vector3 lerp_target = Vector3.Zero;
+	Vector3 lerp_target;
 
 	float angle_target;
 
 	public override void _Ready()
 	{
+		lerp_target = GlobalPosition;
 		angle_target = camera_pitch.Rotation.X;
 	}
 
@@ -30,7 +31,6 @@ public partial class CameraController : Node3D
 		ProcessCameraInput((float)delta);
 		LerpCameraPosition((float)delta);
 		LerpCameraAngle((float)delta);
-		
 	}
 
 	private void LerpCameraAngle(float delta)

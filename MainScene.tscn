@@ -105,6 +105,7 @@ voxel_editor = NodePath("VoxelEditController")
 light_editor = NodePath("LightEditController")
 
 [node name="Camera" parent="." node_paths=PackedStringArray("scene_controller") instance=ExtResource("1_3mqji")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.8, 0)
 scene_controller = NodePath("..")
 
 [node name="VoxelEditController" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid", "scene_controller")]
@@ -143,6 +144,7 @@ environment = SubResource("Environment_8xkvn")
 
 [node name="BuildingDemo" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 4.4, 2)
+visible = false
 mesh = ExtResource("11_p5x2j")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]

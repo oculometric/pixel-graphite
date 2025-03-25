@@ -1,6 +1,5 @@
 using Godot;
 using Godot.Collections;
-using System;
 
 public partial class VoxelEditController : Node3D
 {
@@ -14,11 +13,15 @@ public partial class VoxelEditController : Node3D
 	[Export] public MainSceneController scene_controller;
 	[Export] private Mesh outline_mesh;
  
-    public override void _Ready()
+    public override async void _Ready()
     {
 		current_cell_type = new Voxel(voxel_grid.voxel_types[cell_type_index], 0);
 		scene_controller.ui_controller.ConfigureUI(this);
         scene_controller.ui_controller.UpdateVoxelUI(cell_type_index, erase_mode, current_cell_type.orientation);
+
+		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		if (FileAccess.FileExists("res://startup.dat"))
+			Load("res://startup.dat");
     }
 
 	public void SetEditingEnabled(bool enabled)

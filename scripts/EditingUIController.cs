@@ -101,7 +101,7 @@ public partial class EditingUIController : Control
 	public void SetEditingMode(int mode)
 	{
 		// TODO: hide/show different bits of the UI
-		editing_mode_label.Text = "editing: " + mode_names[mode];
+		editing_mode_label.Text = "(TAB) editing: " + mode_names[mode];
 		top_label.Text = mode_controls[mode];
 
 		switch (mode)

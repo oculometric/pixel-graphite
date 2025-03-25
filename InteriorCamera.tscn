@@ -18,7 +18,7 @@ transform = Transform3D(1, 0, 0, 0, 0.819152, 0.573577, 0, -0.573577, 0.819152, 
 [node name="Camera3D" type="Camera3D" parent="CameraSpin/CameraPitch"]
 transform = Transform3D(1, 0, 0, 0, 1, -2.98023e-08, 0, 0, 1, 0, 0, 65)
 current = true
-fov = 10.0
+fov = 11.0
 size = 16.0
 near = 0.1
 far = 500.0
