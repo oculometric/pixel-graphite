@@ -17,12 +17,12 @@ public partial class MainSceneController : Node3D
 									// 4 - no editing
 	private bool is_modal = false;
 
-    public override void _Ready()
-    {
+	public override void _Ready()
+	{
 		SetEditingMode(0);
-    }
+	}
 
-    private void SetEditingMode(int new_editing_mode)
+	private void SetEditingMode(int new_editing_mode)
 	{
 		is_modal = false;
 		ui_controller.ToggleModeModal(is_modal, new_editing_mode);
