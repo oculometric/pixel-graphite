@@ -21,7 +21,7 @@ void fragment()
 	vec2 uv;
 	if (use_triplanar) uv = ((abs(world_normal.y) < 0.707 ? (abs(world_normal.z) < 0.707 ? world_position.zy : world_position.xy) : world_position.xz) * vec2(1.0, -1.0) / triplanar_size) + vec2(triplanar_offset);
 	else uv = UV;
-	
+
 	ALBEDO = texture(albedo, uv).rgb;
 	NORMAL_MAP = texture(normal, uv).rgb;
 }

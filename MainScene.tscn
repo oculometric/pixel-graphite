@@ -148,7 +148,7 @@ visible = false
 mesh = ExtResource("11_p5x2j")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.520292, 0.147134, -0.841218, -0.184127, 0.981205, 0.0577359, 0.833902, 0.124851, 0.537605, 0, 0, 0)
+transform = Transform3D(0.520292, 0.147134, -0.841218, -0.184127, 0.981205, 0.0577364, 0.833902, 0.124851, 0.537605, 0, 0, 0)
 mesh = ExtResource("14_4mcbk")
 
 [node name="LightEditController" type="Node3D" parent="." node_paths=PackedStringArray("scene_controller", "sun")]

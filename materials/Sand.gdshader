@@ -4,6 +4,11 @@ shader_type spatial;
 
 varying vec3 world_position;
 
+float fresnel(float amount, vec3 normal, vec3 view)
+{
+	return pow((1.0 - clamp(dot(normalize(normal), normalize(view)), 0.0, 1.0 )), amount);
+}
+
 void vertex()
 {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1)).xyz;
@@ -13,16 +18,12 @@ void vertex()
 void fragment()
 {
 	float value = 1.2f;
+	float fres = fresnel(3.0f, NORMAL, VIEW) * 2.0f;
 
-	float threshold = 0.2f;
-	value = clamp(clamp(float(voronoi(world_position.xz * 24.0f, 4.0f, 0.96f, 0.5f) > 0.2f) + 0.3f, 0, 1)
-		  *             float(voronoi(world_position.xz * 16.0f, 4.0f, 0.96f, 0.5f) > 0.2f), 0, 1);
-	value = mix(0.189f, 1.0f, value);
-
-	// TODO: fresnel
-	vec4 view_position = INV_PROJECTION_MATRIX * vec4(VERTEX, 1);
-	vec3 view_direction = normalize(view_position.xyz / view_position.w);
-
-	value = dot(view_direction, NORMAL);
-	ALBEDO = vec3(1.0f - value);
+	float threshold = mix(0.18f, 0.95f, fres);
+	value = clamp(clamp(float(voronoi(world_position.xz * 20.0f, 4.0f, 0.96f, 0.5f) > threshold) + 0.3f, 0, 1)
+		  *             float(voronoi(world_position.xz * 12.0f, 4.0f, 0.96f, 0.5f) > threshold), 0, 1);
+	value = mix(0.189f, 1.08f, value) + 0.15f;
+	
+	ALBEDO = vec3(value);
 }
