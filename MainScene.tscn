@@ -86,11 +86,11 @@ size = Vector2(2, 2)
 background_mode = 1
 background_color = Color(0.46, 0.46, 0.46, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.46, 0.46, 0.46, 1)
+ambient_light_color = Color(0.41, 0.41, 0.41, 1)
 tonemap_white = 1.1
 ssao_enabled = true
-ssao_radius = 3.0
-ssao_intensity = 4.0
+ssao_radius = 4.0
+ssao_intensity = 5.0
 ssao_detail = 0.2
 ssao_sharpness = 1.0
 ssao_light_affect = 1.0
@@ -163,6 +163,7 @@ transform = Transform3D(0.520292, 0.147134, -0.841218, -0.184127, 0.981205, 0.05
 mesh = ExtResource("14_4mcbk")
 
 [node name="GPUParticles3D" type="GPUParticles3D" parent="MeshInstance3D"]
+visible = false
 amount = 5000
 lifetime = 120.0
 explosiveness = 0.88
