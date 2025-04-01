@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=37 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="1_3mqji"]
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
@@ -22,6 +22,8 @@
 [ext_resource type="Texture2D" uid="uid://db7bana4t4w2q" path="res://textures/voxel_icon_narrowarch.png" id="15_1ms6g"]
 [ext_resource type="Texture2D" uid="uid://dmfwu725xlh5m" path="res://textures/voxel_icon_slope.png" id="17_h86nx"]
 [ext_resource type="Script" uid="uid://bv402urnm2ct7" path="res://scripts/LightEditController.cs" id="22_8qg48"]
+[ext_resource type="ArrayMesh" uid="uid://r5i2j2o5irf7" path="res://meshes/grass_Grass01.res" id="23_1ms6g"]
+[ext_resource type="Shader" uid="uid://b2xbacqj8mowf" path="res://materials/ParticleProcessor.gdshader" id="24_h86nx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4mcbk"]
 render_priority = -48
@@ -99,6 +101,9 @@ sdfgi_max_distance = 300.0
 sdfgi_y_scale = 2
 sdfgi_energy = 0.5
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7jkkr"]
+shader = ExtResource("24_h86nx")
+
 [node name="MainScene" type="Node3D" node_paths=PackedStringArray("voxel_editor", "light_editor")]
 script = ExtResource("1_mctxq")
 voxel_editor = NodePath("VoxelEditController")
@@ -157,3 +162,20 @@ scene_controller = NodePath("..")
 sun = NodePath("../DirectionalLight3D")
 granular_pan_speed = 50.0
 snap_angle = 15.0
+
+[node name="CPUParticles3D" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84198, 0)
+visible = false
+amount = 500
+lifetime = 30.0
+mesh = ExtResource("23_1ms6g")
+emission_shape = 3
+emission_box_extents = Vector3(2, 0.5, 2)
+gravity = Vector3(0, 0, 0)
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84198, 0)
+amount = 500
+lifetime = 30.0
+process_material = SubResource("ShaderMaterial_7jkkr")
+draw_pass_1 = ExtResource("23_1ms6g")
