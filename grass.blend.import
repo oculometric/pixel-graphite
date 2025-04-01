@@ -33,6 +33,16 @@ animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
+"materials": {
+"@MATERIAL:0": {
+"use_external/enabled": true,
+"use_external/path": "uid://hg6c3rrrdoyi"
+},
+"@MATERIAL:1": {
+"use_external/enabled": true,
+"use_external/path": "uid://hg6c3rrrdoyi"
+}
+},
 "meshes": {
 "grass_Grass01": {
 "generate/lightmap_uv": 0,
