@@ -8,6 +8,7 @@ public partial class VoxelEditController : Node3D
 	private int cell_type_index = 1;
 	private bool erase_mode = false;
 	public MeshInstance3D outline_object;
+	private Vector3 ghost_object_target_pos;
 	
 	[Export] public VoxelGrid voxel_grid { get; private set; }
 	[Export] public MainSceneController scene_controller;
@@ -40,12 +41,14 @@ public partial class VoxelEditController : Node3D
 
 	private void UpdateOutlineMesh()
 	{
+		Vector3I cell = GetHighlightedCell(erase_mode);
 		if (outline_object == null)
 		{
             outline_object = new MeshInstance3D();
 			outline_object.MaterialOverride = outline_mesh.SurfaceGetMaterial(0);
 			outline_object.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
             GetParent().AddChild(outline_object);
+			outline_object.GlobalPosition = new Vector3(cell.X, cell.Y, cell.Z) * voxel_grid.voxel_size;
         }
 
 		outline_object.Mesh = erase_mode ? outline_mesh : current_cell_type.type.geometry;
@@ -53,8 +56,7 @@ public partial class VoxelEditController : Node3D
 		outline_object.Scale = new Vector3(1, (current_cell_type.orientation & 0b100) > 0 ? -1 : 1, 1);
 		outline_object.Visible = scene_controller.ui_controller.Visible;
 
-		Vector3I cell = GetHighlightedCell(erase_mode);
-        outline_object.GlobalPosition = new Vector3(cell.X, cell.Y, cell.Z) * voxel_grid.voxel_size;
+		ghost_object_target_pos = new Vector3(cell.X, cell.Y, cell.Z) * voxel_grid.voxel_size;
 	}
 
     private void PerformInteraction()
@@ -148,4 +150,18 @@ public partial class VoxelEditController : Node3D
             }
 		}
 	}
+
+    public override void _Process(double delta)
+    {
+		Vector3 to_target = ghost_object_target_pos - outline_object.GlobalPosition;
+		float dist = to_target.Length();
+		if (dist < 0.01f)
+		{
+			outline_object.GlobalPosition = ghost_object_target_pos;
+			return;
+		}
+		Vector3 normalised = to_target / dist;
+		float result_dist = Mathf.Clamp((dist * Mathf.Pow(0.0005f, (float)delta)) - (0.2f * (float)delta), 0.0f, 10000.0f);
+        outline_object.GlobalPosition = ghost_object_target_pos - (normalised * result_dist);
+    }
 }

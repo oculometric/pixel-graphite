@@ -59,6 +59,6 @@ void process()
 
 	CUSTOM.y += DELTA / LIFETIME;
 	CUSTOM.y = mix(CUSTOM.y, 1.0, INTERPOLATE_TO_END);
-	
+
 	COLOR = vec4(1.0f);
 }

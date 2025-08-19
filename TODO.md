@@ -1,0 +1,8 @@
+- [ ] add free-look editing mode
+- [ ] rewrite voxel generation to be more efficient (time, storage) and fix limit bugs
+- [ ] sand editing/toggle
+- [ ] lily pad painting
+- [ ] mesh exporting
+- [ ] warning on load/exit
+- [x] smooth ghost movement
+- [ ] custom cursor
