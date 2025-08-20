@@ -1,4 +1,5 @@
-- [ ] add free-look editing mode
+- [x] add free-look editing mode
+- [ ] add camera perspective controls?
 - [ ] rewrite voxel generation to be more efficient (time, storage) and fix limit bugs
 - [ ] sand editing/toggle
 - [ ] lily pad painting

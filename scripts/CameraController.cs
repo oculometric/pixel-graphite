@@ -15,6 +15,7 @@ public partial class CameraController : Node3D
 	Vector2 pan_velocity = Vector2.Zero;
 	Vector2 mouse_delta = Vector2.Zero;
 	Vector3 lerp_target;
+	bool is_free_look = true;
 
 	float angle_target;
 
@@ -29,34 +30,34 @@ public partial class CameraController : Node3D
 		GetWindow().Title = "pixel graphite (" + Engine.GetFramesPerSecond().ToString("000.0") + " fps)";
 
 		ProcessCameraInput((float)delta);
-		LerpCameraPosition((float)delta);
-		LerpCameraAngle((float)delta);
+		GlobalPosition = GlobalPosition + Interp(GlobalPosition, lerp_target, (float)delta);
+		if (!is_free_look)
+			camera_pitch.RotateX(Interp(camera_pitch.Rotation.X, angle_target, (float)delta));
 	}
 
-	private void LerpCameraAngle(float delta)
+	private float InterpLength(float length, float delta)
 	{
-		float towards_target = angle_target - camera_pitch.Rotation.X;
-		if (Mathf.Abs(towards_target) < 0.001f)
-		{
-			camera_pitch.Rotation = new Vector3(angle_target, 0, 0);
-			return;
-		}
-		float length = Mathf.Abs(towards_target);
-		float direction = Mathf.Sign(towards_target);
-		camera_pitch.RotateX(direction * Mathf.Clamp(((10.0f * Mathf.Log(length + 1.0f)) + 0.1f) * delta * 1.0f, 0.0f, length));
+		return Mathf.Clamp(((10.0f * Mathf.Log(length + 1.0f)) + 0.1f) * delta * 1.0f, 0.0f, length);
 	}
 
-	private void LerpCameraPosition(float delta)
+	private float Interp(float current, float target, float delta)
 	{
-		Vector3 towards_target = lerp_target - GlobalPosition;
-		if (towards_target.LengthSquared() < 0.001f)
-		{
-			GlobalPosition = lerp_target;
-			return;
-		}
-		float length = towards_target.Length();
-		Vector3 direction = towards_target.Normalized();
-		GlobalPosition = GlobalPosition + (direction * Mathf.Clamp(((10.0f * Mathf.Log(length + 1.0f)) + 0.1f) * delta * 1.0f, 0.0f, length));
+		float towards = target - current;
+		float length = Mathf.Abs(towards);
+		if (length < 0.01f)
+			return towards;
+		float direction = Mathf.Sign(towards);
+		return direction * InterpLength(length, delta);
+	}
+
+	private Vector3 Interp(Vector3 current, Vector3 target, float delta)
+	{
+		Vector3 towards = target - current;
+		float length = towards.Length();
+		if (length < 0.01f)
+			return towards;
+		Vector3 direction = towards / length;
+		return direction * InterpLength(length, delta);
 	}
 
 	private void ProcessCameraInput(float delta)
@@ -64,7 +65,10 @@ public partial class CameraController : Node3D
 		camera_spin.GlobalPosition = GlobalPosition;
 
 		camera_spin.RotateY(pan_velocity.X * (float)delta);
-		camera_pitch.Translate(Vector3.Up * -pan_velocity.Y * 5.0f * (float)delta);
+		if (is_free_look)
+			camera_pitch.RotateX(pan_velocity.Y * (float)delta);
+		else
+			camera_pitch.GlobalTranslate(Vector3.Up * -pan_velocity.Y * 5.0f * (float)delta);
 
 		Vector2 velocity_target = (mouse_delta / (float)delta).Clamp(-max_pan_velocity, max_pan_velocity);
 		Vector2 velocity_difference = (velocity_target - pan_velocity) * (1.0f - ((float)delta * 6.0f));
@@ -100,7 +104,16 @@ public partial class CameraController : Node3D
 			{
 				switch (key.Keycode)
 				{
-					case Key.Z: angle_target = -angle_target; break;
+					case Key.Z: if (!is_free_look) angle_target = -angle_target; break;
+					case Key.F: 
+						is_free_look = !is_free_look;
+						if (is_free_look)
+						{
+							GlobalPosition = camera_pitch.GlobalPosition;
+							camera_pitch.GlobalPosition = GlobalPosition;
+							lerp_target = GlobalPosition;
+						}
+						break;
 				}
 			}
 		}
