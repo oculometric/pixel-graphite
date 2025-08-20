@@ -8,5 +8,5 @@
 - [ ] warning on load/exit
 - [x] smooth ghost movement
 - [ ] custom cursor
-- [ ] lock mouse during pan
+- [x] lock mouse during pan
 - [ ] message display/dialog for errors and infos

@@ -9,6 +9,7 @@ public partial class VoxelEditController : Node3D
 	private bool erase_mode = false;
 	public MeshInstance3D outline_object;
 	private Vector3 ghost_object_target_pos;
+	private Vector2 pre_drag_mouse_pos;
 	
 	[Export] public VoxelGrid voxel_grid { get; private set; }
 	[Export] public MainSceneController scene_controller;
@@ -100,12 +101,24 @@ public partial class VoxelEditController : Node3D
 				mouse_delta = Vector2.Zero;
 			else if (mouse_delta.Length() < 10.0f && button.ButtonIndex == MouseButton.Left)
 				PerformInteraction();
+			if (button.Pressed == false)
+			{
+				Input.MouseMode = Input.MouseModeEnum.Visible;
+				Input.WarpMouse(pre_drag_mouse_pos);
+			}
 		}
 		else if (@event is InputEventMouseMotion)
 		{
 			InputEventMouseMotion motion = @event as InputEventMouseMotion;
 			if (Input.IsMouseButtonPressed(MouseButton.Left))
+			{
+				if (Input.MouseMode != Input.MouseModeEnum.Captured)
+				{
+					pre_drag_mouse_pos = GetWindow().GetMousePosition();
+					Input.MouseMode = Input.MouseModeEnum.Captured;
+				}
 				mouse_delta += motion.Relative;
+			}
 			else
 				UpdateOutlineMesh();
 		}
