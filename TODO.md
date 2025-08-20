@@ -1,9 +1,12 @@
 - [x] add free-look editing mode
 - [ ] add camera perspective controls?
-- [ ] rewrite voxel generation to be more efficient (time, storage) and fix limit bugs
+- [x] rewrite voxel storage
+- [ ] rewrite voxel generation to be more efficient
 - [ ] sand editing/toggle
 - [ ] lily pad painting
 - [ ] mesh exporting
 - [ ] warning on load/exit
 - [x] smooth ghost movement
 - [ ] custom cursor
+- [ ] lock mouse during pan
+- [ ] message display/dialog for errors and infos

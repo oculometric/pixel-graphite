@@ -36,9 +36,9 @@ public partial class EditingUIController : Control
 		file_dialog.FileSelected += (string path) =>
 		{
 			if (file_dialog.FileMode == FileDialog.FileModeEnum.SaveFile)
-				vec.Save(path);
+				vec.voxel_grid.Save(path);
 			else if (file_dialog.FileMode == FileDialog.FileModeEnum.OpenFile)
-				vec.Load(path);
+				vec.voxel_grid.Load(path);
 		};
 
 		ToggleModeModal(false, 0);

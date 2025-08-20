@@ -1,17 +1,34 @@
 using Godot;
-using Godot.Collections;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
-public struct Voxel
+public interface Serialiseable
 {
-	public VoxelType type;			// index into voxel type array
+	public byte[] GetBytes();
+	public void SetBytes(byte[] bytes);
+}
+
+public struct Voxel2 : Serialiseable
+{
+	public byte id = 0;				// id of the voxel type
 	public byte orientation = 0;	// packed, 2 bits represent four rotations around vertical, 1 bit represents flipping upsde down
 
-	public Voxel(VoxelType t, byte o)
+	public Voxel2(byte _id, byte _orient)
 	{
-		type = t;
-		orientation = o;
+		id = _id;
+		orientation = _orient;
+	}
+
+	public byte[] GetBytes()
+	{
+		return [id, orientation];
+	}
+
+	public void SetBytes(byte[] bytes)
+	{
+		id = bytes[0];
+		orientation = bytes[1];
 	}
 }
 
@@ -25,10 +42,266 @@ public enum Axis
 	NEG_Z = 5
 }
 
+public class GridMap3D<T> where T : Serialiseable
+{
+	private Vector3I map_size;
+	private Vector3I map_origin;
+	private Vector3I map_min;
+	private Vector3I map_max;
+	private List<List<List<T>>> map;
+	private T default_el;
+
+	public GridMap3D(Vector3I initial_size, T default_element)
+	{
+		map_size = initial_size;
+		map_origin = new Vector3I(0, 0, 0);
+		map_min = map_origin;
+		map_max = map_size - Vector3I.One;
+
+		default_el = default_element;
+
+		map = new List<List<List<T>>>(initial_size.Z);
+		for (int k = 0; k < initial_size.Z; k++)
+		{
+			map.Add(new List<List<T>>(initial_size.Y));
+			for (int j = 0; j < initial_size.Y; j++)
+			{
+				map[k].Add(new List<T>(initial_size.X));
+				for (int i = 0; i < initial_size.X; i++)
+				{
+					map[k][j].Add(default_element);
+				}
+			}
+		}
+	}
+
+	private bool IsInside(int x, int y, int z)
+	{
+		if (x < map_min.X || y < map_min.Y || z < map_min.Z)
+			return false;
+		if (x > map_max.X || y > map_max.Y || z > map_max.Z)
+			return false;
+		return true;
+	}
+
+	public T this[int x, int y, int z]
+	{
+		get 
+		{ 
+			if (!IsInside(x, y, z)) return default_el;
+			return map[z + map_origin.Z][y + map_origin.Y][x + map_origin.X];
+		}
+		set
+		{
+			if (!IsInside(x, y, z)) ExtendGrid(x, y, z);
+			map[z + map_origin.Z][y + map_origin.Y][x + map_origin.X] = value;
+		}
+	}
+
+	public Vector3I GetSize() { return map_size; }
+
+	public Vector3I GetMin() { return map_min; }
+
+	public Vector3I GetMax() { return map_max; }
+
+	private void ExtendGrid(int rx, int ry, int rz)
+	{
+		// extend all X arrays (innermost arrays) by the necessary amount
+		if (rx > map_max.X)
+		{
+			int diff = rx - map_max.X;
+			for (int k = 0; k < map_size.Z; k++)
+			{
+				for (int j = 0; j < map_size.Y; j++)
+				{
+					for (int i = 0; i < diff; i++) map[k][j].Add(default_el);
+				}
+			}
+			map_max.X = rx;
+			map_size.X += diff;
+		}
+		else if (rx < map_min.X)
+		{
+			int diff = map_min.X - rx;
+			for (int k = 0; k < map_size.Z; k++)
+			{
+				for (int j = 0; j < map_size.Y; j++)
+				{
+					for (int i = 0; i < diff; i++) map[k][j].Insert(0, default_el);
+				}
+			}
+			map_min.X = rx;
+			map_origin.X += diff;
+			map_size.X += diff;
+		}
+
+		// extend all Y arrays (middle arrays) by the necessary amount
+		if (ry > map_max.Y)
+		{
+			int diff = ry - map_max.Y;
+			for (int k = 0; k < map_size.Z; k++)
+			{
+				for (int j = 0; j < diff; j++)
+				{
+					List<T> l = new List<T>(map_size.X);
+					for (int i = 0; i < map_size.X; i++) l.Add(default_el);
+					map[k].Add(l);
+				}
+			}
+			map_max.Y = ry;
+			map_size.Y += diff;
+		}
+		else if (ry < map_min.Y)
+		{
+			int diff = map_min.Y - ry;
+			for (int k = 0; k < map_size.Z; k++)
+			{
+				for (int j = 0; j < diff; j++)
+				{
+					List<T> l = new List<T>(map_size.X);
+					for (int i = 0; i < map_size.X; i++) l.Add(default_el);
+					map[k].Insert(0, l);
+				}
+			}
+			map_min.Y = ry;
+			map_origin.Y += diff;
+			map_size.Y += diff;
+		}
+
+		// extend Z array (outer array) by the necessary amount
+		if (rz > map_max.Z)
+		{
+			int diff = rz - map_max.Z;
+			for (int k = 0; k < diff; k++)
+			{
+				List<List<T>> l = new List<List<T>>(map_size.Y);
+				for (int j = 0; j < map_size.Y; j++)
+				{
+					List<T> l2 = new List<T>(map_size.X);
+					for (int i = 0; i < map_size.X; i++) l2.Add(default_el);
+					l.Add(l2);
+				}
+				map.Add(l);
+			}
+			map_max.Z = rz;
+			map_size.Z += diff;
+		}
+		else if (rz < map_min.Z)
+		{
+			int diff = map_min.Z - rz;
+			for (int k = 0; k < diff; k++)
+			{
+				List<List<T>> l = new List<List<T>>(map_size.Y);
+				for (int j = 0; j < map_size.Y; j++)
+				{
+					List<T> l2 = new List<T>(map_size.X);
+					for (int i = 0; i < map_size.X; i++) l2.Add(default_el);
+					l.Add(l2);
+				}
+				map.Insert(0, l);
+			}
+			map_min.Z = rz;
+			map_origin.Z += diff;
+			map_size.Z += diff;
+		}
+	}
+
+	private void WriteInt32(int i, ref List<byte> arr)
+	{
+        arr.Add((byte)(i & 0xFF));
+        arr.Add((byte)((i >> 8) & 0xFF));
+        arr.Add((byte)((i >> 16) & 0xFF));
+        arr.Add((byte)((i >> 24) & 0xFF));
+    }
+
+	private int ReadInt32(in byte[] arr, uint offset)
+    {
+        return (arr[offset + 3] << 24) | (arr[offset + 2] << 16) | (arr[offset + 1] << 8) | arr[offset];
+    }
+
+	public byte[] Serialise()
+	{
+		// file structure
+		// 4 byte signature
+
+		// 4 byte x size
+		// 4 byte y size
+		// 4 byte z size
+
+		// 4 byte x origin
+		// 4 byte y origin
+		// 4 byte z origin
+		
+		// 4 byte padding
+		
+		// 1 byte voxel type id
+		// 1 byte orientation
+		// ...
+
+		List<byte> data = new List<byte>((4 * 8) + (2 * map_size.X * map_size.Y * map_size.Z));
+		WriteInt32(0x4a6b7900, ref data);
+
+		WriteInt32(map_size.X, ref data);
+		WriteInt32(map_size.Y, ref data);
+		WriteInt32(map_size.Z, ref data);
+
+		WriteInt32(map_origin.X, ref data);
+		WriteInt32(map_origin.Y, ref data);
+		WriteInt32(map_origin.Z, ref data);
+
+		WriteInt32(0, ref data);
+
+		for (int k = 0; k < map_size.Z; k++)
+		{
+			for (int j = 0; j < map_size.Y; j++)
+			{
+				for (int i = 0; i < map_size.X; i++)
+				{
+					data.AddRange(map[k][j][i].GetBytes());
+				}
+			}
+		}
+
+		return data.ToArray();
+	}
+
+	public GridMap3D(byte[] serialised_data, T default_element)
+	{
+		if (serialised_data.Length < (4 * 8))
+			throw new Exception("invalid voxel grid data");
+		if (ReadInt32(in serialised_data, 0) != 0x4a6b7900)
+			throw new InvalidDataException("invalid voxel data signature");
+
+		map_size = new Vector3I(ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8), ReadInt32(in serialised_data, 12));
+		map_origin = new Vector3I(ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20), ReadInt32(in serialised_data, 24));
+		map_min = -map_origin;
+		map_max = map_size - (Vector3I.One + map_origin);
+
+		default_el = default_element;
+
+		uint byte_offset = 32;
+		map = new List<List<List<T>>>(map_size.Z);
+		for (int k = 0; k < map_size.Z; k++)
+		{
+			map.Add(new List<List<T>>(map_size.Y));
+			for (int j = 0; j < map_size.Y; j++)
+			{
+				map[k].Add(new List<T>(map_size.X));
+				for (int i = 0; i < map_size.X; i++)
+				{
+					T value = default_el;
+					value.SetBytes([serialised_data[byte_offset], serialised_data[byte_offset + 1]]);
+					map[k][j].Add(value);
+					byte_offset += 2;
+				}
+			}
+		}
+	}
+}
+
 public partial class VoxelGrid : MeshInstance3D
 {
-	private List<List<List<Voxel>>> voxel_map;
-	private Vector3I voxel_origin = new Vector3I(0, 0, 0);
+	private GridMap3D<Voxel2> map;
 
 	[Export] public VoxelType[] voxel_types { get; private set; }
     [Export] public float voxel_size = 0.8f;
@@ -48,337 +321,65 @@ public partial class VoxelGrid : MeshInstance3D
 				GD.Print("voxel name: " + voxel_types[i].name + " geometry size: " + voxel_types[i].geometry.SurfaceGetArrays(0)[0].AsVector3Array().Length);
 		}
 
-		if (voxel_map != null)
+		if (map != null)
 			return;
 
         // init voxel map
-        voxel_map = new List<List<List<Voxel>>>();
-		for (int i = 0; i < initial_size; i++)
-		{
-			List<List<Voxel>> area = new List<List<Voxel>>();
-			for (int j = 0; j < initial_size; j++)
-			{
-				List<Voxel> row = new List<Voxel>();
-				for (int k = 0; k < initial_size; k++)
-					row.Add(new Voxel(voxel_types[0], 0));
-				area.Add(row);
-			}
-			voxel_map.Add(area);
-		}
-
-		int o = (((int)initial_size - 1) / 2);
-		voxel_origin = new Vector3I(o, o, o);
-		//GD.Print("origin: " + voxel_origin + " dimensions: " + voxel_map[0][0].Count + "," + voxel_map[0].Count + "," + voxel_map.Count);
-
-		SetCellValue(new Vector3I(0, 0, 0), new Voxel(voxel_types[1], 0));
+		map = new GridMap3D<Voxel2>(Vector3I.One * (int)initial_size, new Voxel2(0, 0));
+		SetCellValue(new Vector3I(0, 0, 0), new Voxel2(1, 0));
 		Rebuild();
 	}
 
-	private void WriteInt32(Int32 i, ref byte[] arr, uint offset)
+    public void SetCellValue(Vector3I position, Voxel2 value)
 	{
-        arr[offset] = (byte)(i & 0xFF);
-        arr[offset + 1] = (byte)((i >> 8) & 0xFF);
-        arr[offset + 2] = (byte)((i >> 16) & 0xFF);
-        arr[offset + 3] = (byte)((i >> 24) & 0xFF);
+		map[position.X, position.Y, position.Z] = value;
+	}
+
+	public void Save(string path)
+	{
+		byte[] save_data = map.Serialise();
+		Godot.FileAccess file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Write);
+		file.StoreBuffer(save_data);
+		file.Close();
+        GD.Print("successfully saved voxel data");
     }
 
-	public byte[] Serialise()
+    public void Load(string path)
 	{
-		// header consists of:
-		// 4 byte x size
-		// 4 byte y size
-		// 4 byte z size
-		// 4 byte x origin
-		// 4 byte y origin
-		// 4 byte z origin
-		// 4 byte offset of the start of the name index
-		// 4 byte size of the name index
-		// 4 byte offset of the start of the data
-		// 4 byte size of the data
-		
-		// 4 byte padding
-
-		// name index entry consists of:
-		// 4 byte size of entry
-		// string name
-
-		// 4 byte padding
-
-		// data consists of:
-		// 1 byte orientation
-		// 3 byte index into name index
-
-		List<string> voxel_names = new List<string>();
-		foreach (VoxelType type in voxel_types)
-			voxel_names.Add(type.name);
-
-		List<byte> index = new List<byte>();
-		foreach (string name in voxel_names)
-		{
-			Int32 entry_size = name.Length;
-			index.Add((byte)((entry_size >> 0) & 0xFF));
-			index.Add((byte)((entry_size >> 8) & 0xFF));
-			index.Add((byte)((entry_size >> 16) & 0xFF));
-			index.Add((byte)((entry_size >> 24) & 0xFF));
-
-			index.AddRange(name.ToAsciiBuffer());
-        }
-		Int32 index_size = index.Count;
-
-		Int32 data_size = 4 * voxel_map.Count * voxel_map[0].Count * voxel_map[0][0].Count;
-		byte[] data = new byte[data_size];
-        uint offset = 0;
-		for (int i = 0; i < voxel_map.Count; i++)
-		{
-			for (int j = 0; j < voxel_map[0].Count; j++)
-			{
-				for (int k = 0; k < voxel_map[0][0].Count; k++)
-				{
-					Int32 data_element = (voxel_map[i][j][k].orientation << 24) | (voxel_names.FindIndex(a => a == voxel_map[i][j][k].type.name) & 0x00FFFFFF);
-					WriteInt32(data_element, ref data, offset);
-                    offset += 4;
-				}
-			}
-		}
-
-		Int32 header_size = 4 * 10;
-        byte[] header = new byte[header_size];
-		WriteInt32(voxel_map[0][0].Count, ref header, 0);
-		WriteInt32(voxel_map[0].Count, ref header, 4);
-		WriteInt32(voxel_map.Count, ref header, 8);
-        WriteInt32(voxel_origin.X, ref header, 12);
-        WriteInt32(voxel_origin.Y, ref header, 16);
-        WriteInt32(voxel_origin.Z, ref header, 20);
-        Int32 index_offset = header_size + 4;
-        WriteInt32(index_offset, ref header, 24);
-		WriteInt32(index_size, ref header, 28);
-		Int32 data_offset = index_offset + index_size + 4;
-        WriteInt32(data_offset, ref header, 32);
-		WriteInt32(data_size, ref header, 36);
-
-		byte[] final_array = new byte[header_size + 4 + index_size + 4 + data_size + 4];
-		header.CopyTo(final_array, 0);
-		WriteInt32(0x4a4a4a4a, ref final_array, (uint)(index_offset - 4));
-		index.CopyTo(final_array, index_offset);
-		WriteInt32(0x4a4a4a4a, ref final_array, (uint)(data_offset - 4));
-		data.CopyTo(final_array, data_offset);
-		WriteInt32(0x4a4a4a4a, ref final_array, (uint)(data_offset + data_size));
-
-		return final_array;
-    }
-
-    private Int32 ReadInt32(ref byte[] arr, uint offset)
-    {
-        return (arr[offset + 3] << 24) | (arr[offset + 2] << 16) | (arr[offset + 1] << 8) | arr[offset];
-    }
-
-    public void Deserialise(byte[] bytes)
-	{
-		voxel_map = new List<List<List<Voxel>>>();
-
-		Int32 header_size = 4 * 10;
-		if (bytes.Length < header_size)
-			throw new Exception("invalid data length");
-		Int32 size_x = ReadInt32(ref bytes, 0);
-		Int32 size_y = ReadInt32(ref bytes, 4);
-		Int32 size_z = ReadInt32(ref bytes, 8);
-		Int32 origin_x = ReadInt32(ref bytes, 12);
-		Int32 origin_y = ReadInt32(ref bytes, 16);
-		Int32 origin_z = ReadInt32(ref bytes, 20);
-		Int32 index_offset = ReadInt32(ref bytes, 24);
-		Int32 index_size = ReadInt32(ref bytes, 28);
-		Int32 data_offset = ReadInt32(ref bytes, 32);
-		Int32 data_size = ReadInt32(ref bytes, 36);
-
-		if (index_offset + index_size > bytes.Length)
-			throw new Exception("invalid data length");
-		if (data_offset + data_size > bytes.Length)
-			throw new Exception("invalid data length");
-
-		voxel_origin = new Vector3I(origin_x, origin_y, origin_z);
-
-		List<string> type_names = new List<string>();
-		List<VoxelType> types = new List<VoxelType>();
-		for (uint b = (uint)index_offset; b < index_offset + index_size; b++)
-		{
-			Int32 entry_length = ReadInt32(ref bytes, b);
-			string s = "";
-			b += 4;
-			for (int i = 0; i < entry_length; i++)
-			{
-				s += (char)bytes[b];
-				b++;
-			}
-			type_names.Add(s);
-			b--;
-			VoxelType v = null;
-			foreach (VoxelType vt in voxel_types)
-			{
-				if (vt.name == s)
-				{
-					v = vt;
-					break;
-				}
-			}
-			types.Add(v);
-		}
-
-        Int32 d_size = 4 * size_x * size_y * size_z;
-		if (d_size != data_size)
-			throw new Exception("data size does not match");
-
-        uint offset = (uint)data_offset;
-		for (int i = 0; i < size_z; i++)
-		{
-			voxel_map.Add(new List<List<Voxel>>());
-			for (int j = 0; j < size_y; j++)
-			{
-				voxel_map[i].Add(new List<Voxel>());
-				for (int k = 0; k < size_x; k++)
-				{
-					byte orientation = bytes[offset + 3];
-					Int32 index = ReadInt32(ref bytes, offset) & 0x00FFFFFF;
-					Voxel v = new Voxel(types[index], orientation);
-					voxel_map[i][j].Add(v);
-					offset += 4;
-				}
-			}
-		}
-
-		GD.Print("successfully loaded mesh");
-		Rebuild();
-    }
-
-    public void SetCellValue(Vector3I position, Voxel type)
-	{
-		// calculate position in the array based on position and voxel_origin
-		int array_x_pos = position.X + voxel_origin.X;
-		int array_y_pos = position.Y + voxel_origin.Y;
-		int array_z_pos = position.Z + voxel_origin.Z;
-
-		GD.Print("set voxel: " + position + " in arrays: " + array_x_pos + "," + array_y_pos + "," + array_z_pos);
-
-		// expand if necessary, in each of the three dimensions one after another
-		if (array_x_pos < 0)
-		{
-			ExtendInDirection(Axis.NEG_X, -array_x_pos);
-			array_x_pos = position.X + voxel_origin.X;
-		}
-		if (array_x_pos >= voxel_map[0][0].Count)
-			ExtendInDirection(Axis.POS_X, (array_x_pos - voxel_map[0][0].Count) + 1);
-		if (array_y_pos < 0)
-		{
-			ExtendInDirection(Axis.NEG_Y, -array_y_pos);
-			array_y_pos = position.Y + voxel_origin.Y;
-		}
-		if (array_y_pos >= voxel_map[0].Count)
-			ExtendInDirection(Axis.POS_Y, (array_y_pos - voxel_map[0].Count) + 1);
-		if (array_z_pos < 0)
-		{
-			ExtendInDirection(Axis.NEG_Z, -array_z_pos);
-			array_z_pos = position.Z + voxel_origin.Z;
-		}
-		if (array_z_pos >= voxel_map.Count)
-			ExtendInDirection(Axis.POS_Z, (array_z_pos - voxel_map.Count) + 1);
-
-		// set value
+        Godot.FileAccess file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Read);
+		if (file == null)
+			return;
+		byte[] save_data = file.GetBuffer((long)file.GetLength());
+		file.Close();
 		try
 		{
-			voxel_map[array_z_pos][array_y_pos][array_x_pos] = type;
-		} catch (ArgumentOutOfRangeException)
+			map = new GridMap3D<Voxel2>(save_data, new Voxel2(0, 0));
+		} catch (InvalidDataException)
+        {
+			// TODO: recreate old data format loader for backwards compat
+			map = new GridMap3D<Voxel2>(Vector3I.One * (int)initial_size, new Voxel2(0, 0));
+		} catch (Exception)
 		{
-			PrintMap();
+			map = new GridMap3D<Voxel2>(Vector3I.One * (int)initial_size, new Voxel2(0, 0));
 		}
-	}
+		Rebuild();
+    }
 
-	private void PrintMap()
-	{
-		GD.Print("number of slices along Z: " + voxel_map.Count);
-		for (int i = 0; i < voxel_map.Count; i++)
-		{
-			GD.Print("  number of rows in slice " + i + ": " + voxel_map[i].Count);
-			for (int j = 0; j < voxel_map[i].Count; j++)
-			{
-				GD.Print("    number of tiles in row " + j + ": " + voxel_map[i][j].Count);
-			}
-		}
+	// private void PrintMap()
+	// {
+	// 	GD.Print("number of slices along Z: " + voxel_map.Count);
+	// 	for (int i = 0; i < voxel_map.Count; i++)
+	// 	{
+	// 		GD.Print("  number of rows in slice " + i + ": " + voxel_map[i].Count);
+	// 		for (int j = 0; j < voxel_map[i].Count; j++)
+	// 		{
+	// 			GD.Print("    number of tiles in row " + j + ": " + voxel_map[i][j].Count);
+	// 		}
+	// 	}
 
-		GD.Print("done");
-	}
+	// 	GD.Print("done");
+	// }
 	
-	public void ExtendInDirection(Axis dir, int amount)
-	{
-		// add new arrays/voxels at the beginning/end of existing arrays (depending on the direction)
-		switch (dir)
-		{
-			case Axis.POS_X: // +x, innermost arrays
-			case Axis.NEG_X: // -x
-				for (int i = 0; i < voxel_map.Count; i++)
-				{
-					for (int j = 0; j < voxel_map[i].Count; j++)
-					{
-						for (int _ = 0; _ < amount; _++)
-						{
-							if (dir == Axis.POS_X)
-								voxel_map[i][j].Add(new Voxel(voxel_types[0], 0));
-							else if (dir == Axis.NEG_X)
-								voxel_map[i][j].Insert(0, new Voxel(voxel_types[0], 0));
-						}
-					}
-				}
-				break;
-			case Axis.POS_Y: // +y, middle arrays
-			case Axis.NEG_Y: // -y
-				for (int i = 0; i < voxel_map.Count; i++)
-				{
-					for (int _ = 0; _ < amount; _++)
-					{
-						List<Voxel> arr = new List<Voxel>();
-						for (int j = 0; j < voxel_map[i][0].Count; j++)
-							arr.Add(new Voxel(voxel_types[0], 0));
-						if (dir == Axis.POS_Y)
-							voxel_map[i].Add(arr);
-						else if (dir == Axis.NEG_Y)
-							voxel_map[i].Insert(0, arr);
-					}
-				}
-				break;
-			case Axis.POS_Z: // +z, outermost arrays
-			case Axis.NEG_Z: // -z
-				for (int _ = 0; _ < amount; _++)
-				{
-					List<List<Voxel>> arr = new List<List<Voxel>>();
-					for (int j = 0; j < voxel_map[0].Count; j++)
-					{
-						List<Voxel> arr2 = new List<Voxel>();
-						for (int k = 0; k < voxel_map[0][j].Count; k++)
-							arr2.Add(new Voxel(voxel_types[0], 0));
-						arr.Add(arr2);
-					}
-					if (dir == Axis.POS_Z)
-						voxel_map.Add(arr);
-					else if (dir == Axis.NEG_Z)
-						voxel_map.Insert(0, arr);
-				}
-				break;
-		}
-
-		// update voxel origin if adding at the beginning
-		Vector3I offset = Vector3I.Zero;
-		switch (dir)
-		{
-			//case 0: offset.X = 0; break;
-			case Axis.NEG_X: offset.X = amount; break;
-			//case 2: offset.Y = 0; break;
-			case Axis.NEG_Y: offset.Y = amount; break;
-			//case 4: offset.Z = 0; break;
-			case Axis.NEG_Z: offset.Z = amount; break;
-		}
-		voxel_origin += offset;
-
-		GD.Print("new origin: " + voxel_origin + " new dimensions: " + voxel_map[0][0].Count + "," + voxel_map[0].Count + "," + voxel_map.Count);
-	}
-
 	private Vector3 Swizzle(Vector3 vec, byte orientation)
 	{
 		float angle = 0;
@@ -452,15 +453,17 @@ public partial class VoxelGrid : MeshInstance3D
 
         List<Vector3> verts = new List<Vector3>();
 
-		for (int i = 0; i < voxel_map.Count; i++)
+		Vector3I min = map.GetMin();
+		Vector3I max = map.GetMax();
+
+		for (int i = min.X; i <= max.X; i++)
 		{
-			for (int j = 0; j < voxel_map[i].Count; j++)
+			for (int j = min.Y; j <= max.Y; j++)
 			{
-				for (int k = 0; k < voxel_map[i][j].Count; k++)
+				for (int k = min.Z; k <= max.Z; k++)
 				{
-					Voxel v = voxel_map[i][j][k];
-					VoxelType type = v.type;
-					Mesh geom = type.geometry;
+					Voxel2 v = map[i, j, k];
+					Mesh geom = voxel_types[v.id].geometry;
 					if (geom == null) continue;
 
 					Godot.Collections.Array arrays = geom.SurfaceGetArrays(0);
@@ -470,7 +473,7 @@ public partial class VoxelGrid : MeshInstance3D
 					{
 						v_arr[t] = Swizzle(v_arr[t], v.orientation);
 						n_arr[t] = Swizzle(n_arr[t], v.orientation);
-						v_arr[t] += new Vector3(k - voxel_origin.X, j - voxel_origin.Y, i - voxel_origin.Z) * voxel_size;
+						v_arr[t] += new Vector3(i, j, k) * voxel_size;
 					}
 					if ((v.orientation & 0b100) > 0)
 					{
@@ -489,7 +492,7 @@ public partial class VoxelGrid : MeshInstance3D
 					Vector3[] coll_arr = new Vector3[box_collider.Length];
 					box_collider.CopyTo(coll_arr, 0);
                     for (int t = 0; t < coll_arr.Length; t++)
-                        coll_arr[t] += new Vector3(k - voxel_origin.X, j - voxel_origin.Y, i - voxel_origin.Z) * voxel_size;
+                        coll_arr[t] += new Vector3(i, j, k) * voxel_size;
                     verts.AddRange(coll_arr);
 
                     (Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);

@@ -4,8 +4,8 @@ using Godot.Collections;
 public partial class VoxelEditController : Node3D
 {
 	private Vector2 mouse_delta;
-	private Voxel current_cell_type;
-	private int cell_type_index = 1;
+	private Voxel2 current_cell_type;
+	private byte cell_type_index = 1;
 	private bool erase_mode = false;
 	public MeshInstance3D outline_object;
 	private Vector3 ghost_object_target_pos;
@@ -16,13 +16,14 @@ public partial class VoxelEditController : Node3D
  
     public override async void _Ready()
     {
-		current_cell_type = new Voxel(voxel_grid.voxel_types[cell_type_index], 0);
+		current_cell_type = new Voxel2(cell_type_index, 0);
 		scene_controller.ui_controller.ConfigureUI(this);
         scene_controller.ui_controller.UpdateVoxelUI(cell_type_index, erase_mode, current_cell_type.orientation);
 
 		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		UpdateOutlineMesh();
 		if (FileAccess.FileExists("res://startup.dat"))
-			Load("res://startup.dat");
+			voxel_grid.Load("res://startup.dat");
     }
 
 	public void SetEditingEnabled(bool enabled)
@@ -51,7 +52,7 @@ public partial class VoxelEditController : Node3D
 			outline_object.GlobalPosition = new Vector3(cell.X, cell.Y, cell.Z) * voxel_grid.voxel_size;
         }
 
-		outline_object.Mesh = erase_mode ? outline_mesh : current_cell_type.type.geometry;
+		outline_object.Mesh = erase_mode ? outline_mesh : voxel_grid.voxel_types[current_cell_type.id].geometry;
 		outline_object.RotationDegrees = new Vector3(0, 90.0f * current_cell_type.orientation, 0);
 		outline_object.Scale = new Vector3(1, (current_cell_type.orientation & 0b100) > 0 ? -1 : 1, 1);
 		outline_object.Visible = scene_controller.ui_controller.Visible;
@@ -62,7 +63,7 @@ public partial class VoxelEditController : Node3D
     private void PerformInteraction()
 	{
 		// set that part of the block grid to the assigned block type
-		voxel_grid.SetCellValue(GetHighlightedCell(erase_mode), erase_mode ? new Voxel(voxel_grid.voxel_types[0], 0) : current_cell_type);
+		voxel_grid.SetCellValue(GetHighlightedCell(erase_mode), erase_mode ? new Voxel2(0, 0) : current_cell_type);
 		voxel_grid.Rebuild();
 	}
 
@@ -90,25 +91,6 @@ public partial class VoxelEditController : Node3D
 		return highlighted_cell;
     }
 	
-	public void Save(string path)
-	{
-		byte[] save_data = voxel_grid.Serialise();
-		FileAccess file = FileAccess.Open(path, FileAccess.ModeFlags.Write);
-		file.StoreBuffer(save_data);
-		file.Close();
-        GD.Print("successfully saved voxel data");
-    }
-
-    public void Load(string path)
-	{
-        FileAccess file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
-		if (file == null)
-			return;
-		byte[] save_data = file.GetBuffer((long)file.GetLength());
-		voxel_grid.Deserialise(save_data);
-		file.Close();
-    }
-
     public override void _UnhandledInput(InputEvent @event)
 	{
 		if (@event is InputEventMouseButton)
@@ -144,7 +126,7 @@ public partial class VoxelEditController : Node3D
 					case Key.F: current_cell_type.orientation = (byte)(current_cell_type.orientation ^ 0b100); break;
 					case Key.X: erase_mode = !erase_mode; break;
                 }
-                current_cell_type = new Voxel(voxel_grid.voxel_types[cell_type_index], current_cell_type.orientation);
+                current_cell_type = new Voxel2(cell_type_index, current_cell_type.orientation);
                 scene_controller.ui_controller.UpdateVoxelUI(cell_type_index, erase_mode, current_cell_type.orientation);
 				UpdateOutlineMesh();
             }
