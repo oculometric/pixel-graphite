@@ -66,7 +66,10 @@ public partial class CameraController : Node3D
 
 		camera_spin.RotateY(pan_velocity.X * (float)delta);
 		if (is_free_look)
+		{
 			camera_pitch.RotateX(pan_velocity.Y * (float)delta);
+			camera_pitch.RotationDegrees = new Vector3(Mathf.Clamp(camera_pitch.RotationDegrees.X, -85.0f, 85.0f), camera_pitch.RotationDegrees.Y, camera_pitch.RotationDegrees.Z);
+		}
 		else
 			camera_pitch.GlobalTranslate(Vector3.Up * -pan_velocity.Y * 5.0f * (float)delta);
 

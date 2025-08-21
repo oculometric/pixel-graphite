@@ -10,7 +10,7 @@
 - [ ] custom cursor
 - [x] lock mouse during pan
 - [ ] message display/dialog for errors and infos
-- [ ] lock free look rotation
+- [x] lock free look rotation
 - [x] fix F control overlap
 - [x] fix screen wrapping shader issue
 - [x] fix blocks misplacing
