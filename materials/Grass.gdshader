@@ -1,11 +1,7 @@
 shader_type spatial;
 render_mode unshaded, blend_mul, shadows_disabled;
 
-void vertex()
-{
-}
+#define FRAGMENT_CODE ALBEDO = vec3(0.62f);
+#define SNAPPING
 
-void fragment()
-{
-	ALBEDO = vec3(0.62f);
-}
+#include "StandardShader.gdshaderinc"

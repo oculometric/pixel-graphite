@@ -2,17 +2,19 @@ shader_type spatial;
 
 #include "Voronoi.gdshaderinc"
 
-varying vec3 world_position;
+#define SNAPPING
+#define TRIPLANAR
+#include "StandardShader.gdshaderinc"
 
 float fresnel(float amount, vec3 normal, vec3 view)
 {
-	return pow((1.0 - clamp(dot(normalize(normal), normalize(view)), 0.0, 1.0 )), amount);
+	return pow((1.0 - clamp(dot(normalize(normal), normalize(view)), 0.0, 1.0)), amount);
 }
 
 void vertex()
 {
-	world_position = (MODEL_MATRIX * vec4(VERTEX, 1)).xyz;
-	// TODO: voronoi sand displacement
+	TRIPLANAR_MAP;
+	SNAP;
 }
 
 void fragment()

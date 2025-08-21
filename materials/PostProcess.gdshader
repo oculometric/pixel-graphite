@@ -4,9 +4,9 @@ shader_type spatial;
 
 render_mode unshaded, cull_back, fog_disabled;
 
-uniform sampler2D screen_tex : source_color, filter_nearest, hint_screen_texture;
-uniform sampler2D normal_tex : filter_nearest, hint_normal_roughness_texture;
-uniform sampler2D depth_tex : filter_nearest, hint_depth_texture;
+uniform sampler2D screen_tex : source_color, filter_nearest, hint_screen_texture, repeat_disable;
+uniform sampler2D normal_tex : filter_nearest, hint_normal_roughness_texture, repeat_disable;
+uniform sampler2D depth_tex : filter_nearest, hint_depth_texture, repeat_disable;
 
 void vertex()
 {
@@ -25,18 +25,24 @@ float linear_depth(vec2 uv, mat4 inv_proj)
 
 float edge_mask(vec2 uv, vec2 pixel_step, mat4 inv_proj)
 {
-	// TODO: displacement based on noise texture
-	vec3 normal_sharpen = (texture(normal_tex, uv).rgb * 5.0f)
-						- (texture(normal_tex, uv + (pixel_step * vec2(-1, -1))).rgb
-						+ texture(normal_tex, uv + (pixel_step * vec2(1, 1))).rgb
-						+ texture(normal_tex, uv + (pixel_step * vec2(1, -1))).rgb
-						+ texture(normal_tex, uv + (pixel_step * vec2(-1, 1))).rgb);
+	vec2 u0 = (uv);
+	vec2 u1 = (uv + (pixel_step * vec2(-1, -1)));
+	vec2 u2 = (uv + (pixel_step * vec2(1, 1)));
+	vec2 u3 = (uv + (pixel_step * vec2(1, -1)));
+	vec2 u4 = (uv + (pixel_step * vec2(-1, 1)));
 
-	float depth_sharpen = (linear_depth(uv, inv_proj) * 5.0f)
-						- linear_depth(uv + (pixel_step * vec2(-1, -1)), inv_proj)
-						- linear_depth(uv + (pixel_step * vec2(1, 1)), inv_proj)
-						- linear_depth(uv + (pixel_step * vec2(1, -1)),inv_proj)
-						- linear_depth(uv + (pixel_step * vec2(-1, 1)), inv_proj);
+	// TODO: displacement based on noise texture
+	vec3 normal_sharpen = (texture(normal_tex, u0).rgb * 5.0f)
+						- (texture(normal_tex, u1).rgb
+						+ texture(normal_tex, u2).rgb
+						+ texture(normal_tex, u3).rgb
+						+ texture(normal_tex, u4).rgb);
+
+	float depth_sharpen = (linear_depth(u0, inv_proj) * 5.0f)
+						- linear_depth(u1, inv_proj)
+						- linear_depth(u2, inv_proj)
+						- linear_depth(u3,inv_proj)
+						- linear_depth(u4, inv_proj);
 
 	float normal_value = length(normal_sharpen) / sqrt(3.0f);
 	float depth_value = clamp(abs(depth_sharpen) - linear_depth(uv, inv_proj), 0, 1);
@@ -60,7 +66,7 @@ void fragment()
 		fbm((SCREEN_UV + 15.0f) / 0.01f, 3, 2.0f, 0.5f)
 		);
 	// compute edge mask via sharpen filters
-	float edges = edge_mask(SCREEN_UV + (edge_displace * 1.1f / VIEWPORT_SIZE), 1.0f / VIEWPORT_SIZE, INV_PROJECTION_MATRIX);
+	float edges = edge_mask((SCREEN_UV + (edge_displace * 1.1f / VIEWPORT_SIZE)), 1.0f / VIEWPORT_SIZE, INV_PROJECTION_MATRIX);
 	float edged_value = mix(screen_value, screen_value * 0.151f, edges);
 
 	// add pixel noise

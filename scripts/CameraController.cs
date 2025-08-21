@@ -105,7 +105,7 @@ public partial class CameraController : Node3D
 				switch (key.Keycode)
 				{
 					case Key.Z: if (!is_free_look) angle_target = -angle_target; break;
-					case Key.F: 
+					case Key.C: 
 						is_free_look = !is_free_look;
 						if (is_free_look)
 						{

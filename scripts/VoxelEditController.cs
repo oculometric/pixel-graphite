@@ -66,6 +66,7 @@ public partial class VoxelEditController : Node3D
 		// set that part of the block grid to the assigned block type
 		voxel_grid.SetCellValue(GetHighlightedCell(erase_mode), erase_mode ? new Voxel2(0, 0) : current_cell_type);
 		voxel_grid.Rebuild();
+		UpdateOutlineMesh();
 	}
 
 	public Vector3I GetHighlightedCell(bool inside)
@@ -73,7 +74,8 @@ public partial class VoxelEditController : Node3D
         // raycast to find geometry intersection
         PhysicsRayQueryParameters3D ray_params = new PhysicsRayQueryParameters3D();
         ray_params.From = GetViewport().GetCamera3D().GlobalPosition;
-        Vector3 ray_direction = GetViewport().GetCamera3D().ProjectRayNormal(GetViewport().GetMousePosition());
+		Vector2 pos = GetViewport().GetMousePosition();
+        Vector3 ray_direction = GetViewport().GetCamera3D().ProjectRayNormal(pos);
         ray_params.To = ray_params.From + (ray_direction * 2000.0f);
         Dictionary result = GetWorld3D().DirectSpaceState.IntersectRay(ray_params);
         // if none, check use intersection with world floor
@@ -91,6 +93,8 @@ public partial class VoxelEditController : Node3D
 
 		return highlighted_cell;
     }
+
+	bool is_dragging = false;
 	
     public override void _UnhandledInput(InputEvent @event)
 	{
@@ -99,25 +103,33 @@ public partial class VoxelEditController : Node3D
 			InputEventMouseButton button = @event as InputEventMouseButton;
 			if (button.Pressed == true)
 				mouse_delta = Vector2.Zero;
-			else if (mouse_delta.Length() < 10.0f && button.ButtonIndex == MouseButton.Left)
-				PerformInteraction();
-			if (button.Pressed == false)
+			else
 			{
-				Input.MouseMode = Input.MouseModeEnum.Visible;
-				Input.WarpMouse(pre_drag_mouse_pos);
+				if (is_dragging)
+				{
+					Input.MouseMode = Input.MouseModeEnum.Visible;
+					Input.WarpMouse(pre_drag_mouse_pos);
+					is_dragging = false;
+				}
+				else if (button.ButtonIndex == MouseButton.Left)
+				{
+					PerformInteraction();
+				}
 			}
 		}
 		else if (@event is InputEventMouseMotion)
 		{
 			InputEventMouseMotion motion = @event as InputEventMouseMotion;
+			if (!is_dragging)
+				pre_drag_mouse_pos = GetWindow().GetMousePosition();
 			if (Input.IsMouseButtonPressed(MouseButton.Left))
 			{
-				if (Input.MouseMode != Input.MouseModeEnum.Captured)
+				mouse_delta += motion.Relative;
+				if (mouse_delta.Length() > 10.0f && !is_dragging)
 				{
-					pre_drag_mouse_pos = GetWindow().GetMousePosition();
+					is_dragging = true;
 					Input.MouseMode = Input.MouseModeEnum.Captured;
 				}
-				mouse_delta += motion.Relative;
 			}
 			else
 				UpdateOutlineMesh();

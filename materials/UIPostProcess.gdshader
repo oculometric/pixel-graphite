@@ -37,7 +37,7 @@ vec3 sample_lut(float f)
 
 void fragment() {
 	vec2 downscaled_size = (1.0f / SCREEN_PIXEL_SIZE) / pixel_scale;
-	vec2 rounded_uv = (floor(SCREEN_UV * downscaled_size) + 0.5f) / downscaled_size;
+	vec2 rounded_uv = (floor(SCREEN_UV * downscaled_size)) / downscaled_size;
 
 	// TODO: displace
 	float game_value = texture(game_texture, rounded_uv).r;

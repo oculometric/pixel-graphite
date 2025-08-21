@@ -106,7 +106,7 @@ offset_right = 4.0
 offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 0
-text = "(H) toggle ui    (P) screenshot    (Z) toggle viewpoint    (F) toggle free look"
+text = "(H) overlay    (P) screenshot    (Z) viewpoint    (C) free look"
 label_settings = SubResource("LabelSettings_1xopk")
 vertical_alignment = 2
 

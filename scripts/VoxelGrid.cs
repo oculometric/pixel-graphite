@@ -503,4 +503,9 @@ public partial class VoxelGrid : MeshInstance3D
 		(collider.Shape as ConcavePolygonShape3D).SetFaces(verts.ToArray());
 		(Mesh as ArrayMesh).ShadowMesh = (Mesh.Duplicate() as ArrayMesh);
 	}
+
+	// public byte[] ExportMeshObj()
+	// {
+
+	// }
 }
