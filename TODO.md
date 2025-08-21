@@ -4,7 +4,7 @@
 - [ ] rewrite voxel generation to be more efficient
 - [ ] sand editing/toggle
 - [ ] lily pad painting
-- [ ] mesh exporting
+- [x] mesh exporting
 - [ ] warning on load/exit
 - [x] smooth ghost movement
 - [ ] custom cursor

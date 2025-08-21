@@ -63,6 +63,7 @@ public partial class MainSceneController : Node3D
 						break;
 					case Key.O: ui_controller.ShowSaveDialog(); break;
 					case Key.I: ui_controller.ShowLoadDialog(); break;
+					case Key.U: ui_controller.ShowExportDialog(); break;
 					case Key.Tab:
 						if (!is_modal) SetModal();
 						else SetEditingMode(editing_mode);

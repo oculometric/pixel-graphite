@@ -341,7 +341,6 @@ public partial class VoxelGrid : MeshInstance3D
 		Godot.FileAccess file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Write);
 		file.StoreBuffer(save_data);
 		file.Close();
-        GD.Print("successfully saved voxel data");
     }
 
     public void Load(string path)
@@ -364,6 +363,14 @@ public partial class VoxelGrid : MeshInstance3D
 		}
 		Rebuild();
     }
+
+	public void Export(string path)
+	{
+		byte[] data = MeshExporter.ExportObj((Mesh as ArrayMesh));
+		Godot.FileAccess file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Write);
+		file.StoreBuffer(data);
+		file.Close();
+	}
 
 	// private void PrintMap()
 	// {
@@ -503,9 +510,4 @@ public partial class VoxelGrid : MeshInstance3D
 		(collider.Shape as ConcavePolygonShape3D).SetFaces(verts.ToArray());
 		(Mesh as ArrayMesh).ShadowMesh = (Mesh.Duplicate() as ArrayMesh);
 	}
-
-	// public byte[] ExportMeshObj()
-	// {
-
-	// }
 }

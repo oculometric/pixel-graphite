@@ -12,6 +12,9 @@ public partial class EditingUIController : Control
 
 	[Export] private VBoxContainer voxel_type_container;
 
+	private bool is_exporting = false;
+	private string previous_export = "";
+
 	private string[] mode_names = [ "voxels", "object", "sand & grass", "lighting", "none" ];
 	private string[] mode_controls = [ "(A) << rotate >> (D)\n(F) flip vertical", "...", "...", "(A) << rotate >> (D)    (W/S) rotate up/down    (SHIFT) disable snap\n(Q) toggle sun    (E) toggle ambient    (R) toggle shadows", "..." ];
 
@@ -35,7 +38,9 @@ public partial class EditingUIController : Control
 
 		file_dialog.FileSelected += (string path) =>
 		{
-			if (file_dialog.FileMode == FileDialog.FileModeEnum.SaveFile)
+			if (is_exporting)
+				vec.voxel_grid.Export(path);
+			else if (file_dialog.FileMode == FileDialog.FileModeEnum.SaveFile)
 				vec.voxel_grid.Save(path);
 			else if (file_dialog.FileMode == FileDialog.FileModeEnum.OpenFile)
 				vec.voxel_grid.Load(path);
@@ -127,12 +132,28 @@ public partial class EditingUIController : Control
 	public void ShowSaveDialog()
 	{
 		file_dialog.FileMode = FileDialog.FileModeEnum.SaveFile;
+		is_exporting = false;
+		file_dialog.Filters = ["*.dat"];
+		file_dialog.CurrentFile = previous_export;
 		file_dialog.Show();
 	}
 
 	public void ShowLoadDialog()
 	{
 		file_dialog.FileMode = FileDialog.FileModeEnum.OpenFile;
+		is_exporting = false;
+		file_dialog.Filters = ["*.dat"];
+		file_dialog.CurrentFile = previous_export;
+		file_dialog.Show();
+	}
+
+	public void ShowExportDialog()
+	{
+		file_dialog.FileMode = FileDialog.FileModeEnum.SaveFile;
+		is_exporting = true;
+		file_dialog.Filters = ["*.obj"];
+		previous_export = file_dialog.CurrentFile;
+		file_dialog.CurrentFile = "";
 		file_dialog.Show();
 	}
 }
