@@ -9,6 +9,18 @@ public interface Serialiseable
 	public void SetBytes(byte[] bytes);
 }
 
+public struct VoxelDefinition
+{
+	public byte solid_face_flags; // (LSB to MSB): +x, -x, +y, -y, +z, -z
+	
+	// TODO: geometry, symmetry?
+
+	public VoxelDefinition(byte face_solidity)
+	{
+		solid_face_flags = face_solidity;
+	}
+}
+
 public struct Voxel2 : Serialiseable
 {
 	public byte id = 0;				// id of the voxel type
@@ -30,16 +42,6 @@ public struct Voxel2 : Serialiseable
 		id = bytes[0];
 		orientation = bytes[1];
 	}
-}
-
-public enum Axis
-{
-	POS_X = 0,
-	NEG_X = 1,
-	POS_Y = 2,
-	NEG_Y = 3,
-	POS_Z = 4,
-	NEG_Z = 5
 }
 
 public class GridMap3D<T> where T : Serialiseable
@@ -372,21 +374,6 @@ public partial class VoxelGrid : MeshInstance3D
 		file.Close();
 	}
 
-	// private void PrintMap()
-	// {
-	// 	GD.Print("number of slices along Z: " + voxel_map.Count);
-	// 	for (int i = 0; i < voxel_map.Count; i++)
-	// 	{
-	// 		GD.Print("  number of rows in slice " + i + ": " + voxel_map[i].Count);
-	// 		for (int j = 0; j < voxel_map[i].Count; j++)
-	// 		{
-	// 			GD.Print("    number of tiles in row " + j + ": " + voxel_map[i][j].Count);
-	// 		}
-	// 	}
-
-	// 	GD.Print("done");
-	// }
-	
 	private Vector3 Swizzle(Vector3 vec, byte orientation)
 	{
 		float angle = 0;
@@ -402,6 +389,60 @@ public partial class VoxelGrid : MeshInstance3D
 		vec.Y *= ((orientation & 0b100) > 0) ? -1 : 1;
 
 		return vec;
+	}
+
+	private static VoxelDefinition[] voxel_definitions =
+	{
+		new VoxelDefinition(0),
+		new VoxelDefinition(0b00111111),
+		new VoxelDefinition(0b00100100),
+		// TODO: the rest of the voxel types
+	};
+
+	private byte GetFaceFilledFlags(Voxel2 vox)
+	{
+		// returned byte consists of backed bools of whether the 6 cardinal directions have filled faces
+		if (vox.id >= voxel_definitions.Length)
+			return 0;
+		byte natural_flags = voxel_definitions[vox.id].solid_face_flags;
+		bool px = (natural_flags & 0b1) > 0;
+		bool nx = (natural_flags & 0b10) > 0;
+		bool py = (natural_flags & 0b100) > 0;
+		bool ny = (natural_flags & 0b1000) > 0;
+		bool pz = (natural_flags & 0b10000) > 0;
+		bool nz = (natural_flags & 0b100000) > 0;
+
+		bool spx = px;
+		bool snx = nx;
+		bool spy = py;
+		bool sny = ny;
+		bool spz = pz;
+		bool snz = nz;
+
+		switch (vox.orientation & 0b11)
+		{
+			case 0b00: break;
+			case 0b01: spx = pz; snx = nz; spz = nx; snz = px; break;
+			case 0b10: spx = nx; snx = px; spz = nz; snz = pz; break;
+			case 0b11: spx = nz; snx = pz; spz = px; snz = nx; break;
+		}
+		if ((vox.orientation & 0b100) > 0)
+			{ spz = nz; snz = pz; }
+
+		byte swizzled_flags = (byte)((spx ? 0b00000001 : 0)
+								   | (snx ? 0b00000010 : 0)
+								   | (spy ? 0b00000100 : 0)
+								   | (sny ? 0b00001000 : 0)
+								   | (spz ? 0b00010000 : 0)
+								   | (snz ? 0b00100000 : 0));
+
+		return swizzled_flags;
+	}
+
+	private void AddFaces(Voxel2 vox, byte directions, ref List<Vector3> verts)
+	{
+		// TODO: get the geometry for the given voxel, swizzle it, and selectively apply it to the vertex array depending on which edges have flags
+		
 	}
 
 	public void Rebuild()
@@ -458,6 +499,7 @@ public partial class VoxelGrid : MeshInstance3D
             new Vector3(0.4f, -0.4f, -0.4f),
         };
 
+		List<Vector3> collision_verts = new List<Vector3>();
         List<Vector3> verts = new List<Vector3>();
 
 		Vector3I min = map.GetMin();
@@ -469,45 +511,58 @@ public partial class VoxelGrid : MeshInstance3D
 			{
 				for (int k = min.Z; k <= max.Z; k++)
 				{
-					Voxel2 v = map[i, j, k];
-					Mesh geom = voxel_types[v.id].geometry;
-					if (geom == null) continue;
+					Voxel2 v_current = map[i, j, k];
+					Voxel2 v_next_x = (i != max.X) ? map[i + 1, j, k] : new Voxel2(0, 0);
+					byte sff_next_x = GetFaceFilledFlags(v_next_x);
+					Voxel2 v_next_y = (j != max.Y) ? map[i, j + 1, k] : new Voxel2(0, 0);
+					byte sff_next_y = GetFaceFilledFlags(v_next_y);
+					Voxel2 v_next_z = (k != max.Z) ? map[i, j, k + 1] : new Voxel2(0, 0);
+					byte sff_next_z = GetFaceFilledFlags(v_next_z);
+					Voxel2 v_last_x = (i != min.X) ? map[i - 1, j, k] : new Voxel2(0, 0);
+					byte sff_last_x = GetFaceFilledFlags(v_last_x);
+					Voxel2 v_last_y = (j != min.Y) ? map[i, j - 1, k] : new Voxel2(0, 0);
+					byte sff_last_y = GetFaceFilledFlags(v_last_y);
+					Voxel2 v_last_z = (k != min.Z) ? map[i, j, k - 1] : new Voxel2(0, 0);
+					byte sff_last_z = GetFaceFilledFlags(v_last_z);
 
-					Godot.Collections.Array arrays = geom.SurfaceGetArrays(0);
-					Vector3[] v_arr = arrays[(int)(ArrayMesh.ArrayType.Vertex)].AsVector3Array();
-					Vector3[] n_arr = arrays[(int)(ArrayMesh.ArrayType.Normal)].AsVector3Array();
-                    for (int t = 0; t < v_arr.Length; t++)
-					{
-						v_arr[t] = Swizzle(v_arr[t], v.orientation);
-						n_arr[t] = Swizzle(n_arr[t], v.orientation);
-						v_arr[t] += new Vector3(i, j, k) * voxel_size;
-					}
-					if ((v.orientation & 0b100) > 0)
-					{
-						int[] i_arr = arrays[(int)(ArrayMesh.ArrayType.Index)].AsInt32Array();
-						for (int t = 0; t < i_arr.Length - 2; t += 3)
-						{
-							int tmp = i_arr[t];
-							i_arr[t] = i_arr[t + 2];
-							i_arr[t + 2] = tmp;
-						}
-						arrays[(int)(ArrayMesh.ArrayType.Index)] = i_arr;
-                    }
-                    arrays[(int)(ArrayMesh.ArrayType.Vertex)] = v_arr;
-					arrays[(int)(ArrayMesh.ArrayType.Normal)] = n_arr;
+					byte faces_to_add = 0;
 
-					Vector3[] coll_arr = new Vector3[box_collider.Length];
-					box_collider.CopyTo(coll_arr, 0);
-                    for (int t = 0; t < coll_arr.Length; t++)
-                        coll_arr[t] += new Vector3(i, j, k) * voxel_size;
-                    verts.AddRange(coll_arr);
+					// check face-filled-ness of previous blocks
+					if ((sff_last_x & 0b00000001) == 0)
+						faces_to_add |= 0b00000010;
+					if ((sff_last_y & 0b00000100) == 0)
+						faces_to_add |= 0b00001000;
+					if ((sff_last_z & 0b00010000) == 0)
+						faces_to_add |= 0b00100000;
 
-                    (Mesh as ArrayMesh).AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+					// check face-filled-ness of next blocks
+					if ((sff_next_x & 0b00000010) == 0)
+						faces_to_add |= 0b00000001;
+					if ((sff_next_y & 0b00001000) == 0)
+						faces_to_add |= 0b00000100;
+					if ((sff_next_z & 0b00100000) == 0)
+						faces_to_add |= 0b00010000;
+
+					// check if all side faces are set to not be drawn
+					if (faces_to_add != 0b00000000)
+						faces_to_add |= 0b01111111;
+
+					AddFaces(v_current, faces_to_add, ref verts);
+					
+					Vector3[] collider = new Vector3[box_collider.Length];
+					box_collider.CopyTo(collider, 0);
+					for (int t = 0; t < collider.Length; t++)
+						collider[t] += new Vector3(i, j, k) * voxel_size;
+					collision_verts.AddRange(collider);
 				}
 			}
 		}
 
-		(collider.Shape as ConcavePolygonShape3D).SetFaces(verts.ToArray());
+		// TODO: deduplicate vertices using voxeliser method
+		// TODO: create mesh
+		// TODO: normals!!!
+
+		(collider.Shape as ConcavePolygonShape3D).SetFaces(collision_verts.ToArray());
 		(Mesh as ArrayMesh).ShadowMesh = (Mesh.Duplicate() as ArrayMesh);
 	}
 }
