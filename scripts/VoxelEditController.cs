@@ -4,7 +4,7 @@ using Godot.Collections;
 public partial class VoxelEditController : Node3D
 {
 	private Vector2 mouse_delta;
-	private Voxel2 current_cell_type;
+	private Voxel current_cell_type;
 	private byte cell_type_index = 1;
 	private bool erase_mode = false;
 	public MeshInstance3D outline_object;
@@ -17,7 +17,7 @@ public partial class VoxelEditController : Node3D
  
     public override async void _Ready()
     {
-		current_cell_type = new Voxel2(cell_type_index, 0);
+		current_cell_type = new Voxel(cell_type_index, 0);
 		scene_controller.ui_controller.ConfigureUI(this);
         scene_controller.ui_controller.UpdateVoxelUI(cell_type_index, erase_mode, current_cell_type.orientation);
 
@@ -64,7 +64,7 @@ public partial class VoxelEditController : Node3D
     private void PerformInteraction()
 	{
 		// set that part of the block grid to the assigned block type
-		voxel_grid.SetCellValue(GetHighlightedCell(erase_mode), erase_mode ? new Voxel2(0, 0) : current_cell_type);
+		voxel_grid.SetCellValue(GetHighlightedCell(erase_mode), erase_mode ? new Voxel(0, 0) : current_cell_type);
 		voxel_grid.Rebuild();
 		UpdateOutlineMesh();
 	}
@@ -150,8 +150,9 @@ public partial class VoxelEditController : Node3D
 					case Key.A: current_cell_type.orientation = (byte)((((current_cell_type.orientation & 0b11) + 1) % 4) | (current_cell_type.orientation & 0b100)); break;
 					case Key.F: current_cell_type.orientation = (byte)(current_cell_type.orientation ^ 0b100); break;
 					case Key.X: erase_mode = !erase_mode; break;
+					case Key.W: GetViewport().DebugDraw = (Viewport.DebugDrawEnum)((int)(GetViewport().DebugDraw + 1) % 6); break;
                 }
-                current_cell_type = new Voxel2(cell_type_index, current_cell_type.orientation);
+                current_cell_type = new Voxel(cell_type_index, current_cell_type.orientation);
                 scene_controller.ui_controller.UpdateVoxelUI(cell_type_index, erase_mode, current_cell_type.orientation);
 				UpdateOutlineMesh();
             }

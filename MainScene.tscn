@@ -36,6 +36,7 @@ material = SubResource("ShaderMaterial_4mcbk")
 script = ExtResource("4_uxrcv")
 name = "empty"
 ui_texture = ExtResource("8_anuui")
+solid_face_flags = 0
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_a814b"]
@@ -43,6 +44,7 @@ script = ExtResource("4_uxrcv")
 name = "solid"
 geometry = ExtResource("5_rf2cd")
 ui_texture = ExtResource("9_xtmsi")
+solid_face_flags = 63
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_5crlr"]
@@ -50,6 +52,7 @@ script = ExtResource("4_uxrcv")
 name = "stairs"
 geometry = ExtResource("6_a814b")
 ui_texture = ExtResource("11_anuui")
+solid_face_flags = 40
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_yvb8b"]
@@ -57,6 +60,7 @@ script = ExtResource("4_uxrcv")
 name = "arch"
 geometry = ExtResource("7_torvr")
 ui_texture = ExtResource("13_8qg48")
+solid_face_flags = 0
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_3hf6u"]
@@ -64,6 +68,7 @@ script = ExtResource("4_uxrcv")
 name = "narrow_arch"
 geometry = ExtResource("8_8xkvn")
 ui_texture = ExtResource("15_1ms6g")
+solid_face_flags = 0
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_4mcbk"]
@@ -71,6 +76,7 @@ script = ExtResource("4_uxrcv")
 name = "slope"
 geometry = ExtResource("9_p5x2j")
 ui_texture = ExtResource("17_h86nx")
+solid_face_flags = 0
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_p5x2j"]
