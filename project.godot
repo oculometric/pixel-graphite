@@ -13,6 +13,9 @@ config_version=5
 config/name="pixel-graphite"
 run/main_scene="uid://i1fk5a026gc"
 config/features=PackedStringArray("4.4", "C#", "Forward Plus")
+boot_splash/bg_color=Color(0.929412, 0.909804, 0.898039, 1)
+boot_splash/use_filter=false
+boot_splash/image="uid://gsrx6jyoehjs"
 config/icon="res://icon.svg"
 
 [display]

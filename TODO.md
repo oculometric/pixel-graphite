@@ -15,5 +15,5 @@
 - [x] fix F control overlap
 - [x] fix screen wrapping shader issue
 - [x] fix blocks misplacing
-- [ ] custom loading screen
+- [x] custom loading screen
 - [ ] rewrite legacy loader
