@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 public interface Serialiseable
@@ -12,6 +13,7 @@ public interface Serialiseable
 public class VoxelDescription
 {
 	public byte solid_face_flags; // (LSB to MSB): +x, -x, +y, -y, +z, -z
+	public int total_tris;
 	public Vector3[] face_px = [];
 	public Vector3[] face_nx = [];
 	public Vector3[] face_py = [];
@@ -347,6 +349,8 @@ public partial class VoxelGrid : MeshInstance3D
 				Vector3[] normals = arrays[(int)ArrayMesh.ArrayType.Normal].AsVector3Array();
 				Vector2[] uvs = arrays[(int)ArrayMesh.ArrayType.TexUV].AsVector2Array();
 
+				vd.total_tris = indices.Length / 3;
+
 				List<Vector3> face_px = new List<Vector3>();
 				List<Vector3> face_nx = new List<Vector3>();
 				List<Vector3> face_py = new List<Vector3>();
@@ -545,8 +549,131 @@ public partial class VoxelGrid : MeshInstance3D
 		}
 	}
 
+	private struct Vertex
+	{
+		public Vector3 position;
+		public Vector3 normal;
+
+        public Vertex(Vector3 pos, Vector3 norm)
+        {
+			position = pos;
+			normal = norm;
+        }
+    }
+
+	private void GenerateIndexedArrays(in List<Vector3> verts, in List<Vector3> norms,
+									   out List<Vector3> verts_out, out List<Vector3> norms_out, out List<int> indices)
+	{
+		List<Vertex> result_vertices = new List<Vertex>();
+        result_vertices.EnsureCapacity(verts.Count / 6);
+        indices = new List<int>();
+        indices.EnsureCapacity(verts.Count);
+		float distance = 0.05f;
+        float d2 = distance * distance;
+
+        // convert a raw vertex array to a pair of (deduplicated) vertex and index arrays
+        Dictionary<Vertex, int> vertex_refs = new Dictionary<Vertex, int>(/*new VectorComparer()*/);
+        vertex_refs.EnsureCapacity(verts.Count / 3);
+        LinkedList<Vertex> unmarked_verts = new LinkedList<Vertex>();
+
+        // add all used vertices to vertex refs dictionary.
+        for (int v = 0; v < verts.Count; v++)
+		{
+			Vertex vv = new Vertex(verts[v], norms[v]);
+            vertex_refs[vv] = -1;
+		}
+        foreach (KeyValuePair<Vertex, int> vertex in vertex_refs)
+            unmarked_verts.AddLast(vertex.Key);
+
+        // perform proximity clustering
+        while (unmarked_verts.Count > 0)
+        {
+            // select unmarked vertex, pointing its index to where the new vertex will be
+            Vertex start_vert = unmarked_verts.First.Value;
+            int index = result_vertices.Count;
+            vertex_refs[start_vert] = index;
+            unmarked_verts.RemoveFirst();
+
+            // collect a cluster of nearby verts, marking each as used
+            LinkedListNode<Vertex> lln = unmarked_verts.First;
+            while (lln != null)
+            {
+                // calculate individual differences to perform early rejection
+                float dx = lln.Value.position.X - start_vert.position.X;
+                if (dx > distance) { lln = lln.Next; continue; }
+                if (dx < -distance) { lln = lln.Next; continue; }
+                float dy = lln.Value.position.Y - start_vert.position.Y;
+                if (dy > distance) { lln = lln.Next; continue; }
+                if (dy < -distance) { lln = lln.Next; continue; }
+                float dz = lln.Value.position.Z - start_vert.position.Z;
+                if (dz > distance) { lln = lln.Next; continue; }
+                if (dz < -distance) { lln = lln.Next; continue; }
+				if (lln.Value.normal.X != start_vert.normal.X
+				 || lln.Value.normal.Y != start_vert.normal.Y
+				 || lln.Value.normal.Z != start_vert.normal.Z)
+					{ lln = lln.Next; continue; }
+                if (((dx * dx) + (dy * dy) + (dz * dz)) < d2)
+                {
+                    // set the vertex ref for this vertex position to point to
+                    // the last vertex in the result vertex array
+                    vertex_refs[lln.Value] = index;
+                    // remove this node from the linked list
+                    LinkedListNode<Vertex> old = lln;
+                    lln = lln.Next;
+                    unmarked_verts.Remove(old);
+                }
+                else
+                    lln = lln.Next;
+            }
+
+            // create the resulting vertex
+            result_vertices.Add(start_vert);
+        }
+
+        // build the index array
+        int r = 0;
+        int i = 0;
+        for (int v = 0; v < verts.Count; v++)
+		{
+			Vertex vertex = new Vertex(verts[v], norms[v]);
+            int index = vertex_refs[vertex];
+            indices.Add(index);
+            i++;
+
+            //if (index < 0 || index >= result_vertices.Count)
+            //    GD.Print("oops");
+
+            if (i == 3)
+            {
+                i = 0;
+                int i0 = indices[indices.Count - 3];
+                int i1 = indices[indices.Count - 2];
+                int i2 = indices[indices.Count - 1];
+
+                if (i0 == i1 || i0 == i2 || i1 == i2)
+                {
+                    indices.RemoveRange(indices.Count - 3, 3);
+                    r++;
+                }
+            }
+        }
+
+		verts_out = new List<Vector3>(result_vertices.Count);
+		norms_out = new List<Vector3>(result_vertices.Count);
+		foreach (Vertex v in result_vertices)
+		{
+			verts_out.Add(v.position);
+			norms_out.Add(v.normal);
+		}
+	}
+
+	// TODO: improve indexing
+
 	public void Rebuild()
 	{
+		GD.Print("rebuilding mesh based on " + map.GetSize().X + "x" + map.GetSize().Y + "x" + map.GetSize().Z + " voxel map...");
+		var sw_total = Stopwatch.StartNew();
+
 		(Mesh as ArrayMesh).ClearSurfaces();
 		Vector3[] box_collider =
 		{
@@ -606,6 +733,8 @@ public partial class VoxelGrid : MeshInstance3D
 		Vector3I min = map.GetMin();
 		Vector3I max = map.GetMax();
 
+		var sw_geom = Stopwatch.StartNew();
+		int theoretical_total_tris = 0;
 		for (int i = min.X; i <= max.X; i++)
 		{
 			for (int j = min.Y; j <= max.Y; j++)
@@ -613,7 +742,7 @@ public partial class VoxelGrid : MeshInstance3D
 				for (int k = min.Z; k <= max.Z; k++)
 				{
 					Voxel v_current = map[i, j, k];
-					if (v_current.id == 0)
+					if (v_current.id == 0 || v_current.id >= voxel_descriptions.Count)
 						continue;
 					Voxel v_next_x = (i != max.X) ? map[i + 1, j, k] : new Voxel(0, 0);
 					byte sff_next_x = GetFaceFilledFlags(v_next_x);
@@ -653,6 +782,8 @@ public partial class VoxelGrid : MeshInstance3D
 					Vector3 voxel_offset = new Vector3(i, j, k) * voxel_size;
 					AddFaces(v_current, voxel_offset, faces_to_add, ref verts, ref norms);
 					
+					theoretical_total_tris += voxel_descriptions[v_current.id].total_tris;
+
 					Vector3[] collider = new Vector3[box_collider.Length];
 					box_collider.CopyTo(collider, 0);
 					for (int t = 0; t < collider.Length; t++)
@@ -661,18 +792,38 @@ public partial class VoxelGrid : MeshInstance3D
 				}
 			}
 		}
+		sw_geom.Stop();
+		float geom_ms = (float)sw_geom.Elapsed.TotalMilliseconds;
 
-		ArrayMesh am = Mesh as ArrayMesh;
-		Godot.Collections.Array arrays = new Godot.Collections.Array();
-		arrays.Resize((int)ArrayMesh.ArrayType.Max);
-		arrays[(int)ArrayMesh.ArrayType.Vertex] = verts.ToArray();
-		arrays[(int)ArrayMesh.ArrayType.Normal] = norms.ToArray();
-		am.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+		if (verts.Count > 0)
+		{
+			List<Vector3> final_verts;
+			List<Vector3> final_norms;
+			List<int> final_indices;
 
-		// TODO: deduplicate vertices using voxeliser method
-		// TODO: create mesh
+			var sw_index = Stopwatch.StartNew();
+			GenerateIndexedArrays(in verts, in norms, out final_verts, out final_norms, out final_indices);
+			sw_index.Stop();
+			float index_ms = (float)sw_index.Elapsed.TotalMilliseconds;
+
+			ArrayMesh am = Mesh as ArrayMesh;
+			Godot.Collections.Array arrays = new Godot.Collections.Array();
+			arrays.Resize((int)ArrayMesh.ArrayType.Max);
+			arrays[(int)ArrayMesh.ArrayType.Vertex] = final_verts.ToArray();
+			arrays[(int)ArrayMesh.ArrayType.Normal] = final_norms.ToArray();
+			arrays[(int)ArrayMesh.ArrayType.Index] = final_indices.ToArray();
+			am.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+
+			sw_total.Stop();
+			float total_ms = (float)sw_total.Elapsed.TotalMilliseconds;
+
+			GD.Print("verts without indexing: " + verts.Count + "; with indexing: " + final_verts.Count);
+			GD.Print("tris without culling: " + theoretical_total_tris + "; with culling: " + (final_indices.Count / 3));
+			GD.Print("took " + total_ms + "ms (" + geom_ms + "ms geometry, " + index_ms + "ms indexing)");
+		}
 
 		(collider.Shape as ConcavePolygonShape3D).SetFaces(collision_verts.ToArray());
 		(Mesh as ArrayMesh).ShadowMesh = (Mesh.Duplicate() as ArrayMesh);
+		GD.Print("done");
 	}
 }
