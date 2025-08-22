@@ -60,7 +60,7 @@ script = ExtResource("4_uxrcv")
 name = "arch"
 geometry = ExtResource("7_torvr")
 ui_texture = ExtResource("13_8qg48")
-solid_face_flags = 0
+solid_face_flags = 24
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_3hf6u"]
@@ -68,7 +68,7 @@ script = ExtResource("4_uxrcv")
 name = "narrow_arch"
 geometry = ExtResource("8_8xkvn")
 ui_texture = ExtResource("15_1ms6g")
-solid_face_flags = 0
+solid_face_flags = 16
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_4mcbk"]
@@ -76,7 +76,7 @@ script = ExtResource("4_uxrcv")
 name = "slope"
 geometry = ExtResource("9_p5x2j")
 ui_texture = ExtResource("17_h86nx")
-solid_face_flags = 0
+solid_face_flags = 24
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_p5x2j"]

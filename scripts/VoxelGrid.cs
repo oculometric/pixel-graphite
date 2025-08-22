@@ -462,12 +462,9 @@ public partial class VoxelGrid : MeshInstance3D
 		return vec;
 	}
 
-	private byte GetFaceFilledFlags(Voxel vox)
+	private byte GetSwizzledFlags(byte flags, byte orientation)
 	{
-		// returned byte consists of backed bools of whether the 6 cardinal directions have filled faces
-		if (vox.id >= voxel_descriptions.Count)
-			return 0;
-		byte natural_flags = voxel_descriptions[vox.id].solid_face_flags;
+		byte natural_flags = flags;
 		bool px = (natural_flags & 0b1) > 0;
 		bool nx = (natural_flags & 0b10) > 0;
 		bool py = (natural_flags & 0b100) > 0;
@@ -482,14 +479,14 @@ public partial class VoxelGrid : MeshInstance3D
 		bool spz = pz;
 		bool snz = nz;
 
-		switch (vox.orientation & 0b11)
+		switch (orientation & 0b11)
 		{
 			case 0b00: break;
-			case 0b01: spx = pz; snx = nz; spz = nx; snz = px; break;
-			case 0b10: spx = nx; snx = px; spz = nz; snz = pz; break;
-			case 0b11: spx = nz; snx = pz; spz = px; snz = nx; break;
+			case 0b01: spx = py; snx = ny; spy = nx; sny = px; break;
+			case 0b10: spx = nx; snx = px; spy = ny; sny = py; break;
+			case 0b11: spx = ny; snx = py; spy = px; sny = nx; break;
 		}
-		if ((vox.orientation & 0b100) > 0)
+		if ((orientation & 0b100) > 0)
 			{ spz = nz; snz = pz; }
 
 		byte swizzled_flags = (byte)((spx ? 0b00000001 : 0)
@@ -502,6 +499,15 @@ public partial class VoxelGrid : MeshInstance3D
 		return swizzled_flags;
 	}
 
+	private byte GetFaceFilledFlags(Voxel vox)
+	{
+		// returned byte consists of backed bools of whether the 6 cardinal directions have filled faces
+		if (vox.id >= voxel_descriptions.Count)
+			return 0;
+		
+		return GetSwizzledFlags(voxel_descriptions[vox.id].solid_face_flags, vox.orientation);
+	}
+
 	private void AddFaces(Voxel vox, Vector3 offset, byte directions, ref List<Vector3> verts, ref List<Vector3> norms)
 	{
 		if (vox.id >= voxel_descriptions.Count)
@@ -509,15 +515,25 @@ public partial class VoxelGrid : MeshInstance3D
 		
 		VoxelDescription description = voxel_descriptions[vox.id];
 		List<Vector3> all_data = new List<Vector3>();
-		if ((directions & 0b1) > 0) all_data.AddRange(description.face_px);
-		if ((directions & 0b10) > 0) all_data.AddRange(description.face_nx);
-		if ((directions & 0b100) > 0) all_data.AddRange(description.face_py);
-		if ((directions & 0b1000) > 0) all_data.AddRange(description.face_ny);
-		if ((directions & 0b10000) > 0) all_data.AddRange(description.face_pz);
-		if ((directions & 0b100000) > 0) all_data.AddRange(description.face_nz);
-		if ((directions & 0b1000000) > 0) all_data.AddRange(description.interior);
+		byte swizzled_directions = (byte)(GetSwizzledFlags(directions, vox.orientation) | (directions & 0b01000000));
 
-		// TODO: flip vertex order for upside-down!!!!!!
+		if ((swizzled_directions & 0b1) != 0) all_data.AddRange(description.face_px);
+		if ((swizzled_directions & 0b10) != 0) all_data.AddRange(description.face_nx);
+		if ((swizzled_directions & 0b100) != 0) all_data.AddRange(description.face_py);
+		if ((swizzled_directions & 0b1000) != 0) all_data.AddRange(description.face_ny);
+		if ((swizzled_directions & 0b10000) != 0) all_data.AddRange(description.face_pz);
+		if ((swizzled_directions & 0b100000) != 0) all_data.AddRange(description.face_nz);
+		if ((swizzled_directions & 0b1000000) != 0) all_data.AddRange(description.interior);
+
+		if ((vox.orientation & 0b100) > 0)
+		{
+			for (int i = 0; i < all_data.Count - 2; i += 3)
+			{
+				Vector3 tmp = all_data[i];
+				all_data[i] = all_data[i + 2];
+				all_data[i + 2] = tmp;
+			}
+		}
 
 		for (int i = 0; i < all_data.Count; i++)
 		{
@@ -617,22 +633,22 @@ public partial class VoxelGrid : MeshInstance3D
 					// check face-filled-ness of previous blocks
 					if ((sff_last_x & 0b00000001) == 0)
 						faces_to_add |= 0b00000010;
-					if ((sff_last_y & 0b00000100) == 0)
-						faces_to_add |= 0b00001000;
-					if ((sff_last_z & 0b00010000) == 0)
+					if ((sff_last_z & 0b00000100) == 0)
+						faces_to_add |= 0b00000100;
+					if ((sff_last_y & 0b00010000) == 0)
 						faces_to_add |= 0b00100000;
 
 					// check face-filled-ness of next blocks
 					if ((sff_next_x & 0b00000010) == 0)
 						faces_to_add |= 0b00000001;
-					if ((sff_next_y & 0b00001000) == 0)
-						faces_to_add |= 0b00000100;
-					if ((sff_next_z & 0b00100000) == 0)
+					if ((sff_next_z & 0b00001000) == 0)
+						faces_to_add |= 0b00001000;
+					if ((sff_next_y & 0b00100000) == 0)
 						faces_to_add |= 0b00010000;
 
 					// check if all side faces are set to not be drawn
 					if (faces_to_add != 0b00000000)
-						faces_to_add |= 0b01111111;
+						faces_to_add |= 0b01000000;
 
 					Vector3 voxel_offset = new Vector3(i, j, k) * voxel_size;
 					AddFaces(v_current, voxel_offset, faces_to_add, ref verts, ref norms);

@@ -73,6 +73,7 @@ public partial class MainSceneController : Node3D
 					case Key.Key3: if (is_modal) SetEditingMode(2); break;
 					case Key.Key4: if (is_modal) SetEditingMode(3); break;
 					case Key.Key5: if (is_modal) SetEditingMode(4); break;
+					case Key.W: GetViewport().DebugDraw = (Viewport.DebugDrawEnum)((int)(GetViewport().DebugDraw + 1) % 6); break;
 				}
 			}
 		}

@@ -150,7 +150,6 @@ public partial class VoxelEditController : Node3D
 					case Key.A: current_cell_type.orientation = (byte)((((current_cell_type.orientation & 0b11) + 1) % 4) | (current_cell_type.orientation & 0b100)); break;
 					case Key.F: current_cell_type.orientation = (byte)(current_cell_type.orientation ^ 0b100); break;
 					case Key.X: erase_mode = !erase_mode; break;
-					case Key.W: GetViewport().DebugDraw = (Viewport.DebugDrawEnum)((int)(GetViewport().DebugDraw + 1) % 6); break;
                 }
                 current_cell_type = new Voxel(cell_type_index, current_cell_type.orientation);
                 scene_controller.ui_controller.UpdateVoxelUI(cell_type_index, erase_mode, current_cell_type.orientation);
