@@ -2,6 +2,7 @@
 - [ ] add camera perspective controls?
 - [x] rewrite voxel storage
 - [x] rewrite voxel generation to be more efficient
+- [ ] optimise mesh indexing
 - [ ] sand editing/toggle
 - [ ] lily pad painting
 - [x] mesh exporting
@@ -14,3 +15,5 @@
 - [x] fix F control overlap
 - [x] fix screen wrapping shader issue
 - [x] fix blocks misplacing
+- [ ] custom loading screen
+- [ ] rewrite legacy loader

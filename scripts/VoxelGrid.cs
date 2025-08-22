@@ -568,7 +568,7 @@ public partial class VoxelGrid : MeshInstance3D
         result_vertices.EnsureCapacity(verts.Count / 6);
         indices = new List<int>();
         indices.EnsureCapacity(verts.Count);
-		float distance = 0.05f;
+		float distance = 0.025f;
         float d2 = distance * distance;
 
         // convert a raw vertex array to a pair of (deduplicated) vertex and index arrays
@@ -666,8 +666,6 @@ public partial class VoxelGrid : MeshInstance3D
 			norms_out.Add(v.normal);
 		}
 	}
-
-	// TODO: improve indexing
 
 	public void Rebuild()
 	{
