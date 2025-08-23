@@ -19,3 +19,4 @@
 - [x] custom loading screen
 - [ ] rewrite legacy loader
 - [ ] implement RLE for dat files to reduce size (or use zip?)
+- [ ] implement autosave and improved saving/loading featues in general (save vs save as, tracking the currently edited file)
