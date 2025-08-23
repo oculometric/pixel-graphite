@@ -3,6 +3,7 @@
 - [x] rewrite voxel storage
 - [x] rewrite voxel generation to be more efficient
 - [ ] optimise mesh indexing
+- [ ] split mesh generation into blocks to reduce indexing cost and eliminate need to rebuild entire mesh (possibly store file as blocks too?)
 - [ ] sand editing/toggle
 - [ ] lily pad painting
 - [x] mesh exporting
@@ -17,3 +18,4 @@
 - [x] fix blocks misplacing
 - [x] custom loading screen
 - [ ] rewrite legacy loader
+- [ ] implement RLE for dat files to reduce size (or use zip?)
