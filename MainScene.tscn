@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=41 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="1_3mqji"]
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
@@ -21,6 +21,8 @@
 [ext_resource type="ArrayMesh" uid="uid://ckkm2enqeh8nb" path="res://meshes/sand_demo.res" id="14_4mcbk"]
 [ext_resource type="Texture2D" uid="uid://db7bana4t4w2q" path="res://textures/voxel_icon_narrowarch.png" id="15_1ms6g"]
 [ext_resource type="Texture2D" uid="uid://dmfwu725xlh5m" path="res://textures/voxel_icon_slope.png" id="17_h86nx"]
+[ext_resource type="Shader" uid="uid://cffa10nakhlmc" path="res://materials/GraphitePostProcess.gdshader" id="20_7jkkr"]
+[ext_resource type="Texture2D" uid="uid://buhna18cj3i0h" path="res://textures/BlendMap_tonemap.png" id="21_amtbh"]
 [ext_resource type="Script" uid="uid://bv402urnm2ct7" path="res://scripts/LightEditController.cs" id="22_8qg48"]
 [ext_resource type="ArrayMesh" uid="uid://r5i2j2o5irf7" path="res://meshes/grass_Grass01.res" id="23_1ms6g"]
 [ext_resource type="Shader" uid="uid://b2xbacqj8mowf" path="res://materials/ParticleProcessor.gdshader" id="24_h86nx"]
@@ -88,12 +90,27 @@ material = SubResource("ShaderMaterial_p5x2j")
 flip_faces = true
 size = Vector2(2, 2)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_amtbh"]
+render_priority = -128
+shader = ExtResource("20_7jkkr")
+shader_parameter/pixelation_size = 2
+shader_parameter/palette_low = Color(0.102, 0.079, 0.031, 1)
+shader_parameter/palette_high = Color(0.834, 0.834, 0.801, 1)
+shader_parameter/use_palette_mid = true
+shader_parameter/palette_mid = Color(0.724, 0.593, 0.509, 1)
+shader_parameter/lut = ExtResource("21_amtbh")
+
+[sub_resource type="QuadMesh" id="QuadMesh_obg7t"]
+material = SubResource("ShaderMaterial_amtbh")
+flip_faces = true
+size = Vector2(2, 2)
+
 [sub_resource type="Environment" id="Environment_8xkvn"]
 background_mode = 1
 background_color = Color(0.46, 0.46, 0.46, 1)
 ambient_light_source = 2
 ambient_light_color = Color(0.41, 0.41, 0.41, 1)
-tonemap_white = 1.1
+tonemap_white = 5.0
 ssao_enabled = true
 ssao_radius = 4.0
 ssao_intensity = 5.0
@@ -106,6 +123,8 @@ sdfgi_cascade0_distance = 18.75
 sdfgi_max_distance = 300.0
 sdfgi_y_scale = 2
 sdfgi_energy = 0.5
+volumetric_fog_density = 0.14
+volumetric_fog_emission = Color(1, 1, 1, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7jkkr"]
 shader = ExtResource("24_h86nx")
@@ -151,18 +170,20 @@ directional_shadow_max_distance = 500.0
 sky_mode = 1
 
 [node name="PostProcessor" type="MeshInstance3D" parent="."]
+visible = false
 cast_shadow = 0
 extra_cull_margin = 16384.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_torvr")
 
+[node name="PostProcessor2" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+extra_cull_margin = 16384.0
+gi_mode = 0
+mesh = SubResource("QuadMesh_obg7t")
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_8xkvn")
-
-[node name="BuildingDemo" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 4.4, 2)
-visible = false
-mesh = ExtResource("11_p5x2j")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.520292, 0.147134, -0.841218, -0.184127, 0.981205, 0.0577364, 0.833902, 0.124851, 0.537605, 0, 0, 0)
@@ -182,3 +203,7 @@ scene_controller = NodePath("..")
 sun = NodePath("../DirectionalLight3D")
 granular_pan_speed = 50.0
 snap_angle = 15.0
+
+[node name="BuildingDemo" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.17064, 4.26007, 0.972704)
+mesh = ExtResource("11_p5x2j")
