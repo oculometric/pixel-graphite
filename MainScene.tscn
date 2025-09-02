@@ -1,6 +1,7 @@
 [gd_scene load_steps=9 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
+[ext_resource type="CompressedTexture3D" uid="uid://ua2nnfrenuj8" path="res://tonemap_lut.png" id="3_rf2cd"]
 [ext_resource type="ArrayMesh" uid="uid://c86nm2wuplvsp" path="res://meshes/the opaque eye.obj" id="4_rf2cd"]
 [ext_resource type="Material" uid="uid://bbujphjvx5nh" path="res://materials/Concrete.tres" id="11_yvb8b"]
 [ext_resource type="Shader" uid="uid://cffa10nakhlmc" path="res://materials/GraphitePostProcess.gdshader" id="20_7jkkr"]
@@ -14,7 +15,7 @@ shader_parameter/palette_low = Color(0.015208, 0.011115, 0.003702, 1)
 shader_parameter/palette_high = Color(2, 1.07333, 0.79737, 1)
 shader_parameter/use_palette_mid = true
 shader_parameter/palette_mid = Color(0.513966, 0.272809, 0.186906, 1)
-shader_parameter/lut = ExtResource("21_amtbh")
+shader_parameter/lut = ExtResource("3_rf2cd")
 
 [sub_resource type="QuadMesh" id="QuadMesh_obg7t"]
 material = SubResource("ShaderMaterial_amtbh")

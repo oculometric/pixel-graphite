@@ -14,11 +14,7 @@ uniform vec3 palette_high : source_color = vec3(2.000000, 1.073330, 0.797370);
 uniform bool use_palette_mid = false;
 uniform vec3 palette_mid : source_color = vec3(0.513966, 0.272809, 0.186906);
 
-const vec3 pl_tmp = vec3(0.015208, 0.011115, 0.003702);
-const vec3 ph_tmp = vec3(2.000000, 1.073330, 0.797370);
-const vec3 pm_tmp = vec3(0.513966, 0.272809, 0.186906);
-
-uniform sampler2D lut : hint_default_white, filter_linear, repeat_disable;
+uniform sampler3D lut : hint_default_white, filter_linear, repeat_disable;
 
 void vertex()
 {
@@ -116,25 +112,13 @@ vec3 colourise(float value)
 			final_colour = mix(linear_to_srgb(palette_low), linear_to_srgb(palette_mid), smoothstep(0.0f, 1.0f, (final_value * 2.0f)));
 	}
 	else
-		final_colour = mix(palette_low, palette_high, smoothstep(0.0f, 1.0f, final_value));
+		final_colour = mix(linear_to_srgb(palette_low), linear_to_srgb(palette_high), smoothstep(0.0f, 1.0f, final_value));
 	return final_colour;
 }
 
 vec3 tonemap(vec3 col)
 {
-	vec3 lin = srgb_to_linear(col);
-	float log_lum = log(dot(lin, vec3(0.2126f, 0.7151f, 0.0722f)));
-	float remap = (log_lum + 2.0f) / 4.0f;
-	float lum_out = clamp(remap * remap * remap * (10.0f + (remap * ((6.0f * remap) - 15.0f))), 0.0f, 1.0f);
-	return vec3(lum_out);
-}
-
-vec3 sample_lut(float f)
-{
-	float f_2 = clamp(f, 0.0f, 1.0f);
-	float x = mod(f_2 * 64.0f, 1.0f);
-	float y = 1.0f - (floor(f_2 * 64.0f) / 64.0f);
-	return texture(lut, vec2(x, y)).rgb;
+	return srgb_to_linear(texture(lut, col.rgb * 0.5f).rgb);
 }
 
 void fragment()
@@ -152,17 +136,13 @@ void fragment()
 	vec3 screen_sample = texture(screen_tex, downscaled_uv).rgb;
 	float screen_value = dot(screen_sample, vec3(0.2126f, 0.7151f, 0.0722f));
 	screen_value = 1.0f - ((1.0f - screen_value) * 0.95);
-	if (texture(depth_tex, downscaled_uv).r == 0.0f)
-		screen_value = 1.0f;
 		
-	// TODO: reimplement edge displacement for all UVs (including depth, edge, and 
-	//vec2 edge_displace = vec2(
-		//fbm((downscaled_uv + 0.00f) / 0.07f, 3, 2.0f, 0.5f),
-		//fbm((downscaled_uv + 15.0f) / 0.07f, 3, 2.0f, 0.5f)
-		//);
+	// TODO: reimplement edge displacement for all UVs (including depth, edge)
+	
 	// compute edge mask via sharpen filters (DONE)
 	float edges = edge_mask(downscaled_uv, 1.0f / (VIEWPORT_SIZE * float(pixelation_size)), INV_PROJECTION_MATRIX);
 	float edged_value = mix(screen_value, screen_value * 0.151f, edges);
+	
 	// apply grain (DONE)
 	vec2 scaled_viewport = VIEWPORT_SIZE * 0.000977f;
 	float noise = ((fbm((downscaled_uv / 0.005f) * 20.0f * scaled_viewport, 2, 2.0f, 0.5f)) * 1.2f) - 0.7f;
@@ -171,11 +151,16 @@ void fragment()
 	float posterised_value = round(noised_value * 64.0f) / 64.0f;
 	// add sketch effect (DONE)
 	float sketched_value = sketch(downscaled_uv, scaled_viewport, posterised_value);
+	
+	// apply solid background (DONE)
+	if (texture(depth_tex, downscaled_uv).r == 0.0f)
+		sketched_value = 1.0f;
+	
 	// apply overlay texture (DONE)
 	float overlaid_value = overlay(sketched_value, downscaled_uv);
 	
 	// colourise (DONE)
 	vec3 unmapped_colour = colourise(overlaid_value);
-	// TODO: tonemap
+	// tonemap (DONE)
 	ALBEDO = tonemap(unmapped_colour);
 }
