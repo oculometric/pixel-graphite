@@ -129,9 +129,9 @@ void fragment()
 	// then scale that output to fill the screen in the viewport (only 2 copies, UI into this, then this onto screen)
 	
 	vec2 downscaled_viewport_size = VIEWPORT_SIZE / float(pixelation_size);
-	vec2 downscaled_uv = floor(SCREEN_UV * downscaled_viewport_size /* * float(pixelation_size) */) / downscaled_viewport_size;
-	if (downscaled_uv.x > 1.0f || downscaled_uv.y > 1.0f)
-		discard;
+	vec2 downscaled_uv = floor(SCREEN_UV * downscaled_viewport_size/* * float(pixelation_size)*/) / downscaled_viewport_size;
+	/*if (downscaled_uv.x > 1.0f || downscaled_uv.y > 1.0f)
+		discard;*/ // for a slight performance boost, this (and the code above) can be uncommented
 	
 	vec3 screen_sample = texture(screen_tex, downscaled_uv).rgb;
 	float screen_value = dot(screen_sample, vec3(0.2126f, 0.7151f, 0.0722f));

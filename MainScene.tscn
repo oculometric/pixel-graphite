@@ -1,11 +1,29 @@
-[gd_scene load_steps=9 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=36 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
 [ext_resource type="CompressedTexture3D" uid="uid://ua2nnfrenuj8" path="res://tonemap_lut.png" id="3_rf2cd"]
-[ext_resource type="ArrayMesh" uid="uid://c86nm2wuplvsp" path="res://meshes/the opaque eye.obj" id="4_rf2cd"]
+[ext_resource type="Script" uid="uid://w7d3r243dtvb" path="res://scripts/ViewportTextureGrab.cs" id="4_5crlr"]
+[ext_resource type="PackedScene" uid="uid://bw5buyyqs4iuj" path="res://EditingUI.tscn" id="6_a814b"]
+[ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="8_h86nx"]
+[ext_resource type="Script" uid="uid://c4gsrcqvnkxot" path="res://scripts/VoxelEditController.cs" id="9_7jkkr"]
+[ext_resource type="Shader" uid="uid://bqr45337p5krw" path="res://materials/Wireframe.gdshader" id="10_amtbh"]
+[ext_resource type="Script" uid="uid://bq5xvx6j8hb3h" path="res://scripts/VoxelGrid.cs" id="11_obg7t"]
 [ext_resource type="Material" uid="uid://bbujphjvx5nh" path="res://materials/Concrete.tres" id="11_yvb8b"]
+[ext_resource type="Script" uid="uid://c53hk58dbog3k" path="res://scripts/VoxelType.cs" id="12_v3bin"]
+[ext_resource type="Texture2D" uid="uid://4a37vsvgw02t" path="res://textures/voxel_icon_empty.png" id="13_6dw4c"]
+[ext_resource type="ArrayMesh" uid="uid://c1nmghua3b2pi" path="res://meshes/voxels_Solid.res" id="14_cxdnd"]
+[ext_resource type="Texture2D" uid="uid://d3qc4eqgt35cs" path="res://textures/voxel_icon_solid.png" id="15_ro037"]
+[ext_resource type="ArrayMesh" uid="uid://3tt62ymw14en" path="res://meshes/voxels_Stairs.res" id="16_lppff"]
+[ext_resource type="Texture2D" uid="uid://0v8bgju3b5bp" path="res://textures/voxel_icon_stairs.png" id="17_5o6vq"]
+[ext_resource type="ArrayMesh" uid="uid://c3koqu3rikmap" path="res://meshes/voxels_Arch.res" id="18_5i0cj"]
+[ext_resource type="Texture2D" uid="uid://b1jbbjk8bw4tf" path="res://textures/voxel_icon_arch.png" id="19_f3pw5"]
 [ext_resource type="Shader" uid="uid://cffa10nakhlmc" path="res://materials/GraphitePostProcess.gdshader" id="20_7jkkr"]
-[ext_resource type="Texture2D" uid="uid://buhna18cj3i0h" path="res://textures/BlendMap_tonemap.png" id="21_amtbh"]
+[ext_resource type="ArrayMesh" uid="uid://bnaw8i1b0c6je" path="res://meshes/voxels_NarrowArch.res" id="20_nlw8m"]
+[ext_resource type="Texture2D" uid="uid://db7bana4t4w2q" path="res://textures/voxel_icon_narrowarch.png" id="21_r1x6n"]
+[ext_resource type="ArrayMesh" uid="uid://c1k8806eeonoq" path="res://meshes/voxels_Slope.res" id="22_kvyqs"]
+[ext_resource type="Texture2D" uid="uid://dmfwu725xlh5m" path="res://textures/voxel_icon_slope.png" id="23_i1thg"]
+[ext_resource type="Script" uid="uid://bv402urnm2ct7" path="res://scripts/LightEditController.cs" id="24_a28bb"]
+[ext_resource type="ArrayMesh" uid="uid://ckkm2enqeh8nb" path="res://meshes/sand_demo.res" id="24_h86nx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_amtbh"]
 render_priority = -128
@@ -28,8 +46,9 @@ background_color = Color(0.537, 0.537, 0.537, 1)
 ambient_light_source = 2
 ambient_light_color = Color(0.537, 0.537, 0.537, 1)
 tonemap_white = 5.0
+ssao_enabled = true
 ssao_radius = 4.0
-ssao_intensity = 5.0
+ssao_intensity = 4.0
 ssao_detail = 0.2
 ssao_sharpness = 1.0
 ssao_light_affect = 1.0
@@ -42,31 +61,127 @@ sdfgi_energy = 0.5
 volumetric_fog_density = 0.14
 volumetric_fog_emission = Color(1, 1, 1, 1)
 
-[node name="MainScene" type="Node3D"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4mcbk"]
+render_priority = -48
+shader = ExtResource("10_amtbh")
+
+[sub_resource type="BoxMesh" id="BoxMesh_506kc"]
+material = SubResource("ShaderMaterial_4mcbk")
+
+[sub_resource type="Resource" id="Resource_rf2cd"]
+script = ExtResource("12_v3bin")
+name = "empty"
+ui_texture = ExtResource("13_6dw4c")
+solid_face_flags = 0
+metadata/_custom_type_script = "uid://c53hk58dbog3k"
+
+[sub_resource type="Resource" id="Resource_a814b"]
+script = ExtResource("12_v3bin")
+name = "solid"
+geometry = ExtResource("14_cxdnd")
+ui_texture = ExtResource("15_ro037")
+solid_face_flags = 63
+metadata/_custom_type_script = "uid://c53hk58dbog3k"
+
+[sub_resource type="Resource" id="Resource_5crlr"]
+script = ExtResource("12_v3bin")
+name = "stairs"
+geometry = ExtResource("16_lppff")
+ui_texture = ExtResource("17_5o6vq")
+solid_face_flags = 40
+metadata/_custom_type_script = "uid://c53hk58dbog3k"
+
+[sub_resource type="Resource" id="Resource_yvb8b"]
+script = ExtResource("12_v3bin")
+name = "arch"
+geometry = ExtResource("18_5i0cj")
+ui_texture = ExtResource("19_f3pw5")
+solid_face_flags = 24
+metadata/_custom_type_script = "uid://c53hk58dbog3k"
+
+[sub_resource type="Resource" id="Resource_3hf6u"]
+script = ExtResource("12_v3bin")
+name = "narrow_arch"
+geometry = ExtResource("20_nlw8m")
+ui_texture = ExtResource("21_r1x6n")
+solid_face_flags = 16
+metadata/_custom_type_script = "uid://c53hk58dbog3k"
+
+[sub_resource type="Resource" id="Resource_4mcbk"]
+script = ExtResource("12_v3bin")
+name = "slope"
+geometry = ExtResource("22_kvyqs")
+ui_texture = ExtResource("23_i1thg")
+solid_face_flags = 24
+metadata/_custom_type_script = "uid://c53hk58dbog3k"
+
+[node name="MainScene" type="Node3D" node_paths=PackedStringArray("ui_controller", "voxel_editor", "light_editor")]
 script = ExtResource("1_mctxq")
+ui_controller = NodePath("UIViewport/EditingUI")
+voxel_editor = NodePath("VoxelEditController")
+light_editor = NodePath("LightEditController")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.840308, -0.40902, -0.355789, 0.0257013, -0.685624, 0.727502, -0.5415, 0.602181, 0.586648, 0, 6.01163, 0)
-visible = false
-light_energy = 0.44
+light_energy = 0.33
 light_angular_distance = 3.5
 shadow_enabled = true
 directional_shadow_max_distance = 500.0
 sky_mode = 1
 
-[node name="PostProcessor2" type="MeshInstance3D" parent="."]
+[node name="PostProcessor2" type="MeshInstance3D" parent="." node_paths=PackedStringArray("viewports")]
 cast_shadow = 0
 extra_cull_margin = 16384.0
 gi_mode = 0
 mesh = SubResource("QuadMesh_obg7t")
+script = ExtResource("4_5crlr")
+viewports = [NodePath("../UIViewport")]
+shader_parameters = Array[String](["overlay_tex"])
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_8xkvn")
 
-[node name="TheOpaqueEye2" type="MeshInstance3D" parent="."]
-mesh = ExtResource("4_rf2cd")
-surface_material_override/0 = ExtResource("11_yvb8b")
-
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -18.4, 0, 0)
+visible = false
 fov = 40.2
+
+[node name="UIViewport" type="SubViewport" parent="."]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 4
+
+[node name="EditingUI" parent="UIViewport" instance=ExtResource("6_a814b")]
+
+[node name="Camera" parent="." node_paths=PackedStringArray("scene_controller") instance=ExtResource("8_h86nx")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.8, 0)
+scene_controller = NodePath("..")
+
+[node name="VoxelEditController" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid", "scene_controller")]
+script = ExtResource("9_7jkkr")
+voxel_grid = NodePath("../VoxelGrid")
+scene_controller = NodePath("..")
+outline_mesh = SubResource("BoxMesh_506kc")
+
+[node name="VoxelGrid" type="MeshInstance3D" parent="." node_paths=PackedStringArray("collider")]
+material_override = ExtResource("11_yvb8b")
+gi_mode = 2
+script = ExtResource("11_obg7t")
+voxel_types = Array[Object]([SubResource("Resource_rf2cd"), SubResource("Resource_a814b"), SubResource("Resource_5crlr"), SubResource("Resource_yvb8b"), SubResource("Resource_3hf6u"), SubResource("Resource_4mcbk")])
+collider = NodePath("StaticBody3D/CollisionShape3D")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="VoxelGrid"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="VoxelGrid/StaticBody3D"]
+
+[node name="LightEditController" type="Node3D" parent="." node_paths=PackedStringArray("scene_controller", "sun")]
+script = ExtResource("24_a28bb")
+scene_controller = NodePath("..")
+sun = NodePath("../DirectionalLight3D")
+granular_pan_speed = 50.0
+snap_angle = 15.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.520292, 0.147134, -0.841218, -0.184127, 0.981205, 0.0577364, 0.833902, 0.124851, 0.537605, 0, 0, 0)
+mesh = ExtResource("24_h86nx")

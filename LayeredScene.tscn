@@ -87,9 +87,8 @@ anisotropic_filtering_level = 0
 size = Vector2i(1024, 1024)
 render_target_update_mode = 4
 
-[node name="MainScene" parent="GameViewportContainer/GameViewport" node_paths=PackedStringArray("ui_controller", "render_controller") instance=ExtResource("1_cfnn4")]
+[node name="MainScene" parent="GameViewportContainer/GameViewport" node_paths=PackedStringArray("ui_controller") instance=ExtResource("1_cfnn4")]
 ui_controller = NodePath("../../../UIViewport/EditingUI")
-render_controller = NodePath("../../../CompositingViewportContainer/CompositingViewport/CanvasLayer/UIOverlay")
 
 [node name="UIViewport" type="SubViewport" parent="."]
 own_world_3d = true

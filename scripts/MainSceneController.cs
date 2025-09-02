@@ -1,10 +1,10 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class MainSceneController : Node3D
 {
 	[Export] public EditingUIController ui_controller;
-	[Export] public UpdateUIRender render_controller;
 
 	[Export] public VoxelEditController voxel_editor;
 	[Export] public LightEditController light_editor;
@@ -46,7 +46,23 @@ public partial class MainSceneController : Node3D
 		ui_controller.ToggleModeModal(is_modal, editing_mode);
 	}
 
-	public override void _UnhandledInput(InputEvent @event)
+    public void TakeScreenshot()
+    {
+        GD.Print("screenshot");
+        DirAccess screenshot_dir = DirAccess.Open(".");
+        screenshot_dir.MakeDir("screenshots");
+        screenshot_dir.ChangeDir("screenshots");
+        int image_number = 0;
+        List<string> files = new List<string>(screenshot_dir.GetFiles());
+        while (files.Contains(string.Format("pixel_graphite_{0:D4}.png", image_number)))
+            image_number++;
+        string image_name = screenshot_dir.GetCurrentDir() + string.Format("/pixel_graphite_{0:D4}.png", image_number);
+        Image image_data = GetViewport().GetTexture().GetImage();
+        image_data.Resize(3072, 3072, Image.Interpolation.Nearest);
+        image_data.SavePng(image_name);
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
 	{
 		if (@event is InputEventKey)
 		{
@@ -55,7 +71,7 @@ public partial class MainSceneController : Node3D
 			{
 				switch (key.Keycode)
 				{
-					case Key.P: render_controller.TakeScreenshot(); break;
+					case Key.P: TakeScreenshot(); break;
 					case Key.H:
 						if (is_modal) break;
 						ui_controller.Visible = !ui_controller.Visible;
