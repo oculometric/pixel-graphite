@@ -16,13 +16,14 @@ config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 boot_splash/bg_color=Color(0.929412, 0.909804, 0.898039, 1)
 boot_splash/use_filter=false
 boot_splash/image="uid://gsrx6jyoehjs"
-config/icon="res://icon.svg"
+config/icon="uid://gsrx6jyoehjs"
 
 [display]
 
 window/size/viewport_width=1024
 window/size/viewport_height=1024
 window/size/sharp_corners=true
+window/subwindows/embed_subwindows=false
 
 [dotnet]
 

@@ -48,7 +48,7 @@ ambient_light_color = Color(0.537, 0.537, 0.537, 1)
 tonemap_white = 5.0
 ssao_enabled = true
 ssao_radius = 4.0
-ssao_intensity = 4.0
+ssao_intensity = 5.0
 ssao_detail = 0.2
 ssao_sharpness = 1.0
 ssao_light_affect = 1.0
@@ -140,11 +140,6 @@ shader_parameters = Array[String](["overlay_tex"])
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_8xkvn")
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -18.4, 0, 0)
-visible = false
-fov = 40.2
 
 [node name="UIViewport" type="SubViewport" parent="."]
 own_world_3d = true
