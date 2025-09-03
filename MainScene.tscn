@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=37 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
 [ext_resource type="CompressedTexture3D" uid="uid://ua2nnfrenuj8" path="res://tonemap_lut.png" id="3_rf2cd"]
@@ -24,6 +24,7 @@
 [ext_resource type="Texture2D" uid="uid://dmfwu725xlh5m" path="res://textures/voxel_icon_slope.png" id="23_i1thg"]
 [ext_resource type="Script" uid="uid://bv402urnm2ct7" path="res://scripts/LightEditController.cs" id="24_a28bb"]
 [ext_resource type="ArrayMesh" uid="uid://ckkm2enqeh8nb" path="res://meshes/sand_demo.res" id="24_h86nx"]
+[ext_resource type="PackedScene" uid="uid://cf6yem4r5l5y4" path="res://meshes/the opaque eye.glb" id="25_7jkkr"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_amtbh"]
 render_priority = -128
@@ -32,7 +33,7 @@ shader_parameter/pixelation_size = 2
 shader_parameter/palette_low = Color(0.015208, 0.011115, 0.003702, 1)
 shader_parameter/palette_high = Color(2, 1.07333, 0.79737, 1)
 shader_parameter/use_palette_mid = true
-shader_parameter/palette_mid = Color(0.513966, 0.272809, 0.186906, 1)
+shader_parameter/palette_mid = Color(0.51, 0.26112, 0.1989, 1)
 shader_parameter/lut = ExtResource("3_rf2cd")
 
 [sub_resource type="QuadMesh" id="QuadMesh_obg7t"]
@@ -48,7 +49,8 @@ ambient_light_color = Color(0.537, 0.537, 0.537, 1)
 tonemap_white = 5.0
 ssao_enabled = true
 ssao_radius = 4.0
-ssao_intensity = 5.0
+ssao_intensity = 6.0
+ssao_power = 1.72305
 ssao_detail = 0.2
 ssao_sharpness = 1.0
 ssao_light_affect = 1.0
@@ -179,4 +181,8 @@ snap_angle = 15.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.520292, 0.147134, -0.841218, -0.184127, 0.981205, 0.0577364, 0.833902, 0.124851, 0.537605, 0, 0, 0)
+visible = false
 mesh = ExtResource("24_h86nx")
+
+[node name="the opaque eye" parent="." instance=ExtResource("25_7jkkr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 6.8, 0.4)
