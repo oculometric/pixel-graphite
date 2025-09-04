@@ -35,7 +35,7 @@ border_width_bottom = 1
 border_color = Color(0.8, 0.8, 0.8, 0)
 anti_aliasing = false
 
-[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "top_label", "file_dialog", "confirm_discard_dialog", "voxel_type_container")]
+[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "top_label", "file_dialog", "confirm_discard_dialog", "accept_dialog", "voxel_type_container")]
 texture_filter = 1
 layout_mode = 3
 anchors_preset = 15
@@ -51,6 +51,7 @@ mode_modal = NodePath("ModeSwitcher")
 top_label = NodePath("TopLabel")
 file_dialog = NodePath("FileDialog")
 confirm_discard_dialog = NodePath("ConfirmDiscardDialog")
+accept_dialog = NodePath("AcceptDialog")
 voxel_type_container = NodePath("VoxelPalette")
 
 [node name="VoxelPalette" type="VBoxContainer" parent="."]
@@ -162,6 +163,13 @@ ok_button_text = "discard changes"
 dialog_text = "you have made changes which are not saved. are you sure you want to discard them and open another file?"
 dialog_autowrap = true
 cancel_button_text = "cancel"
+
+[node name="AcceptDialog" type="AcceptDialog" parent="."]
+title = "error!"
+initial_position = 2
+size = Vector2i(384, 128)
+ok_button_text = "ok"
+dialog_text = "fuck you"
 
 [node name="ModeSwitcher" type="HBoxContainer" parent="."]
 layout_mode = 1

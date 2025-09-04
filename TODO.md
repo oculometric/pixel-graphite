@@ -7,16 +7,16 @@
 - [ ] sand editing/toggle
 - [ ] lily pad painting
 - [x] mesh exporting
-- [ ] warning on load/exit
+- [x] warning on load/exit
 - [x] smooth ghost movement
 - [ ] custom cursor
 - [x] lock mouse during pan
-- [ ] message display/dialog for errors and infos
+- [x] message display/dialog for errors and infos
 - [x] lock free look rotation
 - [x] fix F control overlap
 - [x] fix screen wrapping shader issue
 - [x] fix blocks misplacing
 - [x] custom loading screen
-- [ ] rewrite legacy loader
-- [ ] implement RLE for dat files to reduce size (or use zip?)
-- [ ] implement autosave and improved saving/loading featues in general (save vs save as, tracking the currently edited file)
+- [x] rewrite legacy loader
+- [x] implement RLE for dat files to reduce size (or use zip?)
+- [x] implement autosave and improved saving/loading featues in general (save vs save as, tracking the currently edited file)

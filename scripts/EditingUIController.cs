@@ -10,6 +10,7 @@ public partial class EditingUIController : Control
 
 	[Export] private FileDialog file_dialog;
 	[Export] private ConfirmationDialog confirm_discard_dialog;
+	[Export] private AcceptDialog accept_dialog;
 
     [Export] private VBoxContainer voxel_type_container;
 
@@ -180,5 +181,11 @@ public partial class EditingUIController : Control
 		confirm_discard_dialog.CancelButtonText = cancel;
 		confirm_callback = callback;
 		confirm_discard_dialog.Show();
+	}
+
+	public void ShowErrorDialog(string body)
+	{
+		accept_dialog.DialogText = body;
+		accept_dialog.Show();
 	}
 }

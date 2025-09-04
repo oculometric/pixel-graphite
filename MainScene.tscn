@@ -144,10 +144,11 @@ voxel_grid = NodePath("../VoxelGrid")
 scene_controller = NodePath("..")
 outline_mesh = SubResource("BoxMesh_506kc")
 
-[node name="VoxelGrid" type="MeshInstance3D" parent="." node_paths=PackedStringArray("collider")]
+[node name="VoxelGrid" type="MeshInstance3D" parent="." node_paths=PackedStringArray("ui_controller", "collider")]
 material_override = ExtResource("11_yvb8b")
 gi_mode = 2
 script = ExtResource("11_obg7t")
+ui_controller = NodePath("../UIViewport/EditingUI")
 voxel_types = Array[Object]([SubResource("Resource_rf2cd"), SubResource("Resource_a814b"), SubResource("Resource_5crlr"), SubResource("Resource_yvb8b"), SubResource("Resource_3hf6u"), SubResource("Resource_4mcbk")])
 collider = NodePath("StaticBody3D/CollisionShape3D")
 

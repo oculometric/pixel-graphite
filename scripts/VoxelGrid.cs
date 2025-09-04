@@ -231,7 +231,7 @@ public class GridMap3D<T> where T : Serialiseable
 	public byte[] Serialise()
 	{
 		// file structure
-		// 4 byte signature
+		// 4 byte signature (0x43535401)
 
 		// 4 byte x size
 		// 4 byte y size
@@ -240,15 +240,19 @@ public class GridMap3D<T> where T : Serialiseable
 		// 4 byte x origin
 		// 4 byte y origin
 		// 4 byte z origin
+
+		// 1 byte flags value stating: (LSB -> MSB)
+		//    - whether the data is compressed using RLE or not
+		//    - whether the data is chunked
 		
-		// 4 byte padding
+		// 3 byte padding
 		
 		// 1 byte voxel type id
 		// 1 byte orientation
 		// ...
 
 		List<byte> data = new List<byte>((4 * 8) + (2 * map_size.X * map_size.Y * map_size.Z));
-		WriteInt32(0x4a6b7900, ref data);
+		WriteInt32(0x43535401, ref data);
 
 		WriteInt32(map_size.X, ref data);
 		WriteInt32(map_size.Y, ref data);
@@ -258,26 +262,86 @@ public class GridMap3D<T> where T : Serialiseable
 		WriteInt32(map_origin.Y, ref data);
 		WriteInt32(map_origin.Z, ref data);
 
-		WriteInt32(0, ref data);
+		data.Add(0b00000001); // data will be RLE compressed
+        data.Add(0);
+		data.Add(0);
+		data.Add(0);
 
-		for (int k = 0; k < map_size.Z; k++)
+		List<byte> map_data = new List<byte>(2 * map_size.X * map_size.Y * map_size.Z);
+
+        for (int k = 0; k < map_size.Z; k++)
 		{
 			for (int j = 0; j < map_size.Y; j++)
 			{
 				for (int i = 0; i < map_size.X; i++)
 				{
-					data.AddRange(map[k][j][i].GetBytes());
+					map_data.AddRange(map[k][j][i].GetBytes());
 				}
 			}
 		}
 
-		return data.ToArray();
+		// TODO: deinterlace voxel id and orientation data for greater compression efficiency?
+
+		byte current_counter = 0;
+		byte current_value = 0;
+		foreach (byte b in map_data)
+		{
+			if (b == current_value)
+			{
+				if (current_counter == 255)
+				{
+					data.Add(current_counter);
+					data.Add(current_value);
+					current_counter = 0;
+				}
+				current_counter++;
+			}
+			else
+			{
+                data.Add(current_counter);
+                data.Add(current_value);
+                current_counter = 1;
+				current_value = b;
+            }
+		}
+        data.Add(current_counter);
+        data.Add(current_value);
+
+        return data.ToArray();
 	}
 
     public void DeserialiseV1Data(byte[] serialised_data)
     {
+		// file structure
+        // 4 byte x size
+        // 4 byte y size
+        // 4 byte z size
+        // 4 byte x origin
+        // 4 byte y origin
+        // 4 byte z origin
+        // 4 byte offset of the start of the name index
+        // 4 byte size of the name index
+        // 4 byte offset of the start of the data
+        // 4 byte size of the data
+
+        // 4 byte padding
+
+        // name index entry consists of:
+        // 4 byte size of entry
+        // string name
+
+        // 4 byte padding
+
+        // data consists of:
+        // 1 byte orientation
+        // 3 byte index into name index
+
         map_size = new Vector3I(ReadInt32(in serialised_data, 0), ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8));
         map_origin = new Vector3I(ReadInt32(in serialised_data, 12), ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20));
+        if (map_size.X < 0 || map_size.Y < 0 || map_size.Z < 0)
+            throw new Exception("invalid voxel grid data");
+        if (serialised_data.Length < (4 * 12))
+            throw new Exception("invalid voxel grid data");
         map_min = -map_origin;
         map_max = map_size - (Vector3I.One + map_origin);
 
@@ -302,12 +366,27 @@ public class GridMap3D<T> where T : Serialiseable
 
     private void DeserialiseV2Data(byte[] serialised_data)
 	{
+        // file structure
+        // 4 byte signature (0x4a6b7900)
+
+        // 4 byte x size
+        // 4 byte y size
+        // 4 byte z size
+
+        // 4 byte x origin
+        // 4 byte y origin
+        // 4 byte z origin
+
+        // 4 byte padding
+
+        // 1 byte voxel type id
+        // 1 byte orientation
+        // ...
+
         map_size = new Vector3I(ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8), ReadInt32(in serialised_data, 12));
         map_origin = new Vector3I(ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20), ReadInt32(in serialised_data, 24));
 		if (map_size.X < 0 || map_size.Y < 0 || map_size.Z < 0)
 			throw new Exception("invalid voxel grid data");
-		if (serialised_data.Length < (4 * 12))
-            throw new Exception("invalid voxel grid data");
         map_min = -map_origin;
         map_max = map_size - (Vector3I.One + map_origin);
 
@@ -330,7 +409,52 @@ public class GridMap3D<T> where T : Serialiseable
         }
     }
 
-	public GridMap3D(byte[] serialised_data, T default_element)
+    private void DeserialiseV3Data(byte[] serialised_data)
+    {
+        map_size = new Vector3I(ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8), ReadInt32(in serialised_data, 12));
+        map_origin = new Vector3I(ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20), ReadInt32(in serialised_data, 24));
+        if (map_size.X < 0 || map_size.Y < 0 || map_size.Z < 0)
+            throw new Exception("invalid voxel grid data");
+        map_min = -map_origin;
+        map_max = map_size - (Vector3I.One + map_origin);
+
+		byte flags = serialised_data[28];
+		if (flags == 0)
+		{
+			DeserialiseV2Data(serialised_data);
+			return;
+		}
+
+        int byte_offset;
+		List<byte> decompressed_data = new List<byte>(2 * map_size.X * map_size.Y * map_size.Z);
+		for (byte_offset = 32; byte_offset < serialised_data.Length - 1; byte_offset += 2)
+		{
+			byte counter = serialised_data[byte_offset];
+			byte value = serialised_data[byte_offset + 1];
+			for (int _ = 0; _ < counter; _++)
+				decompressed_data.Add(value);
+		}
+
+		byte_offset = 0;
+        map = new List<List<List<T>>>(map_size.Z);
+        for (int k = 0; k < map_size.Z; k++)
+        {
+            map.Add(new List<List<T>>(map_size.Y));
+            for (int j = 0; j < map_size.Y; j++)
+            {
+                map[k].Add(new List<T>(map_size.X));
+                for (int i = 0; i < map_size.X; i++)
+                {
+                    T value = default_el;
+                    value.SetBytes([decompressed_data[byte_offset], decompressed_data[byte_offset + 1]]);
+                    map[k][j].Add(value);
+                    byte_offset += 2;
+                }
+            }
+        }
+    }
+
+    public GridMap3D(byte[] serialised_data, T default_element)
 	{
 		default_el = default_element;
 
@@ -340,8 +464,8 @@ public class GridMap3D<T> where T : Serialiseable
 		int signature = ReadInt32(in serialised_data, 0);
 		if (signature == 0x4a6b7900)
 			DeserialiseV2Data(serialised_data);
-		else if (signature == 0x4a6b7901)
-			throw new Exception("not implemented");//DeserialiseV3Data(serialised_data);
+		else if (signature == 0x43535401)
+			DeserialiseV3Data(serialised_data);
 		else
 			DeserialiseV1Data(serialised_data);
 	}
@@ -351,6 +475,7 @@ public partial class VoxelGrid : MeshInstance3D
 {
 	private GridMap3D<Voxel> map;
 
+	[Export] public EditingUIController ui_controller { get; private set; }
 	[Export] public VoxelType[] voxel_types { get; private set; }
     [Export] public float voxel_size = 0.8f;
     [Export] uint initial_size = 7;
@@ -469,12 +594,9 @@ public partial class VoxelGrid : MeshInstance3D
 		try
 		{
 			map = new GridMap3D<Voxel>(save_data, new Voxel(0, 0));
-		} catch (InvalidDataException)
-        {
-			// TODO: recreate old data format loader for backwards compat
-			map = new GridMap3D<Voxel>(Vector3I.One * (int)initial_size, new Voxel(0, 0));
 		} catch (Exception)
 		{
+			ui_controller.ShowErrorDialog("the selected voxel data file could not be loaded. it may be corrupt or in an unsupported format.");
 			map = new GridMap3D<Voxel>(Vector3I.One * (int)initial_size, new Voxel(0, 0));
 		}
 		Rebuild();
