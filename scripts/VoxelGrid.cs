@@ -274,37 +274,76 @@ public class GridMap3D<T> where T : Serialiseable
 		return data.ToArray();
 	}
 
+    public void DeserialiseV1Data(byte[] serialised_data)
+    {
+        map_size = new Vector3I(ReadInt32(in serialised_data, 0), ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8));
+        map_origin = new Vector3I(ReadInt32(in serialised_data, 12), ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20));
+        map_min = -map_origin;
+        map_max = map_size - (Vector3I.One + map_origin);
+
+        uint byte_offset = (uint)ReadInt32(in serialised_data, 32);
+        map = new List<List<List<T>>>(map_size.Z);
+        for (int k = 0; k < map_size.Z; k++)
+        {
+            map.Add(new List<List<T>>(map_size.Y));
+            for (int j = 0; j < map_size.Y; j++)
+            {
+                map[k].Add(new List<T>(map_size.X));
+                for (int i = 0; i < map_size.X; i++)
+                {
+                    T value = default_el;
+                    value.SetBytes([serialised_data[byte_offset], serialised_data[byte_offset + 3]]);
+                    map[k][j].Add(value);
+                    byte_offset += 4;
+                }
+            }
+        }
+    }
+
+    private void DeserialiseV2Data(byte[] serialised_data)
+	{
+        map_size = new Vector3I(ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8), ReadInt32(in serialised_data, 12));
+        map_origin = new Vector3I(ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20), ReadInt32(in serialised_data, 24));
+		if (map_size.X < 0 || map_size.Y < 0 || map_size.Z < 0)
+			throw new Exception("invalid voxel grid data");
+		if (serialised_data.Length < (4 * 12))
+            throw new Exception("invalid voxel grid data");
+        map_min = -map_origin;
+        map_max = map_size - (Vector3I.One + map_origin);
+
+        uint byte_offset = 32;
+        map = new List<List<List<T>>>(map_size.Z);
+        for (int k = 0; k < map_size.Z; k++)
+        {
+            map.Add(new List<List<T>>(map_size.Y));
+            for (int j = 0; j < map_size.Y; j++)
+            {
+                map[k].Add(new List<T>(map_size.X));
+                for (int i = 0; i < map_size.X; i++)
+                {
+                    T value = default_el;
+                    value.SetBytes([serialised_data[byte_offset], serialised_data[byte_offset + 1]]);
+                    map[k][j].Add(value);
+                    byte_offset += 2;
+                }
+            }
+        }
+    }
+
 	public GridMap3D(byte[] serialised_data, T default_element)
 	{
-		if (serialised_data.Length < (4 * 8))
-			throw new Exception("invalid voxel grid data");
-		if (ReadInt32(in serialised_data, 0) != 0x4a6b7900)
-			throw new InvalidDataException("invalid voxel data signature");
-
-		map_size = new Vector3I(ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8), ReadInt32(in serialised_data, 12));
-		map_origin = new Vector3I(ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20), ReadInt32(in serialised_data, 24));
-		map_min = -map_origin;
-		map_max = map_size - (Vector3I.One + map_origin);
-
 		default_el = default_element;
 
-		uint byte_offset = 32;
-		map = new List<List<List<T>>>(map_size.Z);
-		for (int k = 0; k < map_size.Z; k++)
-		{
-			map.Add(new List<List<T>>(map_size.Y));
-			for (int j = 0; j < map_size.Y; j++)
-			{
-				map[k].Add(new List<T>(map_size.X));
-				for (int i = 0; i < map_size.X; i++)
-				{
-					T value = default_el;
-					value.SetBytes([serialised_data[byte_offset], serialised_data[byte_offset + 1]]);
-					map[k][j].Add(value);
-					byte_offset += 2;
-				}
-			}
-		}
+		if (serialised_data.Length < (4 * 8))
+			throw new Exception("invalid voxel grid data");
+
+		int signature = ReadInt32(in serialised_data, 0);
+		if (signature == 0x4a6b7900)
+			DeserialiseV2Data(serialised_data);
+		else if (signature == 0x4a6b7901)
+			throw new Exception("not implemented");//DeserialiseV3Data(serialised_data);
+		else
+			DeserialiseV1Data(serialised_data);
 	}
 }
 
