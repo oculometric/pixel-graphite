@@ -25,7 +25,7 @@ void fragment()
 	float threshold = mix(0.18f, 0.95f, fres);
 	value = clamp(clamp(float(voronoi(world_position.xz * 20.0f, 4.0f, 0.96f, 0.5f) > threshold) + 0.3f, 0, 1)
 		  *             float(voronoi(world_position.xz * 12.0f, 4.0f, 0.96f, 0.5f) > threshold), 0, 1);
-	value = mix(0.189f, 1.08f, value) + 0.15f;
+	value = mix(0.109f, 1.28f, value) + 0.15f;
 
 	ALBEDO = vec3(value);
 }

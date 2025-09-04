@@ -170,7 +170,6 @@ snap_angle = 15.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.520292, 0.147134, -0.841218, -0.184127, 0.981205, 0.0577364, 0.833902, 0.124851, 0.537605, 0, 0, 0)
-visible = false
 mesh = ExtResource("24_h86nx")
 
 [node name="the opaque eye" parent="." instance=ExtResource("25_7jkkr")]
