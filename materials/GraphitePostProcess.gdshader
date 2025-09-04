@@ -132,22 +132,22 @@ void fragment()
 	// essentially only compute the top left corner of each block of 2x2, but use the whole buffer still
 	// output into only the top quarter of the buffer (discard the rest based on uv)
 	// then scale that output to fill the screen in the viewport (only 2 copies, UI into this, then this onto screen)
-	
+
 	vec2 downscaled_viewport_size = VIEWPORT_SIZE / float(pixelation_size);
 	vec2 downscaled_uv = floor(SCREEN_UV * downscaled_viewport_size/* * float(pixelation_size)*/) / downscaled_viewport_size;
 	/*if (downscaled_uv.x > 1.0f || downscaled_uv.y > 1.0f)
 		discard;*/ // for a slight performance boost, this (and the code above) can be uncommented
-	
+
 	vec3 screen_sample = texture(screen_tex, downscaled_uv).rgb;
 	float screen_value = dot(screen_sample, vec3(0.2126f, 0.7151f, 0.0722f));
 	screen_value = 1.0f - ((1.0f - screen_value) * contrast);
-		
+
 	// TODO: reimplement edge displacement for all UVs (including depth, edge)
-	
+
 	// compute edge mask via sharpen filters
 	float edges = edge_mask(downscaled_uv, 1.0f / (VIEWPORT_SIZE * float(pixelation_size)), INV_PROJECTION_MATRIX);
 	float edged_value = mix(screen_value, screen_value * edge_colour_multiplier, edges);
-	
+
 	// apply grain
 	vec2 scaled_viewport = VIEWPORT_SIZE / noise_sketch_scale;
 	float noise = ((fbm((downscaled_uv / 0.005f) * 20.0f * scaled_viewport, 2, 2.0f, 0.5f)) * 1.2f) - 0.7f;
@@ -156,14 +156,14 @@ void fragment()
 	float posterised_value = round(noised_value * posterise_steps) / posterise_steps;
 	// add sketch effect
 	float sketched_value = sketch(downscaled_uv, scaled_viewport, posterised_value);
-	
+
 	// apply solid background
 	if (texture(depth_tex, downscaled_uv).r == 0.0f)
 		sketched_value = 1.0f;
-	
+
 	// apply overlay texture
 	float overlaid_value = overlay(sketched_value, downscaled_uv);
-	
+
 	// colourise
 	vec3 unmapped_colour = colourise(overlaid_value);
 	// tonemap

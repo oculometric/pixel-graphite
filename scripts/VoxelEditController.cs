@@ -11,8 +11,9 @@ public partial class VoxelEditController : Node3D
 	private Vector3 ghost_object_target_pos;
 	private Vector2 pre_drag_mouse_pos;
 	
+	[Export] public SaveManager save_manager { get; private set; }
 	[Export] public VoxelGrid voxel_grid { get; private set; }
-	[Export] public MainSceneController scene_controller;
+    [Export] public MainSceneController scene_controller;
 	[Export] private Mesh outline_mesh;
  
     public override async void _Ready()
@@ -66,6 +67,7 @@ public partial class VoxelEditController : Node3D
 		// set that part of the block grid to the assigned block type
 		voxel_grid.SetCellValue(GetHighlightedCell(erase_mode), erase_mode ? new Voxel(0, 0) : current_cell_type);
 		voxel_grid.Rebuild();
+		save_manager.SetUnsavedFlag();
 		UpdateOutlineMesh();
 	}
 

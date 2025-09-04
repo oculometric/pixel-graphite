@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=36 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
 [ext_resource type="Material" uid="uid://clxdn3738bnir" path="res://materials/GraphitePostProcess.tres" id="2_h86nx"]
@@ -24,6 +24,7 @@
 [ext_resource type="Script" uid="uid://bv402urnm2ct7" path="res://scripts/LightEditController.cs" id="24_a28bb"]
 [ext_resource type="ArrayMesh" uid="uid://ckkm2enqeh8nb" path="res://meshes/sand_demo.res" id="24_h86nx"]
 [ext_resource type="PackedScene" uid="uid://cf6yem4r5l5y4" path="res://meshes/the opaque eye.glb" id="25_7jkkr"]
+[ext_resource type="Script" uid="uid://do5i0w3g22xwy" path="res://scripts/SaveManager.cs" id="25_amtbh"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_obg7t"]
 material = ExtResource("2_h86nx")
@@ -132,20 +133,13 @@ shader_parameters = Array[String](["overlay_tex"])
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_8xkvn")
 
-[node name="UIViewport" type="SubViewport" parent="."]
-own_world_3d = true
-transparent_bg = true
-handle_input_locally = false
-render_target_update_mode = 4
-
-[node name="EditingUI" parent="UIViewport" instance=ExtResource("6_a814b")]
-
 [node name="Camera" parent="." node_paths=PackedStringArray("scene_controller") instance=ExtResource("8_h86nx")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.8, 0)
 scene_controller = NodePath("..")
 
-[node name="VoxelEditController" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid", "scene_controller")]
+[node name="VoxelEditController" type="Node3D" parent="." node_paths=PackedStringArray("save_manager", "voxel_grid", "scene_controller")]
 script = ExtResource("9_7jkkr")
+save_manager = NodePath("../SaveManager")
 voxel_grid = NodePath("../VoxelGrid")
 scene_controller = NodePath("..")
 outline_mesh = SubResource("BoxMesh_506kc")
@@ -168,9 +162,24 @@ sun = NodePath("../DirectionalLight3D")
 granular_pan_speed = 50.0
 snap_angle = 15.0
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="Sand" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.520292, 0.147134, -0.841218, -0.184127, 0.981205, 0.0577364, 0.833902, 0.124851, 0.537605, 0, 0, 0)
 mesh = ExtResource("24_h86nx")
 
 [node name="the opaque eye" parent="." instance=ExtResource("25_7jkkr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 6.8, 0.4)
+visible = false
+
+[node name="SaveManager" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid", "ui_controller")]
+script = ExtResource("25_amtbh")
+voxel_grid = NodePath("../VoxelGrid")
+ui_controller = NodePath("../UIViewport/EditingUI")
+
+[node name="UIViewport" type="SubViewport" parent="."]
+own_world_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1024, 1024)
+render_target_update_mode = 4
+
+[node name="EditingUI" parent="UIViewport" instance=ExtResource("6_a814b")]

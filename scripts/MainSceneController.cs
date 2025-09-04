@@ -77,8 +77,6 @@ public partial class MainSceneController : Node3D
 						ui_controller.Visible = !ui_controller.Visible;
 						voxel_editor.outline_object.Visible = ui_controller.Visible && editing_mode == 0;
 						break;
-					case Key.O: ui_controller.ShowSaveDialog(); break;
-					case Key.I: ui_controller.ShowLoadDialog(); break;
 					case Key.U: ui_controller.ShowExportDialog(); break;
 					case Key.Tab:
 						if (!is_modal) SetModal();

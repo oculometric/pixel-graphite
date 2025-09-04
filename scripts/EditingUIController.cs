@@ -9,11 +9,11 @@ public partial class EditingUIController : Control
 	[Export] private Label top_label;
 
 	[Export] private FileDialog file_dialog;
+	[Export] private ConfirmationDialog confirm_discard_dialog;
 
-	[Export] private VBoxContainer voxel_type_container;
+    [Export] private VBoxContainer voxel_type_container;
 
 	private bool is_exporting = false;
-	private string previous_export = "";
 
 	private string[] mode_names = [ "voxels", "object", "sand & grass", "lighting", "none" ];
 	private string[] mode_controls = [ "(A) << rotate >> (D)\n(F) flip vertical", "...", "...", "(A) << rotate >> (D)    (W/S) rotate up/down    (SHIFT) disable snap\n(Q) toggle sun    (E) toggle ambient    (R) toggle shadows", "..." ];
@@ -41,22 +41,31 @@ public partial class EditingUIController : Control
 			if (is_exporting)
 				vec.voxel_grid.Export(path);
 			else if (file_dialog.FileMode == FileDialog.FileModeEnum.SaveFile)
-				vec.voxel_grid.Save(path);
+				save_callback(path);
 			else if (file_dialog.FileMode == FileDialog.FileModeEnum.OpenFile)
-				vec.voxel_grid.Load(path);
+				load_callback(path);
+		};
+		confirm_discard_dialog.Confirmed += () => { confirm_callback(); };
+
+		GetWindow().SizeChanged += () =>
+		{
+			(GetViewport() as SubViewport).Size = GetWindow().Size;
 		};
 
 		ToggleModeModal(false, 0);
 	}
 
+	public Action<string> save_callback;
+	public Action<string> load_callback;
+
 	public void UpdateVoxelUI(int selected_voxel_type, bool erase_mode, byte orientation)
 	{
 		StyleBoxFlat style_box = new StyleBoxFlat();
 		style_box.AntiAliasing = false;
-		style_box.BorderWidthBottom = 1;
-		style_box.BorderWidthTop = 1;
-		style_box.BorderWidthLeft = 1;
-		style_box.BorderWidthRight = 1;
+		style_box.BorderWidthBottom = 2;
+		style_box.BorderWidthTop = 2;
+		style_box.BorderWidthLeft = 2;
+		style_box.BorderWidthRight = 2;
 		style_box.DrawCenter = false;
 		style_box.BorderColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
 		for (int i = 0; i < voxel_type_container.GetChildCount(); i++)
@@ -83,10 +92,10 @@ public partial class EditingUIController : Control
 		{
 			StyleBoxFlat style_box = new StyleBoxFlat();
 			style_box.AntiAliasing = false;
-			style_box.BorderWidthBottom = 1;
-			style_box.BorderWidthTop = 1;
-			style_box.BorderWidthLeft = 1;
-			style_box.BorderWidthRight = 1;
+			style_box.BorderWidthBottom = 2;
+			style_box.BorderWidthTop = 2;
+			style_box.BorderWidthLeft = 2;
+			style_box.BorderWidthRight = 2;
 			style_box.DrawCenter = false;
 			style_box.BorderColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
 			for (int i = 0; i < 5; i++)
@@ -129,31 +138,47 @@ public partial class EditingUIController : Control
 		}
 	}
 
-	public void ShowSaveDialog()
+	public void ShowSaveDialog(string file_name)
 	{
+		file_dialog.Title = "save";
+		file_dialog.OkButtonText = "save";
 		file_dialog.FileMode = FileDialog.FileModeEnum.SaveFile;
 		is_exporting = false;
 		file_dialog.Filters = ["*.dat"];
-		file_dialog.CurrentFile = previous_export;
-		file_dialog.Show();
+		file_dialog.CurrentPath = file_name;
+        file_dialog.Show();
 	}
 
-	public void ShowLoadDialog()
+	public void ShowLoadDialog(string file_name)
 	{
-		file_dialog.FileMode = FileDialog.FileModeEnum.OpenFile;
+		file_dialog.Title = "load";
+		file_dialog.OkButtonText = "load";
+        file_dialog.FileMode = FileDialog.FileModeEnum.OpenFile;
 		is_exporting = false;
 		file_dialog.Filters = ["*.dat"];
-		file_dialog.CurrentFile = previous_export;
+		file_dialog.CurrentPath = file_name;
 		file_dialog.Show();
-	}
+    }
 
 	public void ShowExportDialog()
 	{
+		file_dialog.Title = "export";
+		file_dialog.OkButtonText = "export";
 		file_dialog.FileMode = FileDialog.FileModeEnum.SaveFile;
 		is_exporting = true;
 		file_dialog.Filters = ["*.obj"];
-		previous_export = file_dialog.CurrentFile;
 		file_dialog.CurrentFile = "";
 		file_dialog.Show();
+	}
+
+	private Action confirm_callback = null;
+	public void ShowConfirmDialog(string title, string body, string ok, string cancel, Action callback)
+	{
+		confirm_discard_dialog.Title = title;
+		confirm_discard_dialog.DialogText = body;
+		confirm_discard_dialog.OkButtonText = ok;
+		confirm_discard_dialog.CancelButtonText = cancel;
+		confirm_callback = callback;
+		confirm_discard_dialog.Show();
 	}
 }

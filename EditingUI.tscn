@@ -20,7 +20,8 @@ anti_aliasing = false
 [sub_resource type="Theme" id="Theme_5ympb"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_1xopk"]
-font_size = 12
+font_size = 28
+outline_size = 1
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_4nd0v"]
 color = Color(1, 1, 1, 1)
@@ -34,7 +35,7 @@ border_width_bottom = 1
 border_color = Color(0.8, 0.8, 0.8, 0)
 anti_aliasing = false
 
-[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "top_label", "file_dialog", "voxel_type_container")]
+[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "top_label", "file_dialog", "confirm_discard_dialog", "voxel_type_container")]
 texture_filter = 1
 layout_mode = 3
 anchors_preset = 15
@@ -49,10 +50,10 @@ editing_mode_label = NodePath("EditingModeLabel")
 mode_modal = NodePath("ModeSwitcher")
 top_label = NodePath("TopLabel")
 file_dialog = NodePath("FileDialog")
+confirm_discard_dialog = NodePath("ConfirmDiscardDialog")
 voxel_type_container = NodePath("VoxelPalette")
 
 [node name="VoxelPalette" type="VBoxContainer" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
@@ -71,11 +72,10 @@ layout_mode = 2
 theme = SubResource("Theme_5ympb")
 
 [node name="TextureRect" type="TextureRect" parent="VoxelPalette/Container2/HBoxContainer"]
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 0
 texture = ExtResource("2_0g3py")
-stretch_mode = 2
 
 [node name="Label" type="Label" parent="VoxelPalette/Container2/HBoxContainer"]
 layout_mode = 2
@@ -122,7 +122,6 @@ offset_right = -4.0
 offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 0
-text = " (I) load voxel data   (O) save voxel data"
 label_settings = SubResource("LabelSettings_1xopk")
 horizontal_alignment = 2
 vertical_alignment = 2
@@ -133,25 +132,36 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 4.0
-offset_top = -36.0
-offset_right = 75.0
-offset_bottom = -24.0
+offset_top = -65.0
+offset_right = 210.0
+offset_bottom = -41.0
 grow_vertical = 0
 text = "(TAB) editing: voxels"
 label_settings = SubResource("LabelSettings_1xopk")
 
 [node name="HSeparator" type="HSeparator" parent="EditingModeLabel"]
 layout_mode = 1
-offset_top = 12.0
-offset_right = 180.0
-offset_bottom = 16.0
+offset_top = 24.0
+offset_right = 256.0
+offset_bottom = 28.0
 theme_override_styles/separator = SubResource("StyleBoxLine_4nd0v")
 
 [node name="FileDialog" type="FileDialog" parent="."]
+title = "save"
 initial_position = 2
 size = Vector2i(1024, 360)
+cancel_button_text = "cancel"
 access = 2
 filters = PackedStringArray("*.dat")
+
+[node name="ConfirmDiscardDialog" type="ConfirmationDialog" parent="."]
+title = "discard unsaved changes?"
+initial_position = 2
+size = Vector2i(384, 128)
+ok_button_text = "discard changes"
+dialog_text = "you have made changes which are not saved. are you sure you want to discard them and open another file?"
+dialog_autowrap = true
+cancel_button_text = "cancel"
 
 [node name="ModeSwitcher" type="HBoxContainer" parent="."]
 layout_mode = 1
@@ -169,7 +179,7 @@ grow_vertical = 2
 alignment = 1
 
 [node name="PanelContainer" type="PanelContainer" parent="ModeSwitcher"]
-custom_minimum_size = Vector2(80, 80)
+custom_minimum_size = Vector2(120, 120)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
 
@@ -191,7 +201,7 @@ horizontal_alignment = 1
 vertical_alignment = 2
 
 [node name="PanelContainer2" type="PanelContainer" parent="ModeSwitcher"]
-custom_minimum_size = Vector2(80, 80)
+custom_minimum_size = Vector2(120, 120)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
 
@@ -213,7 +223,7 @@ horizontal_alignment = 1
 vertical_alignment = 2
 
 [node name="PanelContainer3" type="PanelContainer" parent="ModeSwitcher"]
-custom_minimum_size = Vector2(80, 80)
+custom_minimum_size = Vector2(120, 120)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
 
@@ -229,13 +239,13 @@ stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer3/VBoxContainer"]
 layout_mode = 2
-text = "(3) sand & grass"
+text = "(3) sand"
 label_settings = SubResource("LabelSettings_1xopk")
 horizontal_alignment = 1
 vertical_alignment = 2
 
 [node name="PanelContainer4" type="PanelContainer" parent="ModeSwitcher"]
-custom_minimum_size = Vector2(80, 80)
+custom_minimum_size = Vector2(120, 120)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
 
@@ -257,7 +267,7 @@ horizontal_alignment = 1
 vertical_alignment = 2
 
 [node name="PanelContainer5" type="PanelContainer" parent="ModeSwitcher"]
-custom_minimum_size = Vector2(80, 80)
+custom_minimum_size = Vector2(120, 120)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
 
