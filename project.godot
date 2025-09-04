@@ -12,6 +12,8 @@ config_version=5
 
 config/name="pixel-graphite"
 run/main_scene="uid://btcypf82vp58i"
+config/use_custom_user_dir=true
+config/auto_accept_quit=false
 config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 boot_splash/bg_color=Color(0.929412, 0.909804, 0.898039, 1)
 boot_splash/use_filter=false
