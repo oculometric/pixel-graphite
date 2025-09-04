@@ -1,7 +1,7 @@
-[gd_scene load_steps=37 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=35 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
-[ext_resource type="CompressedTexture3D" uid="uid://ua2nnfrenuj8" path="res://tonemap_lut.png" id="3_rf2cd"]
+[ext_resource type="Material" uid="uid://clxdn3738bnir" path="res://materials/GraphitePostProcess.tres" id="2_h86nx"]
 [ext_resource type="Script" uid="uid://w7d3r243dtvb" path="res://scripts/ViewportTextureGrab.cs" id="4_5crlr"]
 [ext_resource type="PackedScene" uid="uid://bw5buyyqs4iuj" path="res://EditingUI.tscn" id="6_a814b"]
 [ext_resource type="PackedScene" uid="uid://cigil3d6vwhwp" path="res://InteriorCamera.tscn" id="8_h86nx"]
@@ -17,7 +17,6 @@
 [ext_resource type="Texture2D" uid="uid://0v8bgju3b5bp" path="res://textures/voxel_icon_stairs.png" id="17_5o6vq"]
 [ext_resource type="ArrayMesh" uid="uid://c3koqu3rikmap" path="res://meshes/voxels_Arch.res" id="18_5i0cj"]
 [ext_resource type="Texture2D" uid="uid://b1jbbjk8bw4tf" path="res://textures/voxel_icon_arch.png" id="19_f3pw5"]
-[ext_resource type="Shader" uid="uid://cffa10nakhlmc" path="res://materials/GraphitePostProcess.gdshader" id="20_7jkkr"]
 [ext_resource type="ArrayMesh" uid="uid://bnaw8i1b0c6je" path="res://meshes/voxels_NarrowArch.res" id="20_nlw8m"]
 [ext_resource type="Texture2D" uid="uid://db7bana4t4w2q" path="res://textures/voxel_icon_narrowarch.png" id="21_r1x6n"]
 [ext_resource type="ArrayMesh" uid="uid://c1k8806eeonoq" path="res://meshes/voxels_Slope.res" id="22_kvyqs"]
@@ -26,18 +25,8 @@
 [ext_resource type="ArrayMesh" uid="uid://ckkm2enqeh8nb" path="res://meshes/sand_demo.res" id="24_h86nx"]
 [ext_resource type="PackedScene" uid="uid://cf6yem4r5l5y4" path="res://meshes/the opaque eye.glb" id="25_7jkkr"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_amtbh"]
-render_priority = -128
-shader = ExtResource("20_7jkkr")
-shader_parameter/pixelation_size = 2
-shader_parameter/palette_low = Color(0.015208, 0.011115, 0.003702, 1)
-shader_parameter/palette_high = Color(2, 1.07333, 0.79737, 1)
-shader_parameter/use_palette_mid = true
-shader_parameter/palette_mid = Color(0.51, 0.26112, 0.1989, 1)
-shader_parameter/lut = ExtResource("3_rf2cd")
-
 [sub_resource type="QuadMesh" id="QuadMesh_obg7t"]
-material = SubResource("ShaderMaterial_amtbh")
+material = ExtResource("2_h86nx")
 flip_faces = true
 size = Vector2(2, 2)
 
@@ -49,7 +38,7 @@ ambient_light_color = Color(0.537, 0.537, 0.537, 1)
 tonemap_white = 5.0
 ssao_enabled = true
 ssao_radius = 4.0
-ssao_intensity = 6.0
+ssao_intensity = 5.0
 ssao_power = 1.72305
 ssao_detail = 0.2
 ssao_sharpness = 1.0

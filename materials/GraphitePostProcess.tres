@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://clxdn3738bnir"]
+
+[ext_resource type="Shader" uid="uid://cffa10nakhlmc" path="res://materials/GraphitePostProcess.gdshader" id="1_8kd47"]
+[ext_resource type="CompressedTexture3D" uid="uid://ua2nnfrenuj8" path="res://tonemap_lut.png" id="2_0jy1g"]
+
+[resource]
+render_priority = -128
+shader = ExtResource("1_8kd47")
+shader_parameter/pixelation_size = 2
+shader_parameter/contrast = 0.95
+shader_parameter/edge_colour_multiplier = 0.151
+shader_parameter/noise_sketch_scale = 1024.0
+shader_parameter/noise_factor = 0.02
+shader_parameter/sketch_factor = 0.041
+shader_parameter/posterise_steps = 48.0
+shader_parameter/palette_low = Color(0.015, 0.011, 0.004, 1)
+shader_parameter/palette_high = Color(2, 1.073, 0.797, 1)
+shader_parameter/use_palette_mid = true
+shader_parameter/palette_mid = Color(0.509, 0.261, 0.199, 1)
+shader_parameter/lut = ExtResource("2_0jy1g")

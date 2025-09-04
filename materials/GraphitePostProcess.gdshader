@@ -9,10 +9,16 @@ uniform sampler2D depth_tex : filter_nearest, hint_depth_texture, repeat_disable
 uniform sampler2D overlay_tex : filter_nearest, hint_default_transparent, repeat_disable;
 
 uniform int pixelation_size = 2;
-uniform vec3 palette_low : source_color = vec3(0.015208, 0.011115, 0.003702);
-uniform vec3 palette_high : source_color = vec3(2.000000, 1.073330, 0.797370);
+uniform float contrast = 0.95f;
+uniform float edge_colour_multiplier = 0.151f;
+uniform float noise_sketch_scale = 1024.0f;
+uniform float noise_factor = 0.02f;
+uniform float sketch_factor = 0.061f;
+uniform float posterise_steps = 64.0f;
+uniform vec3 palette_low : source_color = vec3(0.015, 0.011, 0.004);
+uniform vec3 palette_high : source_color = vec3(2.000, 1.073, 0.797);
 uniform bool use_palette_mid = false;
-uniform vec3 palette_mid : source_color = vec3(0.513966, 0.272809, 0.186906);
+uniform vec3 palette_mid : source_color = vec3(0.509, 0.261, 0.199);
 
 uniform sampler3D lut : hint_default_white, filter_linear, repeat_disable;
 
@@ -54,7 +60,6 @@ float edge_mask(vec2 uv, vec2 pixel_step, mat4 inv_proj)
 	vec2 u3 = (uv + (pixel_step * vec2(1, -1)));
 	vec2 u4 = (uv + (pixel_step * vec2(-1, 1)));
 
-	// TODO: displacement based on noise texture
 	vec3 normal_sharpen = (sample_normal(u0) * 5.0f)
 						- (sample_normal(u1)
 						+ sample_normal(u2)
@@ -86,7 +91,7 @@ float sketch(vec2 uv, vec2 scale, float screen_value)
 {
 	float s1 = sketch_partial(uv, scale, vec2(-450.0f, 250.0f));
 	float s2 = sketch_partial(uv, scale, vec2(-500.0f, 250.0f));
-	float m = (s1 + s2) * sqrt(screen_value) * 0.061f;
+	float m = (s1 + s2) * sqrt(screen_value) * sketch_factor;
 	return clamp(screen_value + m, 0.0f, 1.0f);
 }
 
@@ -135,32 +140,32 @@ void fragment()
 	
 	vec3 screen_sample = texture(screen_tex, downscaled_uv).rgb;
 	float screen_value = dot(screen_sample, vec3(0.2126f, 0.7151f, 0.0722f));
-	screen_value = 1.0f - ((1.0f - screen_value) * 0.95);
+	screen_value = 1.0f - ((1.0f - screen_value) * contrast);
 		
 	// TODO: reimplement edge displacement for all UVs (including depth, edge)
 	
-	// compute edge mask via sharpen filters (DONE)
+	// compute edge mask via sharpen filters
 	float edges = edge_mask(downscaled_uv, 1.0f / (VIEWPORT_SIZE * float(pixelation_size)), INV_PROJECTION_MATRIX);
-	float edged_value = mix(screen_value, screen_value * 0.151f, edges);
+	float edged_value = mix(screen_value, screen_value * edge_colour_multiplier, edges);
 	
-	// apply grain (DONE)
-	vec2 scaled_viewport = VIEWPORT_SIZE * 0.000977f;
+	// apply grain
+	vec2 scaled_viewport = VIEWPORT_SIZE / noise_sketch_scale;
 	float noise = ((fbm((downscaled_uv / 0.005f) * 20.0f * scaled_viewport, 2, 2.0f, 0.5f)) * 1.2f) - 0.7f;
-	float noised_value = edged_value + (floor(noise * 9.0f) * 0.02f / 9.0f);
-	// posterise (DONE)
-	float posterised_value = round(noised_value * 64.0f) / 64.0f;
-	// add sketch effect (DONE)
+	float noised_value = edged_value + (floor(noise * 9.0f) * noise_factor / 9.0f);
+	// posterise
+	float posterised_value = round(noised_value * posterise_steps) / posterise_steps;
+	// add sketch effect
 	float sketched_value = sketch(downscaled_uv, scaled_viewport, posterised_value);
 	
-	// apply solid background (DONE)
+	// apply solid background
 	if (texture(depth_tex, downscaled_uv).r == 0.0f)
 		sketched_value = 1.0f;
 	
-	// apply overlay texture (DONE)
+	// apply overlay texture
 	float overlaid_value = overlay(sketched_value, downscaled_uv);
 	
-	// colourise (DONE)
+	// colourise
 	vec3 unmapped_colour = colourise(overlaid_value);
-	// tonemap (DONE)
+	// tonemap
 	ALBEDO = tonemap(unmapped_colour);
 }
