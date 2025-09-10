@@ -289,7 +289,19 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 
 	private void ConvertLegacyGrid(GridMap3D<T> legacy_grid)
 	{
-		// TODO: function to convert a legacy (non-chunked) grid into a chunked grid
+		Vector3I min = legacy_grid.GetMin();
+        Vector3I max = legacy_grid.GetMax();
+
+        for (int x = min.X; x <= max.X; x++)
+		{
+            for (int y = min.Y; y <= max.Y; y++)
+            {
+                for (int z = min.Z; z <= max.Z; z++)
+                {
+					this[x, y, z] = legacy_grid[x, y, z];
+                }
+            }
+        }
 	}
 
 	public int GetTotalChunks() { return storage.Count; }
@@ -868,6 +880,10 @@ public partial class VoxelGrid : Node3D
 
     public void Load(string path)
 	{
+		foreach (MeshInstance3D mi in chunks.Values)
+            mi.QueueFree();
+		chunks.Clear();
+
         Godot.FileAccess file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Read);
 		if (file == null)
 			return;
@@ -1292,8 +1308,11 @@ public partial class VoxelGrid : Node3D
 		List<Vector3I> chunks_to_kill = map.Trim();
 		foreach (Vector3I chunk in chunks_to_kill)
 		{
-			chunks[chunk].QueueFree();
-			chunks.Remove(chunk);
+			try
+			{
+				chunks[chunk].QueueFree();
+				chunks.Remove(chunk);
+			} catch { }
 		}
 
 		GD.Print("rebuilding mesh based on " + map.GetTotalChunks() + "(" + map.GetModifiedChunks() + " modified, " + chunks_to_kill.Count + " empties culled this update) chunk voxel map with chunk size " + map.chunk_size);
