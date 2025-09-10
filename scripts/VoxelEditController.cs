@@ -90,7 +90,10 @@ public partial class VoxelEditController : Node3D
         else
             hit_cell = ((Vector3)result["position"]) + ((Vector3)result["normal"] * voxel_grid.voxel_size * (inside ? -0.5f : 0.5f));
 
-        // calculate highlighted cell in grid
+		// calculate highlighted cell in grid
+		if (voxel_grid == null)
+			return Vector3I.Zero;
+
         Vector3I highlighted_cell = (Vector3I)(hit_cell / voxel_grid.voxel_size).Round();
 
 		return highlighted_cell;

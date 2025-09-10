@@ -34,14 +34,11 @@ public partial class SaveManager : Node3D
                 return;
             }
 
-            string current_file_tmp = current_file_name;
-            bool has_unsaved_tmp = has_unsaved_changes;
             string file_name_base = current_file_name.GetFile().GetBaseName();
             string autosave_name = "user://autosave/" + file_name_base + "_autosave.dat";
             Godot.DirAccess.Open("user://").MakeDir("autosave");
-            SaveData(autosave_name);
-            current_file_name = current_file_tmp;
-            has_unsaved_changes = has_unsaved_tmp;
+            voxel_grid.Save(autosave_name);
+            autosave_timer.Start(autosave_time);
         };
         autosave_timer.Start(autosave_time);
     }

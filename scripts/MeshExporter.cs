@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Godot;
 
 public class MeshExporter
@@ -15,7 +14,7 @@ public class MeshExporter
         WriteString(i.ToString(), ref data);
     }
 
-    public static byte[] ExportObj(ArrayMesh mesh)
+    public static byte[] ExportObj(ArrayMesh mesh, Vector3 offset)
     {
         List<byte> data = new List<byte>();
 
@@ -30,8 +29,8 @@ public class MeshExporter
             int[] indices = arrays[(int)ArrayMesh.ArrayType.Index].AsInt32Array();
 
             for (int j = 0; j < vertices.Length; j++)
-                WriteString("v " + vertices[j].X.ToString("n3") + " " + vertices[j].Y.ToString("n2") + " " + vertices[j].Z.ToString("n2")
-                        + "\nvn " + normals[j].X.ToString("n3") + " " + normals[j].Y.ToString("n2") + " " + normals[j].Z.ToString("n2") + "\n", ref data);
+                WriteString("v " + (vertices[j].X + offset.X).ToString("n2") + " " + (vertices[j].Y + offset.Y).ToString("n2") + " " + (vertices[j].Z + offset.Z).ToString("n2")
+                        + "\nvn " + normals[j].X.ToString("n2") + " " + normals[j].Y.ToString("n2") + " " + normals[j].Z.ToString("n2") + "\n", ref data);
 
             WriteString("\n", ref data);
             for (int j = 0; j < indices.Length - 2; j += 3)

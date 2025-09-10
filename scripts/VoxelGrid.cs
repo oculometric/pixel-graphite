@@ -1,7 +1,9 @@
 using Godot;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 public interface Serialiseable
@@ -56,24 +58,30 @@ public struct Voxel : Serialiseable
 	{
 		return Marshal.SizeOf<Voxel>();
 	}
+
+	public bool Equals(Voxel other)
+	{
+		return (other.id == this.id) && (other.orientation == this.orientation);
+	}
 }
 
 public class ChunkedGridMap3D<T> where T : Serialiseable
 {
 	private Dictionary<Vector3I, T[]> storage = new Dictionary<Vector3I, T[]>();
 	private Dictionary<Vector3I, int> storage_density = new Dictionary<Vector3I, int>();
-	private HashSet<Vector3I> modified_chunks;
+	private HashSet<Vector3I> modified_chunks = new HashSet<Vector3I>();
 	private T default_element;
-	private int chunk_size = 8;
+	public int chunk_size { get; private set; } = 8;
 
 	private bool GetVoxelStorage(Vector3I position, out Vector3I chunk, out T[] data, out int index)
 	{
 		Vector3 fp = position;
 		fp /= chunk_size;
-		chunk = new Vector3I(Mathf.FloorToInt(fp.X), Mathf.FloorToInt(fp.Y), Mathf.FloorToInt(fp.Z));
-		Vector3I cp = position - chunk;
+		Vector3I tmp_chunk = new Vector3I(Mathf.FloorToInt(fp.X), Mathf.FloorToInt(fp.Y), Mathf.FloorToInt(fp.Z));
+		chunk = tmp_chunk;
+		Vector3I cp = position - (tmp_chunk * chunk_size);
 		index = (((cp.Z * chunk_size) + cp.Y) * chunk_size) + cp.X;
-		return storage.TryGetValue(chunk, out data);
+		return storage.TryGetValue(tmp_chunk, out data);
 	}
 
 	public T this[int x, int y, int z]
@@ -83,7 +91,7 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 			T[] data;
 			int index;
 			if (GetVoxelStorage(new Vector3I(x, y, z), out _, out data, out index))
-				return data[index];
+                return data[index];
 			return default_element;
 		}
 		set
@@ -93,37 +101,41 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 			int index;
 			if (!GetVoxelStorage(new Vector3I(x, y, z), out chunk, out data, out index))
 			{
-				data = new T[chunk_size * chunk_size * chunk_size];
+                data = new T[chunk_size * chunk_size * chunk_size];
 				storage_density[chunk] = 0;
-			}
-			T cur = data[index];
+            }
+            T cur = data[index];
 			bool cur_val = cur.Equals(value);
 			if (!cur_val)
 			{
 				bool cur_def = cur.Equals(default_element);
 				bool val_def = value.Equals(default_element);
-				if (cur_def && !val_def) // FIXME: will this be horribly slow?
+				if (cur_def && !val_def)
 					storage_density[chunk]++;
 				else if (!cur_def && val_def)
 					storage_density[chunk]--;
 				modified_chunks.Add(chunk);
-			}
-			data[index] = value;
-			storage[chunk] = data; // TODO: is this necessary? should we pass data as a ref?
-		}
-	}
+				data[index] = value;
+            }
+            storage[chunk] = data;
+        }
+    }
 
-	public void Trim()
+	public List<Vector3I> Trim()
 	{
 		Dictionary<Vector3I, T[]>.KeyCollection keys = storage.Keys;
+		List<Vector3I> dead_chunks = new List<Vector3I>();
 		foreach (Vector3I pos in keys)
 		{
 			if (storage_density[pos] == 0)
 			{
 				storage_density.Remove(pos);
 				storage.Remove(pos);
+				try { modified_chunks.Remove(pos); } catch { }
+				dead_chunks.Add(pos);
 			}
 		}
+		return dead_chunks;
 	}
 
 	private void WriteInt32(int i, ref List<byte> arr)
@@ -237,7 +249,7 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 			throw new Exception("invalid chunk size");
 		int data_size = serialised_data[5];
 		if (data_size != T.GetSize())
-			throw new Exception("invalid voxel data type size");
+            throw new Exception("invalid voxel data type size");
 		int chunk_length = ReadInt32(serialised_data, 8);
 		int chunk_count = ReadInt32(serialised_data, 12);
 		if (chunk_length < 12)
@@ -250,12 +262,11 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 		{
 			Vector3I position = new(ReadInt32(serialised_data, (uint)offset), ReadInt32(serialised_data, (uint)offset + 4), ReadInt32(serialised_data, (uint)offset + 8));
 			int size = ReadInt32(serialised_data, (uint)offset + 12);
-
 			List<byte> raw_data = new List<byte>(data_size * chunk_size * chunk_size * chunk_size);
 			for (int bo = 0; bo < size - 1; bo += 2)
 			{
-				byte counter = serialised_data[offset + bo];
-				byte value = serialised_data[offset + bo + 1];
+				byte counter = serialised_data[offset + bo + 16];
+				byte value = serialised_data[offset + bo + 17];
 				for (int _ = 0; _ < counter; _++)
 					raw_data.Add(value);
 			}
@@ -272,7 +283,7 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 			storage_density[position] = density;
 			modified_chunks.Add(position);
 
-			offset += chunk_length;
+			offset += 16 + size + 4;
 		}
 	}
 
@@ -281,18 +292,21 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 		// TODO: function to convert a legacy (non-chunked) grid into a chunked grid
 	}
 
-	public bool PopNextModifiedChunk(out Vector3 base_offset, out T[] chunk_data)
+	public int GetTotalChunks() { return storage.Count; }
+	public int GetModifiedChunks() { return modified_chunks.Count; }
+
+	public bool PopNextModifiedChunk(out Vector3I chunk, out T[] chunk_data)
 	{
 		if (modified_chunks.Count == 0)
 		{
 			chunk_data = null;
-			base_offset = Vector3.Zero;
+			chunk = Vector3I.Zero;
 			return false;
 		}
-		Vector3I chunk = modified_chunks.GetEnumerator().Current;
-		modified_chunks.Remove(chunk);
-		chunk_data = storage[chunk];
-		base_offset = new Vector3(chunk.X, chunk.Y, chunk.Z) * chunk_size;
+		chunk = modified_chunks.ToArray()[0];
+		if (!modified_chunks.Remove(chunk))
+			throw new Exception("unable to remove modified chunk from set!");
+        chunk_data = storage[chunk];
 		return true;
 	}
 
@@ -742,31 +756,28 @@ public class GridMap3D<T> where T : Serialiseable
 	}
 }
 
-public partial class VoxelGrid : MeshInstance3D
+public partial class VoxelGrid : Node3D
 {
-	private GridMap3D<Voxel> map;
+	private ChunkedGridMap3D<Voxel> map;
 
 	[Export] public EditingUIController ui_controller { get; private set; }
 	[Export] public VoxelType[] voxel_types { get; private set; }
     [Export] public float voxel_size = 0.8f;
-    [Export] uint initial_size = 7;
-	[Export] CollisionShape3D collider;
+	[Export] public int chunk_size = 8;
+	[Export] public Material material;
 
 	private List<VoxelDescription> voxel_descriptions;
+	private Dictionary<Vector3I, MeshInstance3D> chunks = new Dictionary<Vector3I, MeshInstance3D>();
 
 	public override void _Ready()
 	{
-		Mesh = new ArrayMesh();
-		collider.Shape = new ConcavePolygonShape3D();
-
 		InitialiseVoxelDescriptions();
 
 		if (map != null)
 			return;
 
-        // init voxel map
-		map = new GridMap3D<Voxel>(Vector3I.One * (int)initial_size, new Voxel(0, 0));
-		SetCellValue(new Vector3I(0, 0, 0), new Voxel(1, 0));
+		// init voxel map
+		map = new ChunkedGridMap3D<Voxel>(new Voxel(0, 0), chunk_size);
 		Rebuild();
 	}
 
@@ -844,7 +855,7 @@ public partial class VoxelGrid : MeshInstance3D
 
     public void SetCellValue(Vector3I position, Voxel value)
 	{
-		map[position.X, position.Y, position.Z] = value;
+        map[position.X, position.Y, position.Z] = value;
 	}
 
 	public void Save(string path)
@@ -864,20 +875,22 @@ public partial class VoxelGrid : MeshInstance3D
 		file.Close();
 		try
 		{
-			map = new GridMap3D<Voxel>(save_data, new Voxel(0, 0));
+			map = new ChunkedGridMap3D<Voxel>(save_data, new Voxel(0, 0));
 		} catch (Exception)
 		{
 			ui_controller.ShowErrorDialog("the selected voxel data file could not be loaded. it may be corrupt or in an unsupported format.");
-			map = new GridMap3D<Voxel>(Vector3I.One * (int)initial_size, new Voxel(0, 0));
+			map = new ChunkedGridMap3D<Voxel>(new Voxel(0, 0), chunk_size);
 		}
 		Rebuild();
     }
 
 	public void Export(string path)
 	{
-		byte[] data = MeshExporter.ExportObj((Mesh as ArrayMesh));
+		List<byte> bytes = new List<byte>();
+		foreach (MeshInstance3D mi in chunks.Values)
+			bytes.AddRange(MeshExporter.ExportObj(mi.Mesh as ArrayMesh, mi.GlobalPosition));
 		Godot.FileAccess file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Write);
-		file.StoreBuffer(data);
+		file.StoreBuffer(bytes.ToArray());
 		file.Close();
 	}
 
@@ -1099,92 +1112,105 @@ public partial class VoxelGrid : MeshInstance3D
 		}
 	}
 
-	public void Rebuild()
+	readonly Vector3[] box_collider =
+		[
+			new(-0.4f, 0.4f, 0.4f),
+			new(0.4f, 0.4f, 0.4f),
+			new(0.4f, -0.4f, 0.4f),
+
+			new(0.4f, -0.4f, 0.4f),
+			new(-0.4f, -0.4f, 0.4f),
+			new(-0.4f, 0.4f, 0.4f),
+
+			new(-0.4f, 0.4f, -0.4f),
+			new(-0.4f, 0.4f, 0.4f),
+			new(-0.4f, -0.4f, 0.4f),
+
+			new(-0.4f, -0.4f, 0.4f),
+			new(-0.4f, -0.4f, -0.4f),
+			new(-0.4f, 0.4f, -0.4f),
+
+			new(0.4f, 0.4f, -0.4f),
+			new(-0.4f, 0.4f, -0.4f),
+			new(-0.4f, -0.4f, -0.4f),
+
+			new(-0.4f, -0.4f, -0.4f),
+			new(0.4f, -0.4f, -0.4f),
+			new(0.4f, 0.4f, -0.4f),
+
+			new(0.4f, 0.4f, 0.4f),
+			new(0.4f, 0.4f, -0.4f),
+			new(0.4f, -0.4f, -0.4f),
+
+			new(0.4f, -0.4f, -0.4f),
+			new(0.4f, -0.4f, 0.4f),
+			new(0.4f, 0.4f, 0.4f),
+
+			new(0.4f, 0.4f, 0.4f),
+			new(-0.4f, 0.4f, 0.4f),
+			new(-0.4f, 0.4f, -0.4f),
+
+			new(-0.4f, 0.4f, -0.4f),
+			new(0.4f, 0.4f, -0.4f),
+			new(0.4f, 0.4f, 0.4f),
+
+			new(0.4f, -0.4f, -0.4f),
+			new(-0.4f, -0.4f, -0.4f),
+			new(-0.4f, -0.4f, 0.4f),
+
+			new(-0.4f, -0.4f, 0.4f),
+			new(0.4f, -0.4f, 0.4f),
+			new(0.4f, -0.4f, -0.4f),
+	];
+
+	private struct Statistics
 	{
-		GD.Print("rebuilding mesh based on " + map.GetSize().X + "x" + map.GetSize().Y + "x" + map.GetSize().Z + " voxel map...");
+		public int verts_without_indexing;
+		public int verts_with_indexing;
+		public int tris_without_culling;
+		public int tris_with_culling;
+		public float total_ms;
+		public float geom_ms;
+		public float index_ms;
+	}
+
+	private void RebuildChunk(Vector3I chunk, in Voxel[] data, out Vector3[] collision, out ArrayMesh mesh, ref Statistics stats)
+	{
 		var sw_total = Stopwatch.StartNew();
 
-		(Mesh as ArrayMesh).ClearSurfaces();
-		Vector3[] box_collider =
-		{
-			new Vector3(-0.4f, 0.4f, 0.4f),
-			new Vector3(0.4f, 0.4f, 0.4f),
-			new Vector3(0.4f, -0.4f, 0.4f),
-
-			new Vector3(0.4f, -0.4f, 0.4f),
-			new Vector3(-0.4f, -0.4f, 0.4f),
-			new Vector3(-0.4f, 0.4f, 0.4f),
-
-			new Vector3(-0.4f, 0.4f, -0.4f),
-			new Vector3(-0.4f, 0.4f, 0.4f),
-			new Vector3(-0.4f, -0.4f, 0.4f),
-
-            new Vector3(-0.4f, -0.4f, 0.4f),
-			new Vector3(-0.4f, -0.4f, -0.4f),
-			new Vector3(-0.4f, 0.4f, -0.4f),
-
-			new Vector3(0.4f, 0.4f, -0.4f),
-			new Vector3(-0.4f, 0.4f, -0.4f),
-			new Vector3(-0.4f, -0.4f, -0.4f),
-
-            new Vector3(-0.4f, -0.4f, -0.4f),
-			new Vector3(0.4f, -0.4f, -0.4f),
-            new Vector3(0.4f, 0.4f, -0.4f),
-
-			new Vector3(0.4f, 0.4f, 0.4f),
-			new Vector3(0.4f, 0.4f, -0.4f),
-			new Vector3(0.4f, -0.4f, -0.4f),
-
-            new Vector3(0.4f, -0.4f, -0.4f),
-			new Vector3(0.4f, -0.4f, 0.4f),
-            new Vector3(0.4f, 0.4f, 0.4f),
-
-			new Vector3(0.4f, 0.4f, 0.4f),
-			new Vector3(-0.4f, 0.4f, 0.4f),
-			new Vector3(-0.4f, 0.4f, -0.4f),
-
-			new Vector3(-0.4f, 0.4f, -0.4f),
-			new Vector3(0.4f, 0.4f, -0.4f),
-			new Vector3(0.4f, 0.4f, 0.4f),
-
-			new Vector3(0.4f, -0.4f, -0.4f),
-			new Vector3(-0.4f, -0.4f, -0.4f),
-			new Vector3(-0.4f, -0.4f, 0.4f),
-
-            new Vector3(-0.4f, -0.4f, 0.4f),
-			new Vector3(0.4f, -0.4f, 0.4f),
-            new Vector3(0.4f, -0.4f, -0.4f),
-        };
+		mesh = new ArrayMesh();
 
 		List<Vector3> collision_verts = new List<Vector3>();
-        List<Vector3> verts = new List<Vector3>();
+		List<Vector3> verts = new List<Vector3>();
 		List<Vector3> norms = new List<Vector3>();
 
-		Vector3I min = map.GetMin();
-		Vector3I max = map.GetMax();
-
 		var sw_geom = Stopwatch.StartNew();
+
 		int theoretical_total_tris = 0;
-		for (int i = min.X; i <= max.X; i++)
+		for (int i = 0; i < map.chunk_size; i++)
 		{
-			for (int j = min.Y; j <= max.Y; j++)
+			for (int j = 0; j < map.chunk_size; j++)
 			{
-				for (int k = min.Z; k <= max.Z; k++)
+				for (int k = 0; k < map.chunk_size; k++)
 				{
-					Voxel v_current = map[i, j, k];
+					// TODO: switch these [] gets to reference the data variable instead for max speed
+					int gi = (chunk.X * map.chunk_size) + i;
+					int gj = (chunk.Y * map.chunk_size) + j;
+					int gk = (chunk.Z * map.chunk_size) + k;
+					Voxel v_current = map[gi, gj, gk];
 					if (v_current.id == 0 || v_current.id >= voxel_descriptions.Count)
 						continue;
-					Voxel v_next_x = (i != max.X) ? map[i + 1, j, k] : new Voxel(0, 0);
+					Voxel v_next_x = (i != map.chunk_size - 1) ? map[gi + 1, gj, gk] : new Voxel(0, 0);
 					byte sff_next_x = GetFaceFilledFlags(v_next_x);
-					Voxel v_next_y = (j != max.Y) ? map[i, j + 1, k] : new Voxel(0, 0);
+					Voxel v_next_y = (j != map.chunk_size - 1) ? map[gi, gj + 1, gk] : new Voxel(0, 0);
 					byte sff_next_y = GetFaceFilledFlags(v_next_y);
-					Voxel v_next_z = (k != max.Z) ? map[i, j, k + 1] : new Voxel(0, 0);
+					Voxel v_next_z = (k != map.chunk_size) ? map[gi, gj, gk + 1] : new Voxel(0, 0);
 					byte sff_next_z = GetFaceFilledFlags(v_next_z);
-					Voxel v_last_x = (i != min.X) ? map[i - 1, j, k] : new Voxel(0, 0);
+					Voxel v_last_x = (i != 0) ? map[gi - 1, gj, gk] : new Voxel(0, 0);
 					byte sff_last_x = GetFaceFilledFlags(v_last_x);
-					Voxel v_last_y = (j != min.Y) ? map[i, j - 1, k] : new Voxel(0, 0);
+					Voxel v_last_y = (j != 0) ? map[gi, gj - 1, gk] : new Voxel(0, 0);
 					byte sff_last_y = GetFaceFilledFlags(v_last_y);
-					Voxel v_last_z = (k != min.Z) ? map[i, j, k - 1] : new Voxel(0, 0);
+					Voxel v_last_z = (k != 0) ? map[gi, gj, gk - 1] : new Voxel(0, 0);
 					byte sff_last_z = GetFaceFilledFlags(v_last_z);
 
 					byte faces_to_add = 0;
@@ -1211,7 +1237,7 @@ public partial class VoxelGrid : MeshInstance3D
 
 					Vector3 voxel_offset = new Vector3(i, j, k) * voxel_size;
 					AddFaces(v_current, voxel_offset, faces_to_add, ref verts, ref norms);
-					
+
 					theoretical_total_tris += voxel_descriptions[v_current.id].total_tris;
 
 					Vector3[] collider = new Vector3[box_collider.Length];
@@ -1236,24 +1262,85 @@ public partial class VoxelGrid : MeshInstance3D
 			sw_index.Stop();
 			float index_ms = (float)sw_index.Elapsed.TotalMilliseconds;
 
-			ArrayMesh am = Mesh as ArrayMesh;
 			Godot.Collections.Array arrays = new Godot.Collections.Array();
 			arrays.Resize((int)ArrayMesh.ArrayType.Max);
 			arrays[(int)ArrayMesh.ArrayType.Vertex] = final_verts.ToArray();
 			arrays[(int)ArrayMesh.ArrayType.Normal] = final_norms.ToArray();
 			arrays[(int)ArrayMesh.ArrayType.Index] = final_indices.ToArray();
-			am.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+			mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
 
 			sw_total.Stop();
 			float total_ms = (float)sw_total.Elapsed.TotalMilliseconds;
 
-			GD.Print("verts without indexing: " + verts.Count + "; with indexing: " + final_verts.Count);
-			GD.Print("tris without culling: " + theoretical_total_tris + "; with culling: " + (final_indices.Count / 3));
-			GD.Print("took " + total_ms + "ms (" + geom_ms + "ms geometry, " + index_ms + "ms indexing)");
+			stats.verts_without_indexing += verts.Count;
+			stats.verts_with_indexing += final_verts.Count;
+			stats.tris_without_culling += theoretical_total_tris;
+			stats.tris_with_culling += final_indices.Count / 3;
+			stats.total_ms += total_ms;
+			stats.geom_ms += geom_ms;
+			stats.index_ms += index_ms;
 		}
 
-		(collider.Shape as ConcavePolygonShape3D).SetFaces(collision_verts.ToArray());
-		(Mesh as ArrayMesh).ShadowMesh = (Mesh.Duplicate() as ArrayMesh);
-		GD.Print("done");
+		collision = collision_verts.ToArray();
+	}
+
+	public void Rebuild()
+	{
+		// TODO: limit the number of chunks rebuilt on any given frame
+		Statistics stats = new Statistics();
+
+		List<Vector3I> chunks_to_kill = map.Trim();
+		foreach (Vector3I chunk in chunks_to_kill)
+		{
+			chunks[chunk].QueueFree();
+			chunks.Remove(chunk);
+		}
+
+		GD.Print("rebuilding mesh based on " + map.GetTotalChunks() + "(" + map.GetModifiedChunks() + " modified, " + chunks_to_kill.Count + " empties culled this update) chunk voxel map with chunk size " + map.chunk_size);
+
+		bool chunk_available = false;
+		do
+		{
+			Vector3I chunk;
+			Voxel[] data;
+			chunk_available = map.PopNextModifiedChunk(out chunk, out data);
+			if (!chunk_available)
+				break;
+
+			Vector3[] collision;
+			ArrayMesh mesh;
+			GD.Print("    rebuilding chunk " + chunk);
+			RebuildChunk(chunk, in data, out collision, out mesh, ref stats);
+
+			MeshInstance3D mi;
+			CollisionShape3D cs;
+			if (!chunks.TryGetValue(chunk, out mi))
+			{
+				mi = new MeshInstance3D();
+				AddChild(mi);
+				mi.Position = (Vector3)(chunk * map.chunk_size) * voxel_size;
+				mi.MaterialOverride = material;
+				chunks[chunk] = mi;
+
+				StaticBody3D sb = new StaticBody3D();
+				mi.AddChild(sb);
+				cs = new CollisionShape3D();
+				sb.AddChild(cs);
+				cs.Shape = new ConcavePolygonShape3D();
+			}
+			else
+				cs = mi.GetChild(0).GetChild<CollisionShape3D>(0);
+
+			if (mesh != null)
+				mesh.ShadowMesh = mesh.Duplicate() as ArrayMesh;
+			mi.Mesh = mesh;
+			(cs.Shape as ConcavePolygonShape3D).SetFaces(collision);
+		} while (chunk_available == true);
+
+        GD.Print("verts without indexing: " + stats.verts_without_indexing + "; with indexing: " + stats.verts_with_indexing);
+        GD.Print("tris without culling: " + stats.tris_without_culling + "; with culling: " + stats.tris_with_culling);
+        GD.Print("took " + stats.total_ms + "ms (" + stats.geom_ms + "ms geometry, " + stats.index_ms + "ms indexing)");
+
+        GD.Print("done");
 	}
 }
