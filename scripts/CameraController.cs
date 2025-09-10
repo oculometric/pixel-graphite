@@ -27,8 +27,6 @@ public partial class CameraController : Node3D
 
 	public override void _PhysicsProcess(double delta)
 	{
-		GetWindow().Title = "pixel graphite (" + Engine.GetFramesPerSecond().ToString("000.0") + " fps)";
-
 		ProcessCameraInput((float)delta);
 		GlobalPosition = GlobalPosition + Interp(GlobalPosition, lerp_target, (float)delta);
 		if (!is_free_look)

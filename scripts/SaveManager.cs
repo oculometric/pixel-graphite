@@ -11,10 +11,16 @@ public partial class SaveManager : Node3D
     private bool has_unsaved_changes = true;
     private Timer autosave_timer = null;
 
-    public void SetUnsavedFlag() { has_unsaved_changes = true; }
+    public void UpdateTitle()
+    {
+        GetWindow().Title = "pixel graphite - " + current_file_name + (has_unsaved_changes ? "*" : "") + " (" + Engine.GetFramesPerSecond().ToString("000.0") + " fps)";
+    }
+
+    public void SetUnsavedFlag() { has_unsaved_changes = true; UpdateTitle(); }
 
     public override void _Ready()
     {
+        UpdateTitle();
         ui_controller.save_callback = SaveData;
         ui_controller.load_callback = LoadData;
         GetWindow().CloseRequested += () =>
@@ -87,6 +93,7 @@ public partial class SaveManager : Node3D
         current_file_name = file;
         has_unsaved_changes = false;
         autosave_timer.Start(autosave_time);
+        UpdateTitle();
     }
 
     public void LoadData(string file)
@@ -95,5 +102,6 @@ public partial class SaveManager : Node3D
         has_been_saved = true;
         current_file_name = file;
         has_unsaved_changes = false;
+        UpdateTitle();
     }
 }

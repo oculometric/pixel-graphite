@@ -302,6 +302,8 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
                 }
             }
         }
+
+		Trim();
 	}
 
 	public int GetTotalChunks() { return storage.Count; }
