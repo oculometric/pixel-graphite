@@ -26,6 +26,9 @@ public partial class VoxelEditController : Node3D
 		UpdateOutlineMesh();
 		if (FileAccess.FileExists("res://startup.dat"))
 			voxel_grid.Load("res://startup.dat");
+		else
+			GD.Print("startup file missing!");
+
     }
 
 	public void SetEditingEnabled(bool enabled)

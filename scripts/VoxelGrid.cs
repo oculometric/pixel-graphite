@@ -244,6 +244,7 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 
 	private void DeserialiseV4Data(byte[] serialised_data)
 	{
+		GD.Print("deserialising voxel data v4");
 		chunk_size = serialised_data[4];
 		if (chunk_size < 1 || chunk_size > 255)
 			throw new Exception("invalid chunk size");
@@ -635,6 +636,7 @@ public class GridMap3D<T> where T : Serialiseable
         // 1 byte orientation
         // 3 byte index into name index
 
+		GD.Print("deserialising voxel data v1");
         map_size = new Vector3I(ReadInt32(in serialised_data, 0), ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8));
         map_origin = new Vector3I(ReadInt32(in serialised_data, 12), ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20));
         if (map_size.X < 0 || map_size.Y < 0 || map_size.Z < 0)
@@ -682,6 +684,7 @@ public class GridMap3D<T> where T : Serialiseable
         // 1 byte orientation
         // ...
 
+		GD.Print("deserialising voxel data v2");
         map_size = new Vector3I(ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8), ReadInt32(in serialised_data, 12));
         map_origin = new Vector3I(ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20), ReadInt32(in serialised_data, 24));
 		if (map_size.X < 0 || map_size.Y < 0 || map_size.Z < 0)
@@ -710,6 +713,7 @@ public class GridMap3D<T> where T : Serialiseable
 
     private void DeserialiseV3Data(byte[] serialised_data)
     {
+		GD.Print("deserialising voxel data v3");
         map_size = new Vector3I(ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8), ReadInt32(in serialised_data, 12));
         map_origin = new Vector3I(ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20), ReadInt32(in serialised_data, 24));
         if (map_size.X < 0 || map_size.Y < 0 || map_size.Z < 0)
@@ -882,7 +886,8 @@ public partial class VoxelGrid : Node3D
 
     public void Load(string path)
 	{
-		foreach (MeshInstance3D mi in chunks.Values)
+		GD.Print("loading file " + path);
+        foreach (MeshInstance3D mi in chunks.Values)
             mi.QueueFree();
 		chunks.Clear();
 
@@ -894,8 +899,9 @@ public partial class VoxelGrid : Node3D
 		try
 		{
 			map = new ChunkedGridMap3D<Voxel>(save_data, new Voxel(0, 0));
-		} catch (Exception)
+		} catch
 		{
+			GD.Print("unable to load file");
 			ui_controller.ShowErrorDialog("the selected voxel data file could not be loaded. it may be corrupt or in an unsupported format.");
 			map = new ChunkedGridMap3D<Voxel>(new Voxel(0, 0), chunk_size);
 		}
