@@ -61,6 +61,7 @@ public struct Voxel : Serialiseable
 public class ChunkedGridMap3D<T> where T : Serialiseable
 {
 	private Dictionary<Vector3I, T[]> storage = new Dictionary<Vector3I, T[]>();
+	private Dictionary<Vector3I, int> storage_density = new Dictionary<Vector3I, int>();
 	private T default_element;
 	private int chunk_size = 8;
 
@@ -90,7 +91,17 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 			T[] data;
 			int index;
 			if (!GetVoxelStorage(new Vector3I(x, y, z), out chunk, out data, out index))
+			{
 				data = new T[chunk_size * chunk_size * chunk_size];
+				storage_density[chunk] = 0;
+			}
+			T cur = data[index];
+			bool cur_def = cur.Equals(default_element);
+			bool val_def = value.Equals(default_element);
+			if (cur_def && !val_def) // FIXME: will this be horribly slow?
+				storage_density[chunk]++;
+			else if (!cur_def && val_def)
+				storage_density[chunk]--;
 			data[index] = value;
 			storage[chunk] = data; // TODO: is this necessary? should we pass data as a ref?
 		}
@@ -98,12 +109,16 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 
 	public void Trim()
 	{
-		// TODO: find chunks which contain only the default element and kill them
+		Dictionary<Vector3I, T[]>.KeyCollection keys = storage.Keys;
+		foreach (Vector3I pos in keys)
+		{
+			if (storage_density[pos] == 0)
+			{
+				storage_density.Remove(pos);
+				storage.Remove(pos);
+			}
+		}
 	}
-
-	// TODO: create new converter from old GridMap3D to ChunkedGridMap3D
-	// TODO: track the max and min positions of the whole map?
-	// TODO: provide a way to get entire chunks of data
 
 	private void WriteInt32(int i, ref List<byte> arr)
 	{
@@ -252,6 +267,8 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 	{
 		// TODO: here
 	}
+
+	// TODO: provide a way to get entire chunks of data
 
 	public ChunkedGridMap3D(T default_el, int chunk_sz)
 	{
