@@ -62,6 +62,7 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 {
 	private Dictionary<Vector3I, T[]> storage = new Dictionary<Vector3I, T[]>();
 	private Dictionary<Vector3I, int> storage_density = new Dictionary<Vector3I, int>();
+	private HashSet<Vector3I> modified_chunks;
 	private T default_element;
 	private int chunk_size = 8;
 
@@ -96,12 +97,17 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 				storage_density[chunk] = 0;
 			}
 			T cur = data[index];
-			bool cur_def = cur.Equals(default_element);
-			bool val_def = value.Equals(default_element);
-			if (cur_def && !val_def) // FIXME: will this be horribly slow?
-				storage_density[chunk]++;
-			else if (!cur_def && val_def)
-				storage_density[chunk]--;
+			bool cur_val = cur.Equals(value);
+			if (!cur_val)
+			{
+				bool cur_def = cur.Equals(default_element);
+				bool val_def = value.Equals(default_element);
+				if (cur_def && !val_def) // FIXME: will this be horribly slow?
+					storage_density[chunk]++;
+				else if (!cur_def && val_def)
+					storage_density[chunk]--;
+				modified_chunks.Add(chunk);
+			}
 			data[index] = value;
 			storage[chunk] = data; // TODO: is this necessary? should we pass data as a ref?
 		}
@@ -122,11 +128,11 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 
 	private void WriteInt32(int i, ref List<byte> arr)
 	{
-        arr.Add((byte)(i & 0xFF));
-        arr.Add((byte)((i >> 8) & 0xFF));
-        arr.Add((byte)((i >> 16) & 0xFF));
-        arr.Add((byte)((i >> 24) & 0xFF));
-    }
+		arr.Add((byte)(i & 0xFF));
+		arr.Add((byte)((i >> 8) & 0xFF));
+		arr.Add((byte)((i >> 16) & 0xFF));
+		arr.Add((byte)((i >> 24) & 0xFF));
+	}
 
 	private int ReadInt32(in byte[] arr, uint offset)
     {
@@ -254,10 +260,17 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 					raw_data.Add(value);
 			}
 			T[] data = new T[chunk_size * chunk_size * chunk_size];
+			int density = 0;
 			for (int j = 0; j < raw_data.Count / data_size; j++)
+			{
 				data[j].SetBytes(raw_data.GetRange(j * data_size, data_size).ToArray());
+				if (data[j].Equals(default_element))
+					density++;
+			}
 
 			storage[position] = data;
+			storage_density[position] = density;
+			modified_chunks.Add(position);
 
 			offset += chunk_length;
 		}
@@ -265,10 +278,23 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 
 	private void ConvertLegacyGrid(GridMap3D<T> legacy_grid)
 	{
-		// TODO: here
+		// TODO: function to convert a legacy (non-chunked) grid into a chunked grid
 	}
 
-	// TODO: provide a way to get entire chunks of data
+	public bool PopNextModifiedChunk(out Vector3 base_offset, out T[] chunk_data)
+	{
+		if (modified_chunks.Count == 0)
+		{
+			chunk_data = null;
+			base_offset = Vector3.Zero;
+			return false;
+		}
+		Vector3I chunk = modified_chunks.GetEnumerator().Current;
+		modified_chunks.Remove(chunk);
+		chunk_data = storage[chunk];
+		base_offset = new Vector3(chunk.X, chunk.Y, chunk.Z) * chunk_size;
+		return true;
+	}
 
 	public ChunkedGridMap3D(T default_el, int chunk_sz)
 	{
