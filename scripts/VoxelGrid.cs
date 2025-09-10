@@ -2,12 +2,14 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
+using System.Runtime.InteropServices;
 
 public interface Serialiseable
 {
 	public byte[] GetBytes();
 	public void SetBytes(byte[] bytes);
+
+	public abstract static int GetSize();
 }
 
 public class VoxelDescription
@@ -30,8 +32,8 @@ public class VoxelDescription
 
 public struct Voxel : Serialiseable
 {
-	public byte id = 0;				// id of the voxel type
-	public byte orientation = 0;	// packed, 2 bits represent four rotations around vertical, 1 bit represents flipping upsde down
+	public byte id = 0;             // id of the voxel type
+	public byte orientation = 0;    // packed, 2 bits represent four rotations around vertical, 1 bit represents flipping upsde down
 
 	public Voxel(byte _id, byte _orient)
 	{
@@ -48,6 +50,232 @@ public struct Voxel : Serialiseable
 	{
 		id = bytes[0];
 		orientation = bytes[1];
+	}
+
+	public static int GetSize()
+	{
+		return Marshal.SizeOf<Voxel>();
+	}
+}
+
+public class ChunkedGridMap3D<T> where T : Serialiseable
+{
+	private Dictionary<Vector3I, T[]> storage = new Dictionary<Vector3I, T[]>();
+	private T default_element;
+	private int chunk_size = 8;
+
+	private bool GetVoxelStorage(Vector3I position, out Vector3I chunk, out T[] data, out int index)
+	{
+		Vector3 fp = position;
+		fp /= chunk_size;
+		chunk = new Vector3I(Mathf.FloorToInt(fp.X), Mathf.FloorToInt(fp.Y), Mathf.FloorToInt(fp.Z));
+		Vector3I cp = position - chunk;
+		index = (((cp.Z * chunk_size) + cp.Y) * chunk_size) + cp.X;
+		return storage.TryGetValue(chunk, out data);
+	}
+
+	public T this[int x, int y, int z]
+	{
+		get
+		{
+			T[] data;
+			int index;
+			if (GetVoxelStorage(new Vector3I(x, y, z), out _, out data, out index))
+				return data[index];
+			return default_element;
+		}
+		set
+		{
+			Vector3I chunk;
+			T[] data;
+			int index;
+			if (!GetVoxelStorage(new Vector3I(x, y, z), out chunk, out data, out index))
+				data = new T[chunk_size * chunk_size * chunk_size];
+			data[index] = value;
+			storage[chunk] = data; // TODO: is this necessary? should we pass data as a ref?
+		}
+	}
+
+	public void Trim()
+	{
+		// TODO: find chunks which contain only the default element and kill them
+	}
+
+	// TODO: create new converter from old GridMap3D to ChunkedGridMap3D
+	// TODO: track the max and min positions of the whole map?
+	// TODO: provide a way to get entire chunks of data
+
+	private void WriteInt32(int i, ref List<byte> arr)
+	{
+        arr.Add((byte)(i & 0xFF));
+        arr.Add((byte)((i >> 8) & 0xFF));
+        arr.Add((byte)((i >> 16) & 0xFF));
+        arr.Add((byte)((i >> 24) & 0xFF));
+    }
+
+	private int ReadInt32(in byte[] arr, uint offset)
+    {
+        return (arr[offset + 3] << 24) | (arr[offset + 2] << 16) | (arr[offset + 1] << 8) | arr[offset];
+    }
+
+	public byte[] Serialise()
+	{
+		// file structure
+		// 4 byte signature (0x43535402)
+
+		// 1 byte value containing the chunk size
+		// 1 byte data type size
+
+		// 2 byte padding
+
+		// 4 byte value containing the chunk length (in bytes)
+		// 4 byte value containing the number of chunks
+
+		// 4 byte padding
+
+		// 12 byte chunk position (X4Y4Z4)
+		// 1 byte voxel type id
+		// 1 byte orientation
+		// ...
+
+		// 4 byte padding
+
+		// 12 byte chunk position (X4Y4Z4)
+		// 4 byte chunk length in bytes
+		// 1 byte voxel type id
+		// 1 byte orientation
+		// ...
+
+		// ...
+
+		int chunk_data_length = T.GetSize() * chunk_size * chunk_size * chunk_size;
+
+		List<byte> data = new List<byte>((4 * 5) + ((12 + chunk_data_length) * storage.Count));
+		WriteInt32(0x43535402, ref data);
+
+		data.Add((byte)chunk_size);
+		data.Add((byte)T.GetSize());
+		data.Add(0);
+		data.Add(0);
+
+		WriteInt32(12 + chunk_data_length, ref data);
+		WriteInt32(storage.Count, ref data);
+
+		WriteInt32(0, ref data);
+
+		foreach (KeyValuePair<Vector3I, T[]> chunk in storage)
+		{
+			WriteInt32(chunk.Key.X, ref data);
+			WriteInt32(chunk.Key.Y, ref data);
+			WriteInt32(chunk.Key.Z, ref data);
+
+			List<byte> chunk_data = new List<byte>(chunk_data_length);
+			foreach (T voxel in chunk.Value)
+				chunk_data.AddRange(voxel.GetBytes());
+
+			List<byte> compressed_data = new List<byte>(chunk_data_length / 2);
+			// generic RLE
+			byte current_counter = 0;
+			byte current_value = 0;
+			foreach (byte b in chunk_data)
+			{
+				if (b == current_value)
+				{
+					if (current_counter == 255)
+					{
+						compressed_data.Add(current_counter);
+						compressed_data.Add(current_value);
+						current_counter = 0;
+					}
+					current_counter++;
+				}
+				else
+				{
+					compressed_data.Add(current_counter);
+					compressed_data.Add(current_value);
+					current_counter = 1;
+					current_value = b;
+				}
+			}
+			compressed_data.Add(current_counter);
+			compressed_data.Add(current_value);
+
+			WriteInt32(compressed_data.Count, ref data);
+			data.AddRange(compressed_data);
+
+			WriteInt32(0, ref data);
+		}
+
+        return data.ToArray();
+	}
+
+	private void DeserialiseV4Data(byte[] serialised_data)
+	{
+		chunk_size = serialised_data[4];
+		if (chunk_size < 1 || chunk_size > 255)
+			throw new Exception("invalid chunk size");
+		int data_size = serialised_data[5];
+		if (data_size != T.GetSize())
+			throw new Exception("invalid voxel data type size");
+		int chunk_length = ReadInt32(serialised_data, 8);
+		int chunk_count = ReadInt32(serialised_data, 12);
+		if (chunk_length < 12)
+			throw new Exception("invalid voxel grid data");
+		if (chunk_count < 0)
+			throw new Exception("invalid voxel grid data");
+
+		int offset = 20;
+		for (int i = 0; i < chunk_count; i++)
+		{
+			Vector3I position = new(ReadInt32(serialised_data, (uint)offset), ReadInt32(serialised_data, (uint)offset + 4), ReadInt32(serialised_data, (uint)offset + 8));
+			int size = ReadInt32(serialised_data, (uint)offset + 12);
+
+			List<byte> raw_data = new List<byte>(data_size * chunk_size * chunk_size * chunk_size);
+			for (int bo = 0; bo < size - 1; bo += 2)
+			{
+				byte counter = serialised_data[offset + bo];
+				byte value = serialised_data[offset + bo + 1];
+				for (int _ = 0; _ < counter; _++)
+					raw_data.Add(value);
+			}
+			T[] data = new T[chunk_size * chunk_size * chunk_size];
+			for (int j = 0; j < raw_data.Count / data_size; j++)
+				data[j].SetBytes(raw_data.GetRange(j * data_size, data_size).ToArray());
+
+			storage[position] = data;
+
+			offset += chunk_length;
+		}
+	}
+
+	private void ConvertLegacyGrid(GridMap3D<T> legacy_grid)
+	{
+		// TODO: here
+	}
+
+	public ChunkedGridMap3D(T default_el, int chunk_sz)
+	{
+		if (chunk_sz < 1 || chunk_sz > 255)
+			throw new Exception("invalid chunk size");
+		default_element = default_el;
+		chunk_size = chunk_sz;
+	}
+
+	public ChunkedGridMap3D(byte[] serialised_data, T default_el)
+	{
+		default_element = default_el;
+
+		if (serialised_data.Length < (4 * 5))
+			throw new Exception("invalid voxel grid data");
+
+		int signature = ReadInt32(in serialised_data, 0);
+		if (signature == 0x43535402)
+			DeserialiseV4Data(serialised_data);
+		else
+		{
+			GridMap3D<T> legacy_grid = new GridMap3D<T>(serialised_data, default_el);
+			ConvertLegacyGrid(legacy_grid);
+		}
 	}
 }
 
