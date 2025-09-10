@@ -2,8 +2,8 @@
 - [ ] add camera perspective controls?
 - [x] rewrite voxel storage
 - [x] rewrite voxel generation to be more efficient
-- [ ] optimise mesh indexing
-- [ ] split mesh generation into blocks to reduce indexing cost and eliminate need to rebuild entire mesh (possibly store file as blocks too?)
+- [x] optimise mesh indexing
+- [x] split mesh generation into blocks to reduce indexing cost and eliminate need to rebuild entire mesh (possibly store file as blocks too?)
 - [ ] sand editing/toggle
 - [ ] lily pad painting
 - [x] mesh exporting
