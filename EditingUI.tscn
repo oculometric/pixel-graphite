@@ -195,11 +195,10 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
 layout_mode = 2
 
 [node name="TextureRect" type="TextureRect" parent="ModeSwitcher/PanelContainer/VBoxContainer"]
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 4
 texture = ExtResource("3_dnh2e")
-stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer/VBoxContainer"]
 layout_mode = 2
@@ -217,11 +216,10 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
 layout_mode = 2
 
 [node name="TextureRect" type="TextureRect" parent="ModeSwitcher/PanelContainer2/VBoxContainer"]
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 4
 texture = ExtResource("4_c7spg")
-stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer2/VBoxContainer"]
 layout_mode = 2
@@ -239,11 +237,10 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
 layout_mode = 2
 
 [node name="TextureRect" type="TextureRect" parent="ModeSwitcher/PanelContainer3/VBoxContainer"]
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 4
 texture = ExtResource("5_lfx6u")
-stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer3/VBoxContainer"]
 layout_mode = 2
@@ -261,11 +258,10 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
 layout_mode = 2
 
 [node name="TextureRect" type="TextureRect" parent="ModeSwitcher/PanelContainer4/VBoxContainer"]
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 4
 texture = ExtResource("6_4nd0v")
-stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer4/VBoxContainer"]
 layout_mode = 2
@@ -283,11 +279,10 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_0g3py")
 layout_mode = 2
 
 [node name="TextureRect" type="TextureRect" parent="ModeSwitcher/PanelContainer5/VBoxContainer"]
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 4
 texture = ExtResource("7_4nd0v")
-stretch_mode = 2
 
 [node name="Label" type="Label" parent="ModeSwitcher/PanelContainer5/VBoxContainer"]
 layout_mode = 2
