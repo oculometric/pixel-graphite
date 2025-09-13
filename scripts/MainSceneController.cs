@@ -6,44 +6,43 @@ public partial class MainSceneController : Node3D
 {
 	[Export] public EditingUIController ui_controller;
 
-	[Export] public VoxelEditController voxel_editor;
-	[Export] public LightEditController light_editor;
+	[Export] public EditController[] editors { get; private set; }
+	public VoxelEditController voxel_editor { get; private set; }
 
-	private int editing_mode = 0;   // editing modes:
-									// 0 - voxel editing
-									// 1 - object editing
-									// 2 - grass editing
-									// 3 - light editing
-									// 4 - no editing
-	private bool is_modal = false;
+	public int editing_mode { get; private set; } = 0;
+	private bool is_mode_selecting = false;
 
 	public override void _Ready()
 	{
+		ui_controller.ConfigureEditModalUI(this);
 		SetEditingMode(0);
+		foreach (EditController ec in editors)
+		{
+			if (ec is VoxelEditController)
+				voxel_editor = ec as VoxelEditController;
+		}
 	}
 
 	private void SetEditingMode(int new_editing_mode)
 	{
-		is_modal = false;
-		ui_controller.ToggleModeModal(is_modal, new_editing_mode);
+		int nem = new_editing_mode;
+		if (nem >= editors.Length)
+			nem = editors.Length - 1;
+		int i = 0;
+		foreach (EditController ec in editors)
+		{
+			ec.SetEditingEnabled(nem == i);
+			ec.SetProcessUnhandledInput(nem == i);
+			i++;
+		}
+		is_mode_selecting = false;
+		if (nem >= 0)
+			editing_mode = new_editing_mode;
+		else is_mode_selecting = true;
 
-		voxel_editor.SetEditingEnabled(new_editing_mode == 0);
-		light_editor.SetEditingEnabled(new_editing_mode == 3);
-
-		editing_mode = new_editing_mode;
-		ui_controller.SetEditingMode(editing_mode);
-	}
-
-	private void SetModal()
-	{
-		is_modal = true;
-		ui_controller.Visible = true;
-
-		voxel_editor.SetEditingEnabled(false);
-		light_editor.SetEditingEnabled(false);
-		// TODO: disable input to all other editors during modal
-
-		ui_controller.ToggleModeModal(is_modal, editing_mode);
+		if (nem >= 0)
+			ui_controller.SetEditingMode(editing_mode, editors[nem]);
+		ui_controller.SetModalVisible(is_mode_selecting);
 	}
 
     public void TakeScreenshot()
@@ -72,22 +71,25 @@ public partial class MainSceneController : Node3D
 				switch (key.Keycode)
 				{
 					case Key.P: TakeScreenshot(); break;
-					case Key.H:
-						if (is_modal) break;
-						ui_controller.Visible = !ui_controller.Visible;
-						voxel_editor.outline_object.Visible = ui_controller.Visible && editing_mode == 0;
-						break;
-					case Key.U: ui_controller.ShowExportDialog(); break;
 					case Key.Tab:
-						if (!is_modal) SetModal();
-						else SetEditingMode(editing_mode);
+						if (!is_mode_selecting)
+							SetEditingMode(-1);
+						else
+							SetEditingMode(editing_mode);
 						break;
-					case Key.Key1: if (is_modal) SetEditingMode(0); break;
-					case Key.Key2: if (is_modal) SetEditingMode(1); break;
-					case Key.Key3: if (is_modal) SetEditingMode(2); break;
-					case Key.Key4: if (is_modal) SetEditingMode(3); break;
-					case Key.Key5: if (is_modal) SetEditingMode(4); break;
-					case Key.W: GetViewport().DebugDraw = (Viewport.DebugDrawEnum)((int)(GetViewport().DebugDraw + 1) % 6); break;
+					case Key.Key1: if (is_mode_selecting) SetEditingMode(0); break;
+					case Key.Key2: if (is_mode_selecting) SetEditingMode(1); break;
+					case Key.Key3: if (is_mode_selecting) SetEditingMode(2); break;
+					case Key.Key4: if (is_mode_selecting) SetEditingMode(3); break;
+					case Key.Key5: if (is_mode_selecting) SetEditingMode(4); break;
+					case Key.Key6: if (is_mode_selecting) SetEditingMode(5); break;
+					case Key.Key7: if (is_mode_selecting) SetEditingMode(6); break;
+					case Key.Key8: if (is_mode_selecting) SetEditingMode(7); break;
+					case Key.Key9: if (is_mode_selecting) SetEditingMode(8); break;
+					case Key.Quoteleft: GetViewport().DebugDraw = (Viewport.DebugDrawEnum)((int)(GetViewport().DebugDraw + 1) % 6); break;
+					default:
+						ui_controller._Input(@event);
+						break;
 				}
 			}
 		}

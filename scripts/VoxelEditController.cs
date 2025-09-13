@@ -1,7 +1,7 @@
 using Godot;
 using Godot.Collections;
 
-public partial class VoxelEditController : Node3D
+public partial class VoxelEditController : EditController
 {
 	private Vector2 mouse_delta;
 	private Voxel current_cell_type;
@@ -13,13 +13,12 @@ public partial class VoxelEditController : Node3D
 	
 	[Export] public SaveManager save_manager { get; private set; }
 	[Export] public VoxelGrid voxel_grid { get; private set; }
-    [Export] public MainSceneController scene_controller;
 	[Export] private Mesh outline_mesh;
  
     public override async void _Ready()
     {
 		current_cell_type = new Voxel(cell_type_index, 0);
-		scene_controller.ui_controller.ConfigureUI(this);
+		scene_controller.ui_controller.ConfigureVoxelUI(this);
         scene_controller.ui_controller.UpdateVoxelUI(cell_type_index, erase_mode, current_cell_type.orientation);
 
 		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -31,17 +30,15 @@ public partial class VoxelEditController : Node3D
 
     }
 
-	public void SetEditingEnabled(bool enabled)
+	public override void SetEditingEnabled(bool enabled)
 	{
 		if (enabled)
 		{
 			if (outline_object != null) outline_object.Visible = scene_controller.ui_controller.Visible;
-			SetProcessUnhandledInput(true);
 		}
 		else
 		{
 			outline_object.Visible = false;
-			SetProcessUnhandledInput(false);
 		}
 	}
 

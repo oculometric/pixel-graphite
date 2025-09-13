@@ -5,23 +5,20 @@ using System.Threading.Tasks;
 public partial class EditingUIController : Control
 {
 	[Export] private Label editing_mode_label;
-	[Export] private HBoxContainer mode_modal;
+	[Export] private GridContainer mode_modal;
 	[Export] private Label top_label;
 
 	[Export] private FileDialog file_dialog;
 	[Export] private ConfirmationDialog confirm_discard_dialog;
 	[Export] private AcceptDialog accept_dialog;
 
-    [Export] private VBoxContainer voxel_type_container;
+    [Export] private VBoxContainer voxel_palette;
 
 	private bool is_exporting = false;
 
-	private string[] mode_names = [ "voxels", "object", "sand & grass", "lighting", "none" ];
-	private string[] mode_controls = [ "(A) << rotate >> (D)\n(F) flip vertical", "...", "...", "(A) << rotate >> (D)    (W/S) rotate up/down    (SHIFT) disable snap\n(Q) toggle sun    (E) toggle ambient    (R) toggle shadows", "..." ];
-
-	public void ConfigureUI(VoxelEditController vec)
+	public void ConfigureVoxelUI(VoxelEditController vec)
 	{
-		Node template = voxel_type_container.GetChild(0);
+		Node template = voxel_palette.GetChild(0);
 		int i = 0;
 		foreach (VoxelType vt in vec.voxel_grid.voxel_types)
 		{
@@ -46,14 +43,33 @@ public partial class EditingUIController : Control
 			else if (file_dialog.FileMode == FileDialog.FileModeEnum.OpenFile)
 				load_callback(path);
 		};
+	}
+
+	public void ConfigureEditModalUI(MainSceneController msc)
+	{
+		Node template = mode_modal.GetChild(0);
+		int i = 0;
+		foreach (EditController ec in msc.editors)
+		{
+			template.GetChild(0).GetChild<TextureRect>(0).Texture = ec.ui_icon;
+			template.GetChild(0).GetChild<Label>(1).Text = "(" + (i + 1) + ") " + ec.ui_name;
+			Node copy = template.Duplicate();
+			mode_modal.AddChild(copy);
+			template = copy;
+			i++;
+		}
+		template.QueueFree();
+	}
+
+	public override void _Ready()
+	{
 		confirm_discard_dialog.Confirmed += () => { confirm_callback(); };
 
 		GetWindow().SizeChanged += () =>
 		{
 			(GetViewport() as SubViewport).Size = GetWindow().Size;
 		};
-
-		ToggleModeModal(false, 0);
+		SetModalVisible(false);
 	}
 
 	public Action<string> save_callback;
@@ -69,74 +85,57 @@ public partial class EditingUIController : Control
 		style_box.BorderWidthRight = 2;
 		style_box.DrawCenter = false;
 		style_box.BorderColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
-		for (int i = 0; i < voxel_type_container.GetChildCount(); i++)
+		for (int i = 0; i < voxel_palette.GetChildCount(); i++)
 		{
 			if ((i == 0 && erase_mode) || (i == selected_voxel_type && !erase_mode))
 			{
 				StyleBoxFlat tmp = style_box.Duplicate() as StyleBoxFlat;
 				tmp.BorderColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
-				voxel_type_container.GetChild<PanelContainer>(i).AddThemeStyleboxOverride("panel", tmp);
+				voxel_palette.GetChild<PanelContainer>(i).AddThemeStyleboxOverride("panel", tmp);
 			}
 			else
-				voxel_type_container.GetChild<PanelContainer>(i).AddThemeStyleboxOverride("panel", style_box);
+				voxel_palette.GetChild<PanelContainer>(i).AddThemeStyleboxOverride("panel", style_box);
 		}
 	}
 
-	public void ToggleModeModal(bool visible, int current_mode)
+	public void SetModalVisible(bool visible)
 	{
-		voxel_type_container.Visible = !visible;
-
-		top_label.Visible = !visible;
-
-		mode_modal.Visible = visible;
 		if (visible)
-		{
-			StyleBoxFlat style_box = new StyleBoxFlat();
-			style_box.AntiAliasing = false;
-			style_box.BorderWidthBottom = 2;
-			style_box.BorderWidthTop = 2;
-			style_box.BorderWidthLeft = 2;
-			style_box.BorderWidthRight = 2;
-			style_box.DrawCenter = false;
-			style_box.BorderColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
-			for (int i = 0; i < 5; i++)
-			{
-				if (i == current_mode)
-				{
-					StyleBoxFlat tmp = style_box.Duplicate() as StyleBoxFlat;
-					tmp.BorderColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
-					mode_modal.GetChild<PanelContainer>(i).AddThemeStyleboxOverride("panel", tmp);
-				}
-				else
-					mode_modal.GetChild<PanelContainer>(i).AddThemeStyleboxOverride("panel", style_box);
-			}
-		}
+			Visible = true;
+		voxel_palette.GetParent<Control>().Visible = !visible;
+		top_label.Visible = !visible;
+		mode_modal.Visible = visible;
 	}
 
-	public void SetEditingMode(int mode)
+	public void SetEditingMode(int mode, EditController editor)
 	{
-		// TODO: hide/show different bits of the UI
-		editing_mode_label.Text = "(TAB) editing: " + mode_names[mode];
-		top_label.Text = mode_controls[mode];
+		editing_mode_label.Text = "(TAB) editing: " + editor.ui_name;
+		top_label.Text = editor.ui_controls;
 
-		switch (mode)
+		StyleBoxFlat style_box = new StyleBoxFlat();
+		style_box.AntiAliasing = false;
+		style_box.BorderWidthBottom = 2;
+		style_box.BorderWidthTop = 2;
+		style_box.BorderWidthLeft = 2;
+		style_box.BorderWidthRight = 2;
+		style_box.DrawCenter = false;
+		style_box.BorderColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+		for (int i = 0; i < mode_modal.GetChildCount(); i++)
 		{
-			case 0:
-				voxel_type_container.Visible = true;
-				break;
-			case 1:
-				voxel_type_container.Visible = false;
-				break;
-			case 2:
-				voxel_type_container.Visible = false;
-				break;
-			case 3:
-				voxel_type_container.Visible = false;
-				break;
-			case 4:
-				voxel_type_container.Visible = false;
-				break;
+			if (i == mode)
+			{
+				StyleBoxFlat tmp = style_box.Duplicate() as StyleBoxFlat;
+				tmp.BorderColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+				mode_modal.GetChild<PanelContainer>(i).AddThemeStyleboxOverride("panel", tmp);
+			}
+			else
+				mode_modal.GetChild<PanelContainer>(i).AddThemeStyleboxOverride("panel", style_box);
 		}
+
+		if (editor.ui_name == "voxels")
+			voxel_palette.Visible = true;
+		else
+			voxel_palette.Visible = false;
 	}
 
 	public void ShowSaveDialog(string file_name)
@@ -188,4 +187,25 @@ public partial class EditingUIController : Control
 		accept_dialog.DialogText = body;
 		accept_dialog.Show();
 	}
+
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is InputEventKey)
+		{
+			InputEventKey key = @event as InputEventKey;
+			if (key.IsPressed())
+			{
+				switch (key.Keycode)
+				{
+					case Key.H:
+						if (mode_modal.Visible)
+							break;
+						Visible = !Visible;
+						break;
+					case Key.U: ShowExportDialog(); break;
+				}
+			}
+		}
+	}
+
 }

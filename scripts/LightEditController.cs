@@ -1,25 +1,11 @@
 using Godot;
 using System;
 
-public partial class LightEditController : Node3D
+public partial class LightEditController : EditController
 {
-	[Export] public MainSceneController scene_controller;
-
     [Export] private Light3D sun;
     [Export] private float granular_pan_speed = 4.0f;
     [Export] private float snap_angle = 45.0f;
-
-    public void SetEditingEnabled(bool enabled)
-	{
-		if (enabled)
-		{
-			SetProcessUnhandledInput(true);
-		}
-		else
-		{
-			SetProcessUnhandledInput(false);
-		}
-	}
 
     public override void _Process(double delta)
     {
