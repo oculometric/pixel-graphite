@@ -53,7 +53,7 @@ top_label = NodePath("TopLabel")
 file_dialog = NodePath("FileDialog")
 confirm_discard_dialog = NodePath("ConfirmDiscardDialog")
 accept_dialog = NodePath("AcceptDialog")
-help_panel = NodePath("HelpPanel")
+help_panel = NodePath("TabContainer")
 voxel_palette = NodePath("VoxelPaletteContainer/VoxelPalette")
 
 [node name="VoxelPaletteContainer" type="Control" parent="."]
@@ -200,24 +200,32 @@ size = Vector2i(384, 128)
 ok_button_text = "ok"
 dialog_text = "fuck you"
 
-[node name="HelpPanel" type="CenterContainer" parent="."]
+[node name="TabContainer" type="TabContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+current_tab = 1
+tabs_visible = false
+tab_focus_mode = 0
 
-[node name="VSeparator" type="VSeparator" parent="HelpPanel"]
+[node name="HelpPanel" type="CenterContainer" parent="TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="VSeparator" type="VSeparator" parent="TabContainer/HelpPanel"]
 custom_minimum_size = Vector2(32, 768)
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxFlat_dnh2e")
 
-[node name="HBoxContainer" type="Control" parent="HelpPanel"]
+[node name="HBoxContainer" type="Control" parent="TabContainer/HelpPanel"]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 
-[node name="Label" type="Label" parent="HelpPanel/HBoxContainer"]
+[node name="Label" type="Label" parent="TabContainer/HelpPanel/HBoxContainer"]
 custom_minimum_size = Vector2(450, 0)
 layout_mode = 1
 anchors_preset = 6
@@ -251,7 +259,7 @@ label_settings = ExtResource("3_c7spg")
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="Label2" type="Label" parent="HelpPanel/HBoxContainer"]
+[node name="Label2" type="Label" parent="TabContainer/HelpPanel/HBoxContainer"]
 layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
@@ -279,3 +287,12 @@ Ctrl+K
 Ctrl+H"
 label_settings = ExtResource("3_c7spg")
 vertical_alignment = 1
+
+[node name="RenderOptionsPanel" type="CenterContainer" parent="TabContainer"]
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="Label" type="Label" parent="TabContainer/RenderOptionsPanel"]
+layout_mode = 2
+text = "Lorem ipsum dolor sit amet"
+label_settings = ExtResource("3_c7spg")

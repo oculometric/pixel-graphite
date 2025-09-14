@@ -12,7 +12,7 @@ public partial class EditingUIController : Control
 	[Export] private ConfirmationDialog confirm_discard_dialog;
 	[Export] private AcceptDialog accept_dialog;
 
-	[Export] private Control help_panel;
+	[Export] private TabContainer help_panel;
 
     [Export] private VBoxContainer voxel_palette;
 	private MainSceneController scene_controller;
@@ -109,7 +109,7 @@ public partial class EditingUIController : Control
 		if (visible)
 		{
 			Visible = true;
-			ShowHelp(true);
+			ShowPanel(0, true);
 		}
 		voxel_palette.GetParent<Control>().Visible = !visible;
 		top_label.Visible = !visible;
@@ -198,9 +198,10 @@ public partial class EditingUIController : Control
 		accept_dialog.Show();
 	}
 
-	public void ShowHelp(bool hide = false)
+	public void ShowPanel(int index, bool hide = false)
 	{
-		bool new_visible = !help_panel.Visible;
+		bool new_visible = index == help_panel.CurrentTab ? !help_panel.Visible : true;
+		help_panel.CurrentTab = index;
 		if (mode_modal.Visible || hide)
 			new_visible = false;
 		help_panel.Visible = new_visible;
@@ -227,17 +228,21 @@ public partial class EditingUIController : Control
 							break;
 						if (key.CtrlPressed)
 						{
-							ShowHelp();
+							ShowPanel(0);
 							break;
 						}
 						Visible = !Visible;
 						break;
 					case Key.U: ShowExportDialog(); break;
 					case Key.F1:
-						ShowHelp();
+						ShowPanel(0);
 						break;
 					case Key.Escape:
-						ShowHelp(true);
+						ShowPanel(0, true);
+						break;
+					case Key.K:
+						if (key.CtrlPressed)
+							ShowPanel(1);
 						break;
 				}
 			}
