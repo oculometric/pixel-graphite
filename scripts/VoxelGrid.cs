@@ -73,6 +73,11 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 	private T default_element;
 	public int chunk_size { get; private set; } = 8;
 
+	public int GetIndex(Vector3I chunk_relative)
+	{
+		return (((chunk_relative.Z * chunk_size) + chunk_relative.Y) * chunk_size) + chunk_relative.X;
+	}
+
 	private bool GetVoxelStorage(Vector3I position, out Vector3I chunk, out T[] data, out int index)
 	{
 		Vector3 fp = position;
@@ -80,7 +85,7 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 		Vector3I tmp_chunk = new Vector3I(Mathf.FloorToInt(fp.X), Mathf.FloorToInt(fp.Y), Mathf.FloorToInt(fp.Z));
 		chunk = tmp_chunk;
 		Vector3I cp = position - (tmp_chunk * chunk_size);
-		index = (((cp.Z * chunk_size) + cp.Y) * chunk_size) + cp.X;
+		index = GetIndex(cp);
 		return storage.TryGetValue(tmp_chunk, out data);
 	}
 
@@ -1210,6 +1215,9 @@ public partial class VoxelGrid : Node3D
 
 		var sw_geom = Stopwatch.StartNew();
 
+		Vector3I c_offset = chunk * map.chunk_size;
+		int cs_sqr = map.chunk_size * map.chunk_size;
+
 		int theoretical_total_tris = 0;
 		for (int i = 0; i < map.chunk_size; i++)
 		{
@@ -1217,24 +1225,24 @@ public partial class VoxelGrid : Node3D
 			{
 				for (int k = 0; k < map.chunk_size; k++)
 				{
-					// TODO: switch these [] gets to reference the data variable instead for max speed
-					int gi = (chunk.X * map.chunk_size) + i;
-					int gj = (chunk.Y * map.chunk_size) + j;
-					int gk = (chunk.Z * map.chunk_size) + k;
-					Voxel v_current = map[gi, gj, gk];
+					int gi = c_offset.X + i;
+					int gj = c_offset.Y + j;
+					int gk = c_offset.Z + k;
+					int v_index = map.GetIndex(new(i, j, k));
+					Voxel v_current = data[v_index];
 					if (v_current.id == 0 || v_current.id >= voxel_descriptions.Count)
 						continue;
-					Voxel v_next_x = (i != map.chunk_size - 1) ? map[gi + 1, gj, gk] : new Voxel(0, 0);
+					Voxel v_next_x = (i == map.chunk_size - 1) ? map[gi + 1, gj, gk] : data[v_index + 1];
 					byte sff_next_x = GetFaceFilledFlags(v_next_x);
-					Voxel v_next_y = (j != map.chunk_size - 1) ? map[gi, gj + 1, gk] : new Voxel(0, 0);
+					Voxel v_next_y = (j == map.chunk_size - 1) ? map[gi, gj + 1, gk] : data[v_index + map.chunk_size];
 					byte sff_next_y = GetFaceFilledFlags(v_next_y);
-					Voxel v_next_z = (k != map.chunk_size) ? map[gi, gj, gk + 1] : new Voxel(0, 0);
+					Voxel v_next_z = (k == map.chunk_size - 1) ? map[gi, gj, gk + 1] : data[v_index + cs_sqr];
 					byte sff_next_z = GetFaceFilledFlags(v_next_z);
-					Voxel v_last_x = (i != 0) ? map[gi - 1, gj, gk] : new Voxel(0, 0);
+					Voxel v_last_x = (i == 0) ? map[gi - 1, gj, gk] : data[v_index - 1];
 					byte sff_last_x = GetFaceFilledFlags(v_last_x);
-					Voxel v_last_y = (j != 0) ? map[gi, gj - 1, gk] : new Voxel(0, 0);
+					Voxel v_last_y = (j == 0) ? map[gi, gj - 1, gk] : data[v_index - map.chunk_size];
 					byte sff_last_y = GetFaceFilledFlags(v_last_y);
-					Voxel v_last_z = (k != 0) ? map[gi, gj, gk - 1] : new Voxel(0, 0);
+					Voxel v_last_z = (k == 0) ? map[gi, gj, gk - 1] : data[v_index - cs_sqr];
 					byte sff_last_z = GetFaceFilledFlags(v_last_z);
 
 					byte faces_to_add = 0;
@@ -1260,15 +1268,16 @@ public partial class VoxelGrid : Node3D
 						faces_to_add |= 0b01000000;
 
 					Vector3 voxel_offset = new Vector3(i, j, k) * voxel_size;
-					AddFaces(v_current, voxel_offset, faces_to_add, ref verts, ref norms);
-
+					List<Vector3> new_verts = new List<Vector3>();
+					AddFaces(v_current, voxel_offset, faces_to_add, ref new_verts, ref norms);
+					verts.AddRange(new_verts);
 					theoretical_total_tris += voxel_descriptions[v_current.id].total_tris;
 
-					Vector3[] collider = new Vector3[box_collider.Length];
-					box_collider.CopyTo(collider, 0);
-					for (int t = 0; t < collider.Length; t++)
-						collider[t] += voxel_offset;
-					collision_verts.AddRange(collider);
+					//Vector3[] collider = new Vector3[box_collider.Length];
+					//box_collider.CopyTo(collider, 0);
+					//for (int t = 0; t < collider.Length; t++)
+					//	collider[t] += voxel_offset;
+					collision_verts.AddRange(new_verts);
 				}
 			}
 		}
