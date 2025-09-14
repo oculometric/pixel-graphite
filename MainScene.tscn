@@ -163,7 +163,7 @@ granular_pan_speed = 50.0
 snap_angle = 15.0
 ui_name = "light"
 ui_controls = "(A) << rotate >> (D)    (W/S) rotate up/down    (SHIFT) disable snap
-(Q) toggle sun    (E) toggle ambient    (R) toggle shadows\""
+(Q) toggle sun    (E) toggle ambient    (R) toggle shadows"
 ui_icon = ExtResource("23_obg7t")
 scene_controller = NodePath("..")
 
