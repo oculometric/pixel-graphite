@@ -23,18 +23,23 @@ public partial class MainSceneController : Node3D
 		}
 	}
 
+	public void ToggleAllEditorInput(bool enabled)
+	{
+		int i = 0;
+		foreach (EditController ec in editors)
+		{
+			ec.SetEditingEnabled(enabled ? i == editing_mode : false);
+			ec.SetProcessUnhandledInput(enabled ? i == editing_mode : false);
+			i++;
+		}
+	}
+
 	private void SetEditingMode(int new_editing_mode)
 	{
 		int nem = new_editing_mode;
 		if (nem >= editors.Length)
 			nem = editors.Length - 1;
-		int i = 0;
-		foreach (EditController ec in editors)
-		{
-			ec.SetEditingEnabled(nem == i);
-			ec.SetProcessUnhandledInput(nem == i);
-			i++;
-		}
+		
 		is_mode_selecting = false;
 		if (nem >= 0)
 			editing_mode = new_editing_mode;
@@ -43,6 +48,14 @@ public partial class MainSceneController : Node3D
 		if (nem >= 0)
 			ui_controller.SetEditingMode(editing_mode, editors[nem]);
 		ui_controller.SetModalVisible(is_mode_selecting);
+
+		int i = 0;
+		foreach (EditController ec in editors)
+		{
+			ec.SetEditingEnabled(nem == i);
+			ec.SetProcessUnhandledInput(nem == i);
+			i++;
+		}
 	}
 
     public void TakeScreenshot()

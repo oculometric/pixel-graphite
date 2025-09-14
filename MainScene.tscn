@@ -144,7 +144,8 @@ save_manager = NodePath("../SaveManager")
 voxel_grid = NodePath("../VoxelGrid")
 outline_mesh = SubResource("BoxMesh_506kc")
 ui_name = "voxels"
-ui_controls = "(A) << rotate >> (D)
+ui_controls = "(LMB) set voxel
+(A) << rotate >> (D)
 (F) flip vertical"
 ui_icon = ExtResource("7_amtbh")
 scene_controller = NodePath("..")

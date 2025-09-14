@@ -21,3 +21,4 @@
 - [x] implement RLE for dat files to reduce size (or use zip?)
 - [x] implement autosave and improved saving/loading featues in general (save vs save as, tracking the currently edited file)
 - [ ] rendering parameters config at runtime (pixelation, posterise, palette, backgrounf control/filtering)
+- [ ] add help page and move controls there

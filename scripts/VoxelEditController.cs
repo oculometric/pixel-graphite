@@ -57,7 +57,7 @@ public partial class VoxelEditController : EditController
 		outline_object.Mesh = erase_mode ? outline_mesh : voxel_grid.voxel_types[current_cell_type.id].geometry;
 		outline_object.RotationDegrees = new Vector3(0, 90.0f * current_cell_type.orientation, 0);
 		outline_object.Scale = new Vector3(1, (current_cell_type.orientation & 0b100) > 0 ? -1 : 1, 1);
-		outline_object.Visible = scene_controller.ui_controller.Visible;
+		outline_object.Visible = scene_controller.ui_controller.editors_should_show_gizmos;
 
 		ghost_object_target_pos = new Vector3(cell.X, cell.Y, cell.Z) * voxel_grid.voxel_size;
 	}

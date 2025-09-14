@@ -12,9 +12,13 @@ public partial class EditingUIController : Control
 	[Export] private ConfirmationDialog confirm_discard_dialog;
 	[Export] private AcceptDialog accept_dialog;
 
+	[Export] private Control help_panel;
+
     [Export] private VBoxContainer voxel_palette;
+	private MainSceneController scene_controller;
 
 	private bool is_exporting = false;
+	public bool editors_should_show_gizmos { get; private set; } = true;
 
 	public void ConfigureVoxelUI(VoxelEditController vec)
 	{
@@ -47,6 +51,7 @@ public partial class EditingUIController : Control
 
 	public void ConfigureEditModalUI(MainSceneController msc)
 	{
+		scene_controller = msc;
 		Node template = mode_modal.GetChild(0);
 		int i = 0;
 		foreach (EditController ec in msc.editors)
@@ -70,6 +75,7 @@ public partial class EditingUIController : Control
 			(GetViewport() as SubViewport).Size = GetWindow().Size;
 		};
 		SetModalVisible(false);
+		help_panel.Visible = false;
 	}
 
 	public Action<string> save_callback;
@@ -101,10 +107,14 @@ public partial class EditingUIController : Control
 	public void SetModalVisible(bool visible)
 	{
 		if (visible)
+		{
 			Visible = true;
+			ShowHelp(true);
+		}
 		voxel_palette.GetParent<Control>().Visible = !visible;
 		top_label.Visible = !visible;
 		mode_modal.Visible = visible;
+		editors_should_show_gizmos = !visible;
 	}
 
 	public void SetEditingMode(int mode, EditController editor)
@@ -188,6 +198,21 @@ public partial class EditingUIController : Control
 		accept_dialog.Show();
 	}
 
+	public void ShowHelp(bool hide = false)
+	{
+		bool new_visible = !help_panel.Visible;
+		if (mode_modal.Visible || hide)
+			new_visible = false;
+		help_panel.Visible = new_visible;
+		if (mode_modal.Visible)
+			return;
+		voxel_palette.GetParent<Control>().Visible = !new_visible;
+		if (new_visible)
+			Visible = true;
+		editors_should_show_gizmos = !new_visible;
+		scene_controller.ToggleAllEditorInput(!new_visible);
+	}
+
 	public override void _Input(InputEvent @event)
 	{
 		if (@event is InputEventKey)
@@ -200,9 +225,20 @@ public partial class EditingUIController : Control
 					case Key.H:
 						if (mode_modal.Visible)
 							break;
+						if (key.CtrlPressed)
+						{
+							ShowHelp();
+							break;
+						}
 						Visible = !Visible;
 						break;
 					case Key.U: ShowExportDialog(); break;
+					case Key.F1:
+						ShowHelp();
+						break;
+					case Key.Escape:
+						ShowHelp(true);
+						break;
 				}
 			}
 		}
