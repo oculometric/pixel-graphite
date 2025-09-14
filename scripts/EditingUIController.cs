@@ -213,9 +213,10 @@ public partial class EditingUIController : Control
 		editors_should_show_gizmos = !new_visible;
 		scene_controller.ToggleAllEditorInput(!new_visible);
 	}
-
-	public override void _Input(InputEvent @event)
+	
+	public override void _GuiInput(InputEvent @event)
 	{
+		GD.Print(@event);
 		if (@event is InputEventKey)
 		{
 			InputEventKey key = @event as InputEventKey;

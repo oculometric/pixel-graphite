@@ -10,6 +10,7 @@ public partial class MainSceneController : Node3D
 	public VoxelEditController voxel_editor { get; private set; }
 
 	public int editing_mode { get; private set; } = 0;
+	private bool editor_input_enabled = true;
 	private bool is_mode_selecting = false;
 
 	public override void _Ready()
@@ -25,6 +26,7 @@ public partial class MainSceneController : Node3D
 
 	public void ToggleAllEditorInput(bool enabled)
 	{
+		editor_input_enabled = enabled;
 		int i = 0;
 		foreach (EditController ec in editors)
 		{
@@ -74,7 +76,7 @@ public partial class MainSceneController : Node3D
         image_data.SavePng(image_name);
     }
 
-    public override void _UnhandledInput(InputEvent @event)
+	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (@event is InputEventKey)
 		{
@@ -101,10 +103,12 @@ public partial class MainSceneController : Node3D
 					case Key.Key9: if (is_mode_selecting) SetEditingMode(8); break;
 					case Key.Quoteleft: GetViewport().DebugDraw = (Viewport.DebugDrawEnum)((int)(GetViewport().DebugDraw + 1) % 6); break;
 					default:
-						ui_controller._Input(@event);
+						ui_controller._GuiInput(@event);
 						break;
 				}
 			}
 		}
+		else if (@event is InputEventMouse && !editor_input_enabled)
+			ui_controller._GuiInput(@event);
 	}
 }

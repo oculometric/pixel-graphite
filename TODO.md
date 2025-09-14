@@ -21,4 +21,7 @@
 - [x] implement RLE for dat files to reduce size (or use zip?)
 - [x] implement autosave and improved saving/loading featues in general (save vs save as, tracking the currently edited file)
 - [ ] rendering parameters config at runtime (pixelation, posterise, palette, backgrounf control/filtering)
-- [ ] add help page and move controls there
+- [x] add help page and move controls there
+- [ ] add main menu
+- [ ] implement saving of lighting data, rendering config, ivy data, sand, etc (new file format with multiple sub-headers/datablocks within, including legacy support)
+- [ ] add ability to save and load rendering palettes (3x1 pixel EXR file???)
