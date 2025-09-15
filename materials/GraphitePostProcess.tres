@@ -13,6 +13,7 @@ shader_parameter/noise_sketch_scale = 1024.0
 shader_parameter/noise_factor = 0.02
 shader_parameter/sketch_factor = 0.041
 shader_parameter/posterise_steps = 48.0
+shader_parameter/background_value = 1.0
 shader_parameter/palette_low = Color(0.015, 0.021, 0.004, 1)
 shader_parameter/palette_high = Color(2, 1.073, 0.797, 1)
 shader_parameter/use_palette_mid = true

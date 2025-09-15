@@ -285,7 +285,7 @@ Ctrl+K
 Ctrl+H"
 vertical_alignment = 1
 
-[node name="RenderOptionsPanel" type="CenterContainer" parent="TabContainer" node_paths=PackedStringArray("pixels_label", "pixels_down_but", "pixels_up_but", "contrast_label", "contrast_slider", "edge_label", "edge_slider", "noise_label", "noise_slider", "sketch_label", "sketch_slider", "posterise_label", "posterise_next_but", "posterise_back_but", "picker", "pal_high_label", "pal_high_but", "pal_low_label", "pal_low_but", "pal_mid_label", "pal_mid_but")]
+[node name="RenderOptionsPanel" type="CenterContainer" parent="TabContainer" node_paths=PackedStringArray("pixels_label", "pixels_down_but", "pixels_up_but", "contrast_label", "contrast_slider", "edge_label", "edge_slider", "noise_label", "noise_slider", "sketch_label", "sketch_slider", "posterise_label", "posterise_next_but", "posterise_back_but", "picker", "pal_high_label", "pal_high_but", "pal_low_label", "pal_low_but", "pal_mid_label", "pal_mid_but", "background_but")]
 material = ExtResource("4_c7spg")
 layout_mode = 2
 script = ExtResource("4_dnh2e")
@@ -311,6 +311,7 @@ pal_low_label = NodePath("VBoxContainer/Control8/HBoxContainer/PaletteLowLabel")
 pal_low_but = NodePath("VBoxContainer/Control8/HBoxContainer/PaletteLowButton")
 pal_mid_label = NodePath("VBoxContainer/Control9/HBoxContainer/PaletteMidLabel")
 pal_mid_but = NodePath("VBoxContainer/Control9/HBoxContainer/PaletteMidButton")
+background_but = NodePath("VBoxContainer/Control10/BackgroundInvert")
 metadata/_tab_index = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/RenderOptionsPanel"]
@@ -500,6 +501,22 @@ custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 focus_mode = 0
 text = "⯈"
+expand_icon = true
+
+[node name="Control10" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 1020
+dragging_enabled = false
+
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control10"]
+layout_mode = 2
+text = "background"
+
+[node name="BackgroundInvert" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control10"]
+custom_minimum_size = Vector2(72, 42)
+layout_mode = 2
+focus_mode = 0
+text = "high"
 expand_icon = true
 
 [node name="Control7" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]

@@ -44,6 +44,9 @@ public partial class RenderOptionsPanel : Control
     private Color pal_mid;
     [Export] private Button pal_mid_but;
 
+    [Export] private Button background_but;
+    private bool is_high = true;
+
     public override void _Ready()
     {
         pixels_down_but.Pressed += () =>
@@ -110,7 +113,6 @@ public partial class RenderOptionsPanel : Control
             pal_picking = 2;
             picker.GetWindow().Visible = true;
         };
-
         picker.ColorChanged += (Color new_col) =>
         {
             if (pal_picking == 0)
@@ -119,6 +121,12 @@ public partial class RenderOptionsPanel : Control
                 pal_low = new_col;
             else if (pal_picking == 2)
                 pal_mid = new_col;
+            UpdateShader();
+        };
+
+        background_but.Pressed += () =>
+        {
+            is_high = !is_high;
             UpdateShader();
         };
 
@@ -142,6 +150,7 @@ public partial class RenderOptionsPanel : Control
                     posterise_index = i;
                 }
             }
+            is_high = material.GetShaderParameter("background_value").AsDouble() > 0.5f;
             pal_high = material.GetShaderParameter("palette_high").AsColor();
             pal_low = material.GetShaderParameter("palette_low").AsColor();
             pal_mid = material.GetShaderParameter("palette_mid").AsColor();
@@ -161,6 +170,7 @@ public partial class RenderOptionsPanel : Control
         noise_label.Text = noise.ToString("0.00");
         sketch_label.Text = sketch.ToString("0.00");
         posterise_label.Text = posterise_options[posterise_index].ToString();
+        background_but.Text = is_high ? "high" : "low";
         pal_high_label.Text = string.Format("R {0:F3}; G {1:F3}; B {2:F3};", pal_high.R, pal_high.G, pal_high.B);
         pal_low_label.Text = string.Format("R {0:F3}; G {1:F3}; B {2:F3};", pal_low.R, pal_low.G, pal_low.B);
         pal_mid_label.Text = string.Format("R {0:F3}; G {1:F3}; B {2:F3};", pal_mid.R, pal_mid.G, pal_mid.B);
@@ -176,6 +186,7 @@ public partial class RenderOptionsPanel : Control
         material.SetShaderParameter("noise_factor", noise);
         material.SetShaderParameter("sketch_factor", sketch);
         material.SetShaderParameter("posterise_steps", posterise_options[posterise_index]);
+        material.SetShaderParameter("background_value", is_high ? 1.0f : 0.0f);
         material.SetShaderParameter("palette_high", pal_high);
         material.SetShaderParameter("palette_low", pal_low);
         material.SetShaderParameter("palette_mid", pal_mid);

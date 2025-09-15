@@ -15,6 +15,7 @@ uniform float noise_sketch_scale = 1024.0f;
 uniform float noise_factor = 0.02f;
 uniform float sketch_factor = 0.061f;
 uniform float posterise_steps = 64.0f;
+uniform float background_value = 1.0f;
 uniform vec3 palette_low : source_color = vec3(0.015, 0.021, 0.004);
 uniform vec3 palette_high : source_color = vec3(2.000, 1.073, 0.797);
 uniform bool use_palette_mid = false;
@@ -25,6 +26,16 @@ uniform sampler3D lut : hint_default_white, filter_linear, repeat_disable;
 void vertex()
 {
 	POSITION = vec4(VERTEX.xy, 1, 1);
+}
+
+float linearise(float f)
+{
+	return pow((f + 0.055f) / 1.055f, 2.4f);
+}
+
+float unlinearise(float f)
+{
+	return (pow(f, (1.0f / 2.4f)) * 1.055f) - 0.055f;
 }
 
 vec3 srgb_to_linear(vec3 v)
@@ -153,13 +164,15 @@ void fragment()
 	float noise = ((fbm((downscaled_uv / 0.005f) * 20.0f * scaled_viewport, 2, 2.0f, 0.5f)) * 1.2f) - 0.7f;
 	float noised_value = edged_value + (floor(noise * 9.0f) * noise_factor / 9.0f);
 	// posterise
-	float posterised_value = round(noised_value * (posterise_steps - 1.0f)) / (posterise_steps - 1.0f);
+	float posterised_value = linearise(round(unlinearise(noised_value) * (posterise_steps - 1.0f)) / (posterise_steps - 1.0f));
 	// add sketch effect
 	float sketched_value = sketch(downscaled_uv, scaled_viewport, posterised_value);
 
 	// apply solid background
-	if (texture(depth_tex, downscaled_uv).r == 0.0f)
-		sketched_value = 1.0f;
+	//float ld = linear_depth(downscaled_uv, INV_PROJECTION_MATRIX);
+	float d = texture(depth_tex, downscaled_uv).r;
+	if (d == 0.0f)
+		sketched_value = background_value;
 
 	// apply overlay texture
 	float overlaid_value = overlay(sketched_value, downscaled_uv);
