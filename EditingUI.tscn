@@ -211,7 +211,6 @@ ok_button_text = "ok"
 dialog_text = "fuck you"
 
 [node name="TabContainer" type="TabContainer" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -757,7 +756,6 @@ text = "⮿"
 disable_3d = true
 initial_position = 2
 size = Vector2i(400, 430)
-visible = true
 always_on_top = true
 sharp_corners = true
 theme = ExtResource("4_lfx6u")

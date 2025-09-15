@@ -73,8 +73,8 @@ public partial class MainSceneController : Node3D
             image_number++;
         string image_name = screenshot_dir.GetCurrentDir() + string.Format("/pixel_graphite_{0:D4}.png", image_number);
         Image image_data = GetViewport().GetTexture().GetImage();
-        image_data.Resize(3072, 3072, Image.Interpolation.Nearest);
-        image_data.SavePng(image_name);
+        image_data.Resize(image_data.GetSize().X * 4, image_data.GetSize().Y * 4, Image.Interpolation.Nearest);
+        image_data.SaveJpg(image_name, 0.85f);
     }
 
 	public override void _UnhandledInput(InputEvent @event)

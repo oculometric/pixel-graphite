@@ -252,6 +252,7 @@ public partial class EditingUIController : Control
 							break;
 						}
 						Visible = !Visible;
+						editors_should_show_gizmos = Visible;
 						break;
 					case Key.U: ShowExportDialog(); break;
 					case Key.F1:
