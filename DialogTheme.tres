@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=6 format=3 uid="uid://citnlivn3ux3n"]
+[gd_resource type="Theme" load_steps=6 format=3 uid="uid://c46km1dxaj1aq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dr31y"]
 draw_center = false
@@ -35,7 +35,7 @@ Button/colors/font_outline_color = Color(1, 1, 1, 1)
 Button/colors/font_pressed_color = Color(0, 0, 0, 1)
 Button/colors/icon_pressed_color = Color(0, 0, 0, 1)
 Button/constants/outline_size = 1
-Button/font_sizes/font_size = 28
+Button/font_sizes/font_size = 20
 Button/styles/focus = SubResource("StyleBoxFlat_dr31y")
 Button/styles/hover = SubResource("StyleBoxFlat_q1iic")
 Button/styles/normal = SubResource("StyleBoxFlat_cqvjm")
@@ -44,18 +44,18 @@ HSlider/styles/grabber_area = SubResource("StyleBoxFlat_4pfgm")
 Label/colors/font_outline_color = Color(1, 1, 1, 1)
 Label/constants/outline_size = 1
 Label/constants/paragraph_spacing = 4
-Label/font_sizes/font_size = 28
+Label/font_sizes/font_size = 20
 LineEdit/colors/font_outline_color = Color(1, 1, 1, 1)
 LineEdit/constants/outline_size = 1
-LineEdit/font_sizes/font_size = 28
+LineEdit/font_sizes/font_size = 20
 TabBar/colors/font_outline_color = Color(1, 1, 1, 1)
 TabBar/constants/outline_size = 1
 TabBar/font_sizes/font_size = 28
 TextEdit/constants/outline_size = 1
-TextEdit/font_sizes/font_size = 28
+TextEdit/font_sizes/font_size = 20
 Tree/colors/font_outline_color = Color(0.7, 0.7, 0.7, 1)
 Tree/constants/outline_size = 1
-Tree/font_sizes/font_size = 28
+Tree/font_sizes/font_size = 20
 Window/colors/title_color = Color(1, 1, 1, 1)
 Window/colors/title_outline_modulate = Color(1, 1, 1, 1)
 Window/constants/title_height = 24

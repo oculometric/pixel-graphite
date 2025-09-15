@@ -89,7 +89,13 @@ public partial class EditingUIController : Control
         save_as_button.Pressed += () => { scene_controller.save_manager.CallSave(true); };
 		load_button.Pressed += () => { scene_controller.save_manager.CallLoad(); };
 		export_button.Pressed += ShowExportDialog;
-		return_button.Pressed += () => { ShowErrorDialog("i havent done that yet"); };
+		return_button.Pressed += () => 
+		{
+            if (scene_controller.save_manager.has_unsaved_changes)
+                ShowConfirmDialog("discard unsaved changes?", "you have made changes which are not saved. are you sure you want to close without saving?", "discard changes", "cancel", scene_controller.save_manager.DiscardAndQuit);
+            else
+                GetTree().Quit();
+        };
     }
 
     public Action<string> save_callback;

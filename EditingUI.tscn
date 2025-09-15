@@ -1,10 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://bw5buyyqs4iuj"]
+[gd_scene load_steps=12 format=3 uid="uid://bw5buyyqs4iuj"]
 
 [ext_resource type="Script" uid="uid://1pkd87ctx612" path="res://scripts/EditingUIController.cs" id="1_5ympb"]
 [ext_resource type="Texture2D" uid="uid://4a37vsvgw02t" path="res://textures/voxel_icon_empty.png" id="2_0g3py"]
 [ext_resource type="Texture2D" uid="uid://ymq46kicj5lt" path="res://textures/mode_icon_voxel.png" id="3_dnh2e"]
 [ext_resource type="Material" uid="uid://clxdn3738bnir" path="res://materials/GraphitePostProcess.tres" id="4_c7spg"]
 [ext_resource type="Script" uid="uid://bfkpo8dr6p3fe" path="res://scripts/RenderOptionsPanel.cs" id="4_dnh2e"]
+[ext_resource type="Theme" uid="uid://c46km1dxaj1aq" path="res://DialogTheme.tres" id="4_lfx6u"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ympb"]
 draw_center = false
@@ -181,9 +182,11 @@ offset_bottom = 28.0
 theme_override_styles/separator = SubResource("StyleBoxLine_4nd0v")
 
 [node name="FileDialog" type="FileDialog" parent="."]
+disable_3d = true
 title = "save"
 initial_position = 2
-size = Vector2i(1024, 360)
+size = Vector2i(768, 360)
+theme = ExtResource("4_lfx6u")
 cancel_button_text = "cancel"
 access = 2
 filters = PackedStringArray("*.dat")
@@ -191,7 +194,9 @@ filters = PackedStringArray("*.dat")
 [node name="ConfirmDiscardDialog" type="ConfirmationDialog" parent="."]
 title = "discard unsaved changes?"
 initial_position = 2
-size = Vector2i(384, 128)
+size = Vector2i(450, 200)
+max_size = Vector2i(450, 200)
+theme = ExtResource("4_lfx6u")
 ok_button_text = "discard changes"
 dialog_text = "you have made changes which are not saved. are you sure you want to discard them and open another file?"
 dialog_autowrap = true
@@ -201,10 +206,12 @@ cancel_button_text = "cancel"
 title = "error!"
 initial_position = 2
 size = Vector2i(384, 128)
+theme = ExtResource("4_lfx6u")
 ok_button_text = "ok"
 dialog_text = "fuck you"
 
 [node name="TabContainer" type="TabContainer" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -750,8 +757,10 @@ text = "⮿"
 disable_3d = true
 initial_position = 2
 size = Vector2i(400, 430)
+visible = true
 always_on_top = true
 sharp_corners = true
+theme = ExtResource("4_lfx6u")
 
 [node name="ColorPicker" type="ColorPicker" parent="TabContainer/RenderOptionsPanel/Window"]
 anchors_preset = 15

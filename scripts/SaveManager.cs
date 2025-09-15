@@ -8,7 +8,7 @@ public partial class SaveManager : Node3D
 
     private string current_file_name = "Untitled";
     private bool has_been_saved = false;
-    private bool has_unsaved_changes = true;
+    public bool has_unsaved_changes { get; private set; } = true;
     private Timer autosave_timer = null;
 
     public void UpdateTitle()
