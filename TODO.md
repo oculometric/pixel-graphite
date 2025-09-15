@@ -25,7 +25,7 @@
 - [x] add help page and move controls there
 - [ ] add main menu
 - [ ] implement saving of lighting data, rendering config, ivy data, sand, etc (new file format with multiple sub-headers/datablocks within, including legacy support)
-- [ ] add ability to save and load rendering palettes (3x1 pixel EXR file???)
+- [x] add ability to save and load rendering palettes (3x1 pixel EXR file???)
 - [x] fix stretched screenshots
 - [x] ability to reset shader to default
 - [x] ability to toggle 3-color mode

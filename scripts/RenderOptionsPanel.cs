@@ -60,6 +60,10 @@ public partial class RenderOptionsPanel : Control
     private bool is_high = true;
     [Export] private Button background_reset;
 
+    [Export] private Button save_palette_but;
+    [Export] private Button load_palette_but;
+    [Export] private FileDialog load_save_dialog;
+
     public override void _Ready()
     {
         pixels_down_but.Pressed += () =>
@@ -208,6 +212,48 @@ public partial class RenderOptionsPanel : Control
             UpdateShader();
         };
 
+        save_palette_but.Pressed += SavePalette;
+        load_palette_but.Pressed += LoadPalette;
+        load_save_dialog.FileSelected += (string path) =>
+        {
+            if (load_save_dialog.FileMode == FileDialog.FileModeEnum.SaveFile)
+            {
+                Image img = Image.CreateEmpty(three_col ? 3 : 2, 1, false, Image.Format.Rgbf);
+                img.SetPixel(0, 0, pal_high);
+                img.SetPixel(1, 0, pal_low);
+                if (three_col)
+                    img.SetPixel(2, 0, pal_mid);
+                img.SaveExr(load_save_dialog.CurrentPath);
+            }
+            else
+            {
+                Image img = new Image();
+                img.Load(load_save_dialog.CurrentPath);
+
+                if (img.GetSize().Y != 1)
+                    return;
+                if (img.GetSize().X < 2)
+                    return;
+                if (img.GetSize().X > 3)
+                    return;
+
+                pal_high = img.GetPixel(0, 0);
+                pal_low = img.GetPixel(1, 0);
+                if (img.GetSize().X == 2)
+                {
+                    three_col = false;
+                    pal_tri_but.ButtonPressed = three_col;
+                }
+                else
+                {
+                    three_col = true;
+                    pal_tri_but.ButtonPressed = three_col;
+                    pal_mid = img.GetPixel(2, 0);
+                }
+                UpdateShader();
+            }
+        };
+
         VisibilityChanged += () =>
         {
             if (!Visible)
@@ -272,5 +318,21 @@ public partial class RenderOptionsPanel : Control
         material.SetShaderParameter("palette_low", pal_low);
         material.SetShaderParameter("palette_mid", pal_mid);
         material.SetShaderParameter("use_palette_mid", three_col);
+    }
+
+    public void SavePalette()
+    {
+        load_save_dialog.Title = "save palette";
+        load_save_dialog.FileMode = FileDialog.FileModeEnum.SaveFile;
+        load_save_dialog.OkButtonText = "save";
+        load_save_dialog.Visible = true;
+    }
+
+    public void LoadPalette()
+    {
+        load_save_dialog.Title = "load palette";
+        load_save_dialog.FileMode = FileDialog.FileModeEnum.OpenFile;
+        load_save_dialog.OkButtonText = "load";
+        load_save_dialog.Visible = true;
     }
 }
