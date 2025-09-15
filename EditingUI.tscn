@@ -285,33 +285,45 @@ Ctrl+K
 Ctrl+H"
 vertical_alignment = 1
 
-[node name="RenderOptionsPanel" type="CenterContainer" parent="TabContainer" node_paths=PackedStringArray("pixels_label", "pixels_down_but", "pixels_up_but", "contrast_label", "contrast_slider", "edge_label", "edge_slider", "noise_label", "noise_slider", "sketch_label", "sketch_slider", "posterise_label", "posterise_next_but", "posterise_back_but", "picker", "pal_high_label", "pal_high_but", "pal_low_label", "pal_low_but", "pal_mid_label", "pal_mid_but", "background_but")]
+[node name="RenderOptionsPanel" type="CenterContainer" parent="TabContainer" node_paths=PackedStringArray("pixels_label", "pixels_down_but", "pixels_up_but", "pixels_reset", "contrast_label", "contrast_slider", "contrast_reset", "edge_label", "edge_slider", "edge_reset", "noise_label", "noise_slider", "noise_reset", "sketch_label", "sketch_slider", "sketch_reset", "posterise_label", "posterise_next_but", "posterise_back_but", "posterise_reset", "picker", "pal_high_label", "pal_high_but", "pal_high_reset", "pal_low_label", "pal_low_but", "pal_low_reset", "pal_mid_label", "pal_mid_but", "pal_mid_reset", "pal_tri_but", "pal_tri_reset", "background_but", "background_reset")]
 material = ExtResource("4_c7spg")
 layout_mode = 2
 script = ExtResource("4_dnh2e")
 material = ExtResource("4_c7spg")
-pixels_label = NodePath("VBoxContainer/Control/HBoxContainer/PixelationLabel")
-pixels_down_but = NodePath("VBoxContainer/Control/HBoxContainer/PixelationDown")
-pixels_up_but = NodePath("VBoxContainer/Control/HBoxContainer/PixelationUp")
-contrast_label = NodePath("VBoxContainer/Control2/HBoxContainer/ContrastLabel")
-contrast_slider = NodePath("VBoxContainer/Control2/HBoxContainer/ContrastSlider")
-edge_label = NodePath("VBoxContainer/Control3/HBoxContainer/EdgeLabel")
-edge_slider = NodePath("VBoxContainer/Control3/HBoxContainer/EdgeSlider")
-noise_label = NodePath("VBoxContainer/Control5/HBoxContainer/NoiseLabel")
-noise_slider = NodePath("VBoxContainer/Control5/HBoxContainer/NoiseSlider")
-sketch_label = NodePath("VBoxContainer/Control6/HBoxContainer/SketchLabel")
-sketch_slider = NodePath("VBoxContainer/Control6/HBoxContainer/SketchSlider")
-posterise_label = NodePath("VBoxContainer/Control4/HBoxContainer/PosteriseLabel")
-posterise_next_but = NodePath("VBoxContainer/Control4/HBoxContainer/PosteriseNext")
-posterise_back_but = NodePath("VBoxContainer/Control4/HBoxContainer/PosteriseBack")
+pixels_label = NodePath("VBoxContainer/PixelPanel/Control/HBoxContainer/PixelationLabel")
+pixels_down_but = NodePath("VBoxContainer/PixelPanel/Control/HBoxContainer/PixelationDown")
+pixels_up_but = NodePath("VBoxContainer/PixelPanel/Control/HBoxContainer/PixelationUp")
+pixels_reset = NodePath("VBoxContainer/PixelPanel/Reset")
+contrast_label = NodePath("VBoxContainer/ContrastPanel/Control2/HBoxContainer/ContrastLabel")
+contrast_slider = NodePath("VBoxContainer/ContrastPanel/Control2/HBoxContainer/ContrastSlider")
+contrast_reset = NodePath("VBoxContainer/ContrastPanel/Reset")
+edge_label = NodePath("VBoxContainer/EdgePanel/Control3/HBoxContainer/EdgeLabel")
+edge_slider = NodePath("VBoxContainer/EdgePanel/Control3/HBoxContainer/EdgeSlider")
+edge_reset = NodePath("VBoxContainer/EdgePanel/Reset")
+noise_label = NodePath("VBoxContainer/NoisePanel/Control5/HBoxContainer/NoiseLabel")
+noise_slider = NodePath("VBoxContainer/NoisePanel/Control5/HBoxContainer/NoiseSlider")
+noise_reset = NodePath("VBoxContainer/NoisePanel/Reset")
+sketch_label = NodePath("VBoxContainer/SketchPanel/Control6/HBoxContainer/SketchLabel")
+sketch_slider = NodePath("VBoxContainer/SketchPanel/Control6/HBoxContainer/SketchSlider")
+sketch_reset = NodePath("VBoxContainer/SketchPanel/Reset")
+posterise_label = NodePath("VBoxContainer/PosterisePanel/Control4/HBoxContainer/PosteriseLabel")
+posterise_next_but = NodePath("VBoxContainer/PosterisePanel/Control4/HBoxContainer/PosteriseNext")
+posterise_back_but = NodePath("VBoxContainer/PosterisePanel/Control4/HBoxContainer/PosteriseBack")
+posterise_reset = NodePath("VBoxContainer/PosterisePanel/Reset")
 picker = NodePath("Window/ColorPicker")
-pal_high_label = NodePath("VBoxContainer/Control7/HBoxContainer/PaletteHighLabel")
-pal_high_but = NodePath("VBoxContainer/Control7/HBoxContainer/PaletteHighButton")
-pal_low_label = NodePath("VBoxContainer/Control8/HBoxContainer/PaletteLowLabel")
-pal_low_but = NodePath("VBoxContainer/Control8/HBoxContainer/PaletteLowButton")
-pal_mid_label = NodePath("VBoxContainer/Control9/HBoxContainer/PaletteMidLabel")
-pal_mid_but = NodePath("VBoxContainer/Control9/HBoxContainer/PaletteMidButton")
-background_but = NodePath("VBoxContainer/Control10/BackgroundInvert")
+pal_high_label = NodePath("VBoxContainer/PalHighPanel/Control7/HBoxContainer/PaletteHighLabel")
+pal_high_but = NodePath("VBoxContainer/PalHighPanel/Control7/HBoxContainer/PaletteHighButton")
+pal_high_reset = NodePath("VBoxContainer/PalHighPanel/Reset")
+pal_low_label = NodePath("VBoxContainer/PalLowPanel/Control8/HBoxContainer/PaletteLowLabel")
+pal_low_but = NodePath("VBoxContainer/PalLowPanel/Control8/HBoxContainer/PaletteLowButton")
+pal_low_reset = NodePath("VBoxContainer/PalLowPanel/Reset")
+pal_mid_label = NodePath("VBoxContainer/PalMidPanel/Control9/HBoxContainer/PaletteMidLabel")
+pal_mid_but = NodePath("VBoxContainer/PalMidPanel/Control9/HBoxContainer/PaletteMidButton")
+pal_mid_reset = NodePath("VBoxContainer/PalMidPanel/Reset")
+pal_tri_but = NodePath("VBoxContainer/PalTriPanel/Control9/PalTri")
+pal_tri_reset = NodePath("VBoxContainer/PalTriPanel/Reset")
+background_but = NodePath("VBoxContainer/BackgroundPanel/Control10/BackgroundInvert")
+background_reset = NodePath("VBoxContainer/BackgroundPanel/Reset")
 metadata/_tab_index = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/RenderOptionsPanel"]
@@ -327,53 +339,70 @@ custom_minimum_size = Vector2(640, 0)
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_4nd0v")
 
-[node name="Control" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+[node name="PixelPanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PixelPanel"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 split_offset = 1020
 dragging_enabled = false
 
-[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control"]
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PixelPanel/Control"]
 layout_mode = 2
 text = "pixel size"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control"]
+[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PixelPanel/Control"]
 layout_mode = 2
 
-[node name="PixelationDown" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control/HBoxContainer"]
+[node name="PixelationDown" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PixelPanel/Control/HBoxContainer"]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 focus_mode = 0
 text = "⯆"
 expand_icon = true
 
-[node name="PixelationLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control/HBoxContainer"]
+[node name="PixelationLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PixelPanel/Control/HBoxContainer"]
 custom_minimum_size = Vector2(48, 0)
 layout_mode = 2
 text = "2"
 horizontal_alignment = 1
 
-[node name="PixelationUp" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control/HBoxContainer"]
+[node name="PixelationUp" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PixelPanel/Control/HBoxContainer"]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 focus_mode = 0
 text = "⯅"
 expand_icon = true
 
-[node name="Control2" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PixelPanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
+
+[node name="ContrastPanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control2" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/ContrastPanel"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 split_offset = 180
 dragging_enabled = false
 
-[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control2"]
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/ContrastPanel/Control2"]
 layout_mode = 2
 text = "contrast"
 
-[node name="HBoxContainer" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control2"]
+[node name="HBoxContainer" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/ContrastPanel/Control2"]
 layout_mode = 2
 split_offset = 350
 dragging_enabled = false
 
-[node name="ContrastSlider" type="HSlider" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control2/HBoxContainer"]
+[node name="ContrastSlider" type="HSlider" parent="TabContainer/RenderOptionsPanel/VBoxContainer/ContrastPanel/Control2/HBoxContainer"]
 layout_mode = 2
 max_value = 2.0
 step = 0.05
@@ -381,26 +410,37 @@ value = 0.95
 tick_count = 2
 ticks_on_borders = true
 
-[node name="ContrastLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control2/HBoxContainer"]
+[node name="ContrastLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/ContrastPanel/Control2/HBoxContainer"]
 layout_mode = 2
 text = "0.95"
 horizontal_alignment = 2
 
-[node name="Control3" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/ContrastPanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
+
+[node name="EdgePanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control3" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/EdgePanel"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 split_offset = 180
 dragging_enabled = false
 
-[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control3"]
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/EdgePanel/Control3"]
 layout_mode = 2
 text = "edge colour"
 
-[node name="HBoxContainer" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control3"]
+[node name="HBoxContainer" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/EdgePanel/Control3"]
 layout_mode = 2
 split_offset = 350
 dragging_enabled = false
 
-[node name="EdgeSlider" type="HSlider" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control3/HBoxContainer"]
+[node name="EdgeSlider" type="HSlider" parent="TabContainer/RenderOptionsPanel/VBoxContainer/EdgePanel/Control3/HBoxContainer"]
 layout_mode = 2
 min_value = 0.05
 max_value = 8.0
@@ -410,26 +450,37 @@ exp_edit = true
 tick_count = 2
 ticks_on_borders = true
 
-[node name="EdgeLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control3/HBoxContainer"]
+[node name="EdgeLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/EdgePanel/Control3/HBoxContainer"]
 layout_mode = 2
 text = "0.151"
 horizontal_alignment = 2
 
-[node name="Control5" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/EdgePanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
+
+[node name="NoisePanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control5" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/NoisePanel"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 split_offset = 180
 dragging_enabled = false
 
-[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control5"]
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/NoisePanel/Control5"]
 layout_mode = 2
 text = "noise strength"
 
-[node name="HBoxContainer" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control5"]
+[node name="HBoxContainer" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/NoisePanel/Control5"]
 layout_mode = 2
 split_offset = 350
 dragging_enabled = false
 
-[node name="NoiseSlider" type="HSlider" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control5/HBoxContainer"]
+[node name="NoiseSlider" type="HSlider" parent="TabContainer/RenderOptionsPanel/VBoxContainer/NoisePanel/Control5/HBoxContainer"]
 layout_mode = 2
 min_value = -1.0
 max_value = 1.0
@@ -438,26 +489,37 @@ value = 0.02
 tick_count = 2
 ticks_on_borders = true
 
-[node name="NoiseLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control5/HBoxContainer"]
+[node name="NoiseLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/NoisePanel/Control5/HBoxContainer"]
 layout_mode = 2
 text = "0.02"
 horizontal_alignment = 2
 
-[node name="Control6" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/NoisePanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
+
+[node name="SketchPanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control6" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/SketchPanel"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 split_offset = 180
 dragging_enabled = false
 
-[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control6"]
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/SketchPanel/Control6"]
 layout_mode = 2
 text = "sketch strength"
 
-[node name="HBoxContainer" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control6"]
+[node name="HBoxContainer" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/SketchPanel/Control6"]
 layout_mode = 2
 split_offset = 350
 dragging_enabled = false
 
-[node name="SketchSlider" type="HSlider" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control6/HBoxContainer"]
+[node name="SketchSlider" type="HSlider" parent="TabContainer/RenderOptionsPanel/VBoxContainer/SketchPanel/Control6/HBoxContainer"]
 layout_mode = 2
 min_value = -0.5
 max_value = 0.5
@@ -466,127 +528,217 @@ value = 0.04
 tick_count = 2
 ticks_on_borders = true
 
-[node name="SketchLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control6/HBoxContainer"]
+[node name="SketchLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/SketchPanel/Control6/HBoxContainer"]
 layout_mode = 2
 text = "0.041"
 horizontal_alignment = 2
 
-[node name="Control4" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/SketchPanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
+
+[node name="PosterisePanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control4" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PosterisePanel"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 split_offset = 1020
 dragging_enabled = false
 
-[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control4"]
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PosterisePanel/Control4"]
 layout_mode = 2
 text = "posterisation"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control4"]
+[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PosterisePanel/Control4"]
 layout_mode = 2
 
-[node name="PosteriseBack" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control4/HBoxContainer"]
+[node name="PosteriseBack" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PosterisePanel/Control4/HBoxContainer"]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 focus_mode = 0
 text = "⯇"
 expand_icon = true
 
-[node name="PosteriseLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control4/HBoxContainer"]
+[node name="PosteriseLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PosterisePanel/Control4/HBoxContainer"]
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 text = "48"
 horizontal_alignment = 1
 
-[node name="PosteriseNext" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control4/HBoxContainer"]
+[node name="PosteriseNext" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PosterisePanel/Control4/HBoxContainer"]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 focus_mode = 0
 text = "⯈"
 expand_icon = true
 
-[node name="Control10" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PosterisePanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
+
+[node name="BackgroundPanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control10" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/BackgroundPanel"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 split_offset = 1020
 dragging_enabled = false
 
-[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control10"]
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/BackgroundPanel/Control10"]
 layout_mode = 2
 text = "background"
 
-[node name="BackgroundInvert" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control10"]
+[node name="BackgroundInvert" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/BackgroundPanel/Control10"]
 custom_minimum_size = Vector2(72, 42)
 layout_mode = 2
 focus_mode = 0
 text = "high"
 expand_icon = true
 
-[node name="Control7" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/BackgroundPanel"]
 layout_mode = 2
-split_offset = 1020
+focus_mode = 0
+text = "⮿"
+
+[node name="PalHighPanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
 dragging_enabled = false
 
-[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control7"]
+[node name="Control7" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalHighPanel"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+split_offset = 180
+dragging_enabled = false
+
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalHighPanel/Control7"]
 layout_mode = 2
 text = "palette high"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control7"]
+[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalHighPanel/Control7"]
 layout_mode = 2
 alignment = 2
 
-[node name="PaletteHighLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control7/HBoxContainer"]
-custom_minimum_size = Vector2(380, 0)
+[node name="PaletteHighLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalHighPanel/Control7/HBoxContainer"]
+custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 text = "R ; G ; B ;"
 
-[node name="PaletteHighButton" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control7/HBoxContainer"]
+[node name="PaletteHighButton" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalHighPanel/Control7/HBoxContainer"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+focus_mode = 0
 text = "edit"
 
-[node name="Control8" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalHighPanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
+
+[node name="PalLowPanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control8" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalLowPanel"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 split_offset = 1020
 dragging_enabled = false
 
-[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control8"]
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalLowPanel/Control8"]
 layout_mode = 2
 text = "palette low"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control8"]
+[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalLowPanel/Control8"]
 layout_mode = 2
 alignment = 2
 
-[node name="PaletteLowLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control8/HBoxContainer"]
-custom_minimum_size = Vector2(380, 0)
+[node name="PaletteLowLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalLowPanel/Control8/HBoxContainer"]
+custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 text = "R ; G ; B ;"
 
-[node name="PaletteLowButton" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control8/HBoxContainer"]
+[node name="PaletteLowButton" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalLowPanel/Control8/HBoxContainer"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+focus_mode = 0
 text = "edit"
 
-[node name="Control9" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalLowPanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
+
+[node name="PalTriPanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control9" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalTriPanel"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 split_offset = 1020
 dragging_enabled = false
 
-[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control9"]
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalTriPanel/Control9"]
+layout_mode = 2
+text = "use 3 colours"
+
+[node name="PalTri" type="CheckBox" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalTriPanel/Control9"]
+custom_minimum_size = Vector2(108, 0)
+layout_mode = 2
+focus_mode = 0
+button_pressed = true
+text = "disable"
+
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalTriPanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
+
+[node name="PalMidPanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control9" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalMidPanel"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+split_offset = 1020
+dragging_enabled = false
+
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalMidPanel/Control9"]
 layout_mode = 2
 text = "palette mid"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control9"]
+[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalMidPanel/Control9"]
 layout_mode = 2
 alignment = 2
 
-[node name="PaletteMidLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control9/HBoxContainer"]
-custom_minimum_size = Vector2(380, 0)
+[node name="PaletteMidLabel" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalMidPanel/Control9/HBoxContainer"]
+custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
 text = "R ; G ; B ;"
 
-[node name="PaletteMidButton" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/Control9/HBoxContainer"]
+[node name="PaletteMidButton" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalMidPanel/Control9/HBoxContainer"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+focus_mode = 0
 text = "edit"
+
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/PalMidPanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
 
 [node name="Window" type="Popup" parent="TabContainer/RenderOptionsPanel"]
 disable_3d = true

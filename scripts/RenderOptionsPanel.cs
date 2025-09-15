@@ -9,43 +9,56 @@ public partial class RenderOptionsPanel : Control
     private int pixels = 2;
     [Export] private Button pixels_down_but;
     [Export] private Button pixels_up_but;
+    [Export] private Button pixels_reset;
 
     [Export] private Label contrast_label;
     private float contrast = 0.95f;
     [Export] private HSlider contrast_slider;
+    [Export] private Button contrast_reset;
 
     [Export] private Label edge_label;
     private float edge = 0.151f;
     [Export] private HSlider edge_slider;
+    [Export] private Button edge_reset;
 
     [Export] private Label noise_label;
     private float noise = 0.02f;
     [Export] private HSlider noise_slider;
+    [Export] private Button noise_reset;
 
     [Export] private Label sketch_label;
     private float sketch = 0.041f;
     [Export] private HSlider sketch_slider;
+    [Export] private Button sketch_reset;
 
     [Export] private Label posterise_label;
     private int posterise_index = 0;
     private int[] posterise_options = [2, 4, 8, 16, 24, 32, 48, 64, 72, 96, 128, 256, 384, 512];
     [Export] private Button posterise_next_but;
     [Export] private Button posterise_back_but;
+    [Export] private Button posterise_reset;
 
     [Export] private ColorPicker picker;
     private int pal_picking = 0;
     [Export] private Label pal_high_label;
     private Color pal_high;
     [Export] private Button pal_high_but;
+    [Export] private Button pal_high_reset;
     [Export] private Label pal_low_label;
     private Color pal_low;
     [Export] private Button pal_low_but;
+    [Export] private Button pal_low_reset;
     [Export] private Label pal_mid_label;
     private Color pal_mid;
     [Export] private Button pal_mid_but;
+    [Export] private Button pal_mid_reset;
+    [Export] private Button pal_tri_but;
+    private bool three_col = true;
+    [Export] private Button pal_tri_reset;
 
     [Export] private Button background_but;
     private bool is_high = true;
+    [Export] private Button background_reset;
 
     public override void _Ready()
     {
@@ -59,10 +72,21 @@ public partial class RenderOptionsPanel : Control
             pixels = int.Min(pixels + 1, 256);
             UpdateShader();
         };
+        pixels_reset.Pressed += () =>
+        {
+            pixels = 2;
+            UpdateShader();
+        };
 
         contrast_slider.ValueChanged += (double new_val) =>
         {
             contrast = (float)new_val;
+            UpdateShader();
+        };
+        contrast_reset.Pressed += () =>
+        {
+            contrast = 0.95f;
+            contrast_slider.Value = contrast;
             UpdateShader();
         };
 
@@ -71,16 +95,34 @@ public partial class RenderOptionsPanel : Control
             edge = (float)new_val;
             UpdateShader();
         };
+        edge_reset.Pressed += () =>
+        {
+            edge = 0.151f;
+            edge_slider.Value = edge;
+            UpdateShader();
+        };
 
         noise_slider.ValueChanged += (double new_val) =>
         {
             noise = (float)new_val;
             UpdateShader();
         };
+        noise_reset.Pressed += () =>
+        {
+            noise = 0.02f;
+            noise_slider.Value = noise;
+            UpdateShader();
+        };
 
         sketch_slider.ValueChanged += (double new_val) =>
         {
             sketch = (float)new_val;
+            UpdateShader();
+        };
+        sketch_reset.Pressed += () =>
+        {
+            sketch = 0.041f;
+            sketch_slider.Value = sketch;
             UpdateShader();
         };
 
@@ -94,6 +136,11 @@ public partial class RenderOptionsPanel : Control
             posterise_index = int.Min(posterise_index + 1, posterise_options.Length - 1);
             UpdateShader();
         };
+        posterise_reset.Pressed += () =>
+        {
+            posterise_index = 6;
+            UpdateShader();
+        };
 
         pal_high_but.Pressed += () =>
         {
@@ -101,17 +148,43 @@ public partial class RenderOptionsPanel : Control
             pal_picking = 0;
             picker.GetWindow().Visible = true;
         };
+        pal_high_reset.Pressed += () =>
+        {
+            pal_high = new Color(2.0f, 1.073f, 0.797f);
+            UpdateShader();
+        };
         pal_low_but.Pressed += () =>
         {
             picker.Color = pal_low;
             pal_picking = 1;
             picker.GetWindow().Visible = true;
         };
+        pal_low_reset.Pressed += () =>
+        {
+            pal_low = new Color(0.015f, 0.021f, 0.004f);
+            UpdateShader();
+        };
         pal_mid_but.Pressed += () =>
         {
             picker.Color = pal_mid;
             pal_picking = 2;
             picker.GetWindow().Visible = true;
+        };
+        pal_mid_reset.Pressed += () =>
+        {
+            pal_mid = new Color(0.509f, 0.261f, 0.199f);
+            UpdateShader();
+        };
+        pal_tri_but.Pressed += () =>
+        {
+            three_col = pal_tri_but.ButtonPressed;
+            UpdateShader();
+        };
+        pal_tri_reset.Pressed += () =>
+        {
+            three_col = true;
+            pal_tri_but.ButtonPressed = three_col;
+            UpdateShader();
         };
         picker.ColorChanged += (Color new_col) =>
         {
@@ -127,6 +200,11 @@ public partial class RenderOptionsPanel : Control
         background_but.Pressed += () =>
         {
             is_high = !is_high;
+            UpdateShader();
+        };
+        background_reset.Pressed += () =>
+        {
+            is_high = true;
             UpdateShader();
         };
 
@@ -154,10 +232,12 @@ public partial class RenderOptionsPanel : Control
             pal_high = material.GetShaderParameter("palette_high").AsColor();
             pal_low = material.GetShaderParameter("palette_low").AsColor();
             pal_mid = material.GetShaderParameter("palette_mid").AsColor();
+            three_col = material.GetShaderParameter("use_palette_mid").AsBool();
             contrast_slider.Value = contrast;
             edge_slider.Value = edge;
             noise_slider.Value = noise;
             sketch_slider.Value = sketch;
+            pal_tri_but.ButtonPressed = three_col;
             UpdateLabels();
         };
     }
@@ -174,6 +254,7 @@ public partial class RenderOptionsPanel : Control
         pal_high_label.Text = string.Format("R {0:F3}; G {1:F3}; B {2:F3};", pal_high.R, pal_high.G, pal_high.B);
         pal_low_label.Text = string.Format("R {0:F3}; G {1:F3}; B {2:F3};", pal_low.R, pal_low.G, pal_low.B);
         pal_mid_label.Text = string.Format("R {0:F3}; G {1:F3}; B {2:F3};", pal_mid.R, pal_mid.G, pal_mid.B);
+        pal_tri_but.Text = three_col ? "enabled" : "disabled";
     }
 
     private void UpdateShader()
@@ -190,5 +271,6 @@ public partial class RenderOptionsPanel : Control
         material.SetShaderParameter("palette_high", pal_high);
         material.SetShaderParameter("palette_low", pal_low);
         material.SetShaderParameter("palette_mid", pal_mid);
+        material.SetShaderParameter("use_palette_mid", three_col);
     }
 }
