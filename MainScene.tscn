@@ -109,9 +109,10 @@ ui_texture = ExtResource("23_i1thg")
 solid_face_flags = 24
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
-[node name="MainScene" type="Node3D" node_paths=PackedStringArray("ui_controller", "editors")]
+[node name="MainScene" type="Node3D" node_paths=PackedStringArray("ui_controller", "save_manager", "editors")]
 script = ExtResource("1_mctxq")
 ui_controller = NodePath("UIViewport/EditingUI")
+save_manager = NodePath("SaveManager")
 editors = [NodePath("VoxelEditController"), NodePath("LightEditController")]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]

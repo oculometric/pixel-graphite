@@ -29,3 +29,4 @@
 - [ ] fix stretched screenshots
 - [x] ability to reset shader to default
 - [x] ability to toggle 3-color mode
+- [ ] reimplement displacement in shader

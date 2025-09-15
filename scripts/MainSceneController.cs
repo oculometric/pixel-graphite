@@ -6,6 +6,7 @@ public partial class MainSceneController : Node3D
 {
 	[Export] public EditingUIController ui_controller;
 
+	[Export] public SaveManager save_manager { get; private set; }
 	[Export] public EditController[] editors { get; private set; }
 	public VoxelEditController voxel_editor { get; private set; }
 

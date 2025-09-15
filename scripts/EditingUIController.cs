@@ -17,6 +17,12 @@ public partial class EditingUIController : Control
     [Export] private VBoxContainer voxel_palette;
 	private MainSceneController scene_controller;
 
+	[Export] private Button save_button;
+	[Export] private Button save_as_button;
+	[Export] private Button load_button;
+	[Export] private Button export_button;
+	[Export] private Button return_button;
+
 	private bool is_exporting = false;
 	public bool editors_should_show_gizmos { get; private set; } = true;
 
@@ -78,9 +84,15 @@ public partial class EditingUIController : Control
 		};
 		SetModalVisible(false);
 		help_panel.Visible = false;
-	}
 
-	public Action<string> save_callback;
+		save_button.Pressed += () => { scene_controller.save_manager.CallSave(false); };
+        save_as_button.Pressed += () => { scene_controller.save_manager.CallSave(true); };
+		load_button.Pressed += () => { scene_controller.save_manager.CallLoad(); };
+		export_button.Pressed += ShowExportDialog;
+		return_button.Pressed += () => { ShowErrorDialog("i havent done that yet"); };
+    }
+
+    public Action<string> save_callback;
 	public Action<string> load_callback;
 
 	public void UpdateVoxelUI(int selected_voxel_type, bool erase_mode, byte orientation)
@@ -240,8 +252,10 @@ public partial class EditingUIController : Control
 						ShowPanel(0);
 						break;
 					case Key.Escape:
-						ShowPanel(0, true);
-						break;
+						if (help_panel.Visible)
+							ShowPanel(0, true);
+						else ShowPanel(2);
+							break;
 					case Key.K:
 						if (key.CtrlPressed)
 							ShowPanel(1);

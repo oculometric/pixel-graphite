@@ -49,6 +49,22 @@ public partial class SaveManager : Node3D
         autosave_timer.Start(autosave_time);
     }
 
+    public void CallSave(bool save_as)
+    {
+        if (has_been_saved && !save_as)
+            SaveData(current_file_name);
+        else
+            ui_controller.ShowSaveDialog(current_file_name);
+    }
+
+    public void CallLoad()
+    {
+        if (has_unsaved_changes)
+            ui_controller.ShowConfirmDialog("discard unsaved changes?", "you have made changes which are not saved. are you sure you want to discard them and open another file?", "discard changes", "cancel", ConfirmDiscard);
+        else
+            ui_controller.ShowLoadDialog(current_file_name);
+    }
+
     public override void _UnhandledInput(InputEvent @event)
     {
         if (@event is InputEventKey)
@@ -59,19 +75,9 @@ public partial class SaveManager : Node3D
             if (key.IsPressed())
             {
                 if (key.Keycode == Key.S)
-                {
-                    if (has_been_saved && !key.ShiftPressed)
-                        SaveData(current_file_name);
-                    else
-                        ui_controller.ShowSaveDialog(current_file_name);
-                }
+                    CallSave(key.ShiftPressed);
                 else if (key.Keycode == Key.O)
-                {
-                    if (has_unsaved_changes)
-                        ui_controller.ShowConfirmDialog("discard unsaved changes?", "you have made changes which are not saved. are you sure you want to discard them and open another file?", "discard changes", "cancel", ConfirmDiscard);
-                    else
-                        ui_controller.ShowLoadDialog(current_file_name);
-                }
+                    CallLoad();
             }
         }
     }
