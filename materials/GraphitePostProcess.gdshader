@@ -153,7 +153,7 @@ void fragment()
 	float noise = ((fbm((downscaled_uv / 0.005f) * 20.0f * scaled_viewport, 2, 2.0f, 0.5f)) * 1.2f) - 0.7f;
 	float noised_value = edged_value + (floor(noise * 9.0f) * noise_factor / 9.0f);
 	// posterise
-	float posterised_value = round(noised_value * posterise_steps) / posterise_steps;
+	float posterised_value = round(noised_value * (posterise_steps - 1.0f)) / (posterise_steps - 1.0f);
 	// add sketch effect
 	float sketched_value = sketch(downscaled_uv, scaled_viewport, posterised_value);
 

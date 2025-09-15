@@ -103,12 +103,12 @@ public partial class MainSceneController : Node3D
 					case Key.Key9: if (is_mode_selecting) SetEditingMode(8); break;
 					case Key.Quoteleft: GetViewport().DebugDraw = (Viewport.DebugDrawEnum)((int)(GetViewport().DebugDraw + 1) % 6); break;
 					default:
-						ui_controller._GuiInput(@event);
+						ui_controller.GetViewport().PushInput(@event);
 						break;
 				}
 			}
 		}
 		else if (@event is InputEventMouse && !editor_input_enabled)
-			ui_controller._GuiInput(@event);
+			ui_controller.GetViewport().PushInput(@event);
 	}
 }

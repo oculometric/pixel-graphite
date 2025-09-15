@@ -1,9 +1,46 @@
-[gd_resource type="Theme" format=3 uid="uid://citnlivn3ux3n"]
+[gd_resource type="Theme" load_steps=6 format=3 uid="uid://citnlivn3ux3n"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dr31y"]
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q1iic"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cqvjm"]
+bg_color = Color(0, 0, 0, 1)
+draw_center = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7r855"]
+bg_color = Color(1, 1, 1, 1)
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4pfgm"]
+bg_color = Color(1, 1, 1, 1)
+border_color = Color(1, 1, 1, 1)
+corner_detail = 1
 
 [resource]
+Button/colors/font_hover_pressed_color = Color(0, 0, 0, 1)
 Button/colors/font_outline_color = Color(1, 1, 1, 1)
+Button/colors/font_pressed_color = Color(0, 0, 0, 1)
+Button/colors/icon_pressed_color = Color(0, 0, 0, 1)
 Button/constants/outline_size = 1
 Button/font_sizes/font_size = 28
+Button/styles/focus = SubResource("StyleBoxFlat_dr31y")
+Button/styles/hover = SubResource("StyleBoxFlat_q1iic")
+Button/styles/normal = SubResource("StyleBoxFlat_cqvjm")
+Button/styles/pressed = SubResource("StyleBoxFlat_7r855")
+HSlider/styles/grabber_area = SubResource("StyleBoxFlat_4pfgm")
 Label/colors/font_outline_color = Color(1, 1, 1, 1)
 Label/constants/outline_size = 1
 Label/constants/paragraph_spacing = 4

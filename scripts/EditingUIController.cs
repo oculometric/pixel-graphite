@@ -68,7 +68,9 @@ public partial class EditingUIController : Control
 
 	public override void _Ready()
 	{
-		confirm_discard_dialog.Confirmed += () => { confirm_callback(); };
+		GetViewport().SetProcessInput(true);
+		GetViewport().SetProcessUnhandledInput(true);
+        confirm_discard_dialog.Confirmed += () => { confirm_callback(); };
 
 		GetWindow().SizeChanged += () =>
 		{
@@ -214,9 +216,8 @@ public partial class EditingUIController : Control
 		scene_controller.ToggleAllEditorInput(!new_visible);
 	}
 	
-	public override void _GuiInput(InputEvent @event)
+	public override void _UnhandledInput(InputEvent @event)
 	{
-		GD.Print(@event);
 		if (@event is InputEventKey)
 		{
 			InputEventKey key = @event as InputEventKey;
