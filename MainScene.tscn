@@ -1,4 +1,4 @@
-[gd_scene load_steps=46 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=50 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
 [ext_resource type="Material" uid="uid://clxdn3738bnir" path="res://materials/GraphitePostProcess.tres" id="2_h86nx"]
@@ -23,14 +23,18 @@
 [ext_resource type="ArrayMesh" uid="uid://bg0xuf2xl4akx" path="res://meshes/voxels_Wall.res" id="21_v3bin"]
 [ext_resource type="ArrayMesh" uid="uid://v83fs6vucly3" path="res://meshes/voxels_WallPost.res" id="22_6dw4c"]
 [ext_resource type="ArrayMesh" uid="uid://c1k8806eeonoq" path="res://meshes/voxels_Slope.res" id="22_kvyqs"]
+[ext_resource type="Texture2D" uid="uid://3r7120mk34hd" path="res://textures/voxel_icon_wall.png" id="22_lppff"]
 [ext_resource type="ArrayMesh" uid="uid://dtt4qhg60bg0q" path="res://meshes/voxels_WallCorner.res" id="23_cxdnd"]
 [ext_resource type="Texture2D" uid="uid://dmfwu725xlh5m" path="res://textures/voxel_icon_slope.png" id="23_i1thg"]
 [ext_resource type="Texture2D" uid="uid://12vw8x0vukrq" path="res://textures/mode_icon_lighting.png" id="23_obg7t"]
+[ext_resource type="Texture2D" uid="uid://barynugft7ekl" path="res://textures/voxel_icon_corner.png" id="24_5i0cj"]
 [ext_resource type="Script" uid="uid://bv402urnm2ct7" path="res://scripts/LightEditController.cs" id="24_a28bb"]
 [ext_resource type="ArrayMesh" uid="uid://ckkm2enqeh8nb" path="res://meshes/sand_demo.res" id="24_h86nx"]
 [ext_resource type="ArrayMesh" uid="uid://dd5i21lptg1p5" path="res://meshes/voxels_WallArch.res" id="24_ro037"]
 [ext_resource type="PackedScene" uid="uid://cf6yem4r5l5y4" path="res://meshes/the opaque eye.glb" id="25_7jkkr"]
 [ext_resource type="Script" uid="uid://do5i0w3g22xwy" path="res://scripts/SaveManager.cs" id="25_amtbh"]
+[ext_resource type="Texture2D" uid="uid://bgs64vbgx43bb" path="res://textures/voxel_icon_post.png" id="26_f3pw5"]
+[ext_resource type="Texture2D" uid="uid://dyjystojdqjat" path="res://textures/voxel_icon_wallarch.png" id="28_f3pw5"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_obg7t"]
 material = ExtResource("2_h86nx")
@@ -117,20 +121,23 @@ metadata/_custom_type_script = "uid://c53hk58dbog3k"
 script = ExtResource("12_v3bin")
 name = "wall"
 geometry = ExtResource("21_v3bin")
-solid_face_flags = 4
+ui_texture = ExtResource("22_lppff")
+solid_face_flags = 1
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_ro037"]
 script = ExtResource("12_v3bin")
 name = "corner"
 geometry = ExtResource("23_cxdnd")
-solid_face_flags = 6
+ui_texture = ExtResource("24_5i0cj")
+solid_face_flags = 9
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
 [sub_resource type="Resource" id="Resource_cxdnd"]
 script = ExtResource("12_v3bin")
 name = "post"
 geometry = ExtResource("22_6dw4c")
+ui_texture = ExtResource("26_f3pw5")
 solid_face_flags = 0
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
@@ -138,6 +145,7 @@ metadata/_custom_type_script = "uid://c53hk58dbog3k"
 script = ExtResource("12_v3bin")
 name = "wall arch"
 geometry = ExtResource("24_ro037")
+ui_texture = ExtResource("28_f3pw5")
 solid_face_flags = 0
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 

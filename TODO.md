@@ -27,7 +27,7 @@
 - [x] ability to reset shader to default
 - [x] ability to toggle 3-color mode
 - [x] fix fonts in popups
-- [ ] add icons for new voxel types
+- [x] add icons for new voxel types
 - [ ] improve raytracing in voxel mode
 - [ ] reimplement displacement in shader
 - [ ] implement saving of lighting data, rendering config, ivy data, sand, etc (new file format with multiple sub-headers/datablocks within, including legacy support)
