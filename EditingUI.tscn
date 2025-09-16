@@ -217,7 +217,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-current_tab = 2
+current_tab = 1
 tabs_visible = false
 tab_focus_mode = 0
 
@@ -296,8 +296,7 @@ Ctrl+K
 Ctrl+H"
 vertical_alignment = 1
 
-[node name="RenderOptionsPanel" type="CenterContainer" parent="TabContainer" node_paths=PackedStringArray("pixels_label", "pixels_down_but", "pixels_up_but", "pixels_reset", "contrast_label", "contrast_slider", "contrast_reset", "edge_label", "edge_slider", "edge_reset", "noise_label", "noise_slider", "noise_reset", "sketch_label", "sketch_slider", "sketch_reset", "posterise_label", "posterise_next_but", "posterise_back_but", "posterise_reset", "picker", "pal_high_label", "pal_high_but", "pal_high_reset", "pal_low_label", "pal_low_but", "pal_low_reset", "pal_mid_label", "pal_mid_but", "pal_mid_reset", "pal_tri_but", "pal_tri_reset", "background_but", "background_reset", "save_palette_but", "load_palette_but", "load_save_dialog")]
-visible = false
+[node name="RenderOptionsPanel" type="CenterContainer" parent="TabContainer" node_paths=PackedStringArray("pixels_label", "pixels_down_but", "pixels_up_but", "pixels_reset", "contrast_label", "contrast_slider", "contrast_reset", "edge_label", "edge_slider", "edge_reset", "noise_label", "noise_slider", "noise_reset", "sketch_label", "sketch_slider", "sketch_reset", "posterise_label", "posterise_next_but", "posterise_back_but", "posterise_reset", "picker", "pal_high_label", "pal_high_but", "pal_high_reset", "pal_low_label", "pal_low_but", "pal_low_reset", "pal_mid_label", "pal_mid_but", "pal_mid_reset", "pal_tri_but", "pal_tri_reset", "background_but", "background_reset", "displace_but", "displace_reset", "save_palette_but", "load_palette_but", "load_save_dialog")]
 material = ExtResource("4_c7spg")
 layout_mode = 2
 script = ExtResource("4_dnh2e")
@@ -336,6 +335,8 @@ pal_tri_but = NodePath("VBoxContainer/PalTriPanel/Control9/PalTri")
 pal_tri_reset = NodePath("VBoxContainer/PalTriPanel/Reset")
 background_but = NodePath("VBoxContainer/BackgroundPanel/Control10/BackgroundInvert")
 background_reset = NodePath("VBoxContainer/BackgroundPanel/Reset")
+displace_but = NodePath("VBoxContainer/DisplacePanel/Control9/Displace")
+displace_reset = NodePath("VBoxContainer/DisplacePanel/Reset")
 save_palette_but = NodePath("VBoxContainer/PalSavePanel/Control9/SavePalette")
 load_palette_but = NodePath("VBoxContainer/PalSavePanel/Control9/LoadPalette")
 load_save_dialog = NodePath("FileDialog")
@@ -623,6 +624,33 @@ layout_mode = 2
 focus_mode = 0
 text = "⮿"
 
+[node name="DisplacePanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
+layout_mode = 2
+split_offset = 2000
+dragging_enabled = false
+
+[node name="Control9" type="SplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer/DisplacePanel"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+split_offset = 1020
+dragging_enabled = false
+
+[node name="Label2" type="Label" parent="TabContainer/RenderOptionsPanel/VBoxContainer/DisplacePanel/Control9"]
+layout_mode = 2
+text = "displacement"
+
+[node name="Displace" type="CheckBox" parent="TabContainer/RenderOptionsPanel/VBoxContainer/DisplacePanel/Control9"]
+custom_minimum_size = Vector2(108, 0)
+layout_mode = 2
+focus_mode = 0
+button_pressed = true
+text = "disable"
+
+[node name="Reset" type="Button" parent="TabContainer/RenderOptionsPanel/VBoxContainer/DisplacePanel"]
+layout_mode = 2
+focus_mode = 0
+text = "⮿"
+
 [node name="PalHighPanel" type="HSplitContainer" parent="TabContainer/RenderOptionsPanel/VBoxContainer"]
 layout_mode = 2
 split_offset = 2000
@@ -811,6 +839,7 @@ access = 1
 filters = PackedStringArray("*.exr")
 
 [node name="EscapeMenu" type="CenterContainer" parent="TabContainer"]
+visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 

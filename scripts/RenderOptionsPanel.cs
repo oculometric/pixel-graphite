@@ -60,6 +60,10 @@ public partial class RenderOptionsPanel : Control
     private bool is_high = true;
     [Export] private Button background_reset;
 
+    [Export] private Button displace_but;
+    private bool displace = true;
+    [Export] private Button displace_reset;
+
     [Export] private Button save_palette_but;
     [Export] private Button load_palette_but;
     [Export] private FileDialog load_save_dialog;
@@ -212,6 +216,18 @@ public partial class RenderOptionsPanel : Control
             UpdateShader();
         };
 
+        displace_but.Pressed += () =>
+        {
+            displace = displace_but.ButtonPressed;
+            UpdateShader();
+        };
+        displace_reset.Pressed += () =>
+        {
+            displace = true;
+            displace_but.ButtonPressed = displace;
+            UpdateShader();
+        };
+
         save_palette_but.Pressed += SavePalette;
         load_palette_but.Pressed += LoadPalette;
         load_save_dialog.FileSelected += (string path) =>
@@ -279,11 +295,13 @@ public partial class RenderOptionsPanel : Control
             pal_low = material.GetShaderParameter("palette_low").AsColor();
             pal_mid = material.GetShaderParameter("palette_mid").AsColor();
             three_col = material.GetShaderParameter("use_palette_mid").AsBool();
+            displace = material.GetShaderParameter("enable_displacement").AsBool();
             contrast_slider.Value = contrast;
             edge_slider.Value = edge;
             noise_slider.Value = noise;
             sketch_slider.Value = sketch;
             pal_tri_but.ButtonPressed = three_col;
+            displace_but.ButtonPressed = displace;
             UpdateLabels();
         };
     }
@@ -301,6 +319,7 @@ public partial class RenderOptionsPanel : Control
         pal_low_label.Text = string.Format("R {0:F3}; G {1:F3}; B {2:F3};", pal_low.R, pal_low.G, pal_low.B);
         pal_mid_label.Text = string.Format("R {0:F3}; G {1:F3}; B {2:F3};", pal_mid.R, pal_mid.G, pal_mid.B);
         pal_tri_but.Text = three_col ? "enabled" : "disabled";
+        displace_but.Text = displace ? "enabled" : "disabled";
     }
 
     private void UpdateShader()
@@ -318,6 +337,7 @@ public partial class RenderOptionsPanel : Control
         material.SetShaderParameter("palette_low", pal_low);
         material.SetShaderParameter("palette_mid", pal_mid);
         material.SetShaderParameter("use_palette_mid", three_col);
+        material.SetShaderParameter("enable_displacement", displace);
     }
 
     public void SavePalette()

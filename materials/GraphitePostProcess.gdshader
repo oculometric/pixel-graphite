@@ -16,6 +16,7 @@ uniform float noise_factor = 0.02f;
 uniform float sketch_factor = 0.061f;
 uniform float posterise_steps = 64.0f;
 uniform float background_value = 1.0f;
+uniform bool enable_displacement = true;
 uniform vec3 palette_low : source_color = vec3(0.015, 0.021, 0.004);
 uniform vec3 palette_high : source_color = vec3(2.000, 1.073, 0.797);
 uniform bool use_palette_mid = false;
@@ -148,19 +149,26 @@ void fragment()
 	vec2 downscaled_uv = floor(SCREEN_UV * downscaled_viewport_size/* * float(pixelation_size)*/) / downscaled_viewport_size;
 	/*if (downscaled_uv.x > 1.0f || downscaled_uv.y > 1.0f)
 		discard;*/ // for a slight performance boost, this (and the code above) can be uncommented
+	
+	vec2 scaled_viewport = VIEWPORT_SIZE / noise_sketch_scale;
+	vec2 displaced_uv = downscaled_uv;
+	if (enable_displacement)
+	{
+		vec2 displace_in_uv = (downscaled_uv / 0.005f) * 0.1f * scaled_viewport;
+		float displacex = (fbm(displace_in_uv, 3, 2.0f, 0.5f) * 0.5f) + 0.5f;
+		float displacey = (fbm(displace_in_uv + 100.0f, 3, 2.0f, 0.5f) * 0.5f) + 0.5f;
+		displaced_uv += ((round(vec2(displacex, displacey) * 3.0f) - 3.0f) / downscaled_viewport_size);
+	}
 
-	vec3 screen_sample = texture(screen_tex, downscaled_uv).rgb;
+	vec3 screen_sample = texture(screen_tex, displaced_uv).rgb;
 	float screen_value = dot(screen_sample, vec3(0.2126f, 0.7151f, 0.0722f));
 	screen_value = 1.0f - ((1.0f - screen_value) * contrast);
 
-	// TODO: reimplement edge displacement for all UVs (including depth, edge)
-
 	// compute edge mask via sharpen filters
-	float edges = edge_mask(downscaled_uv, 1.0f / (VIEWPORT_SIZE * float(pixelation_size)), INV_PROJECTION_MATRIX);
+	float edges = edge_mask(displaced_uv, 1.0f / (VIEWPORT_SIZE * float(pixelation_size)), INV_PROJECTION_MATRIX);
 	float edged_value = mix(screen_value, screen_value * edge_colour_multiplier, edges);
 
 	// apply grain
-	vec2 scaled_viewport = VIEWPORT_SIZE / noise_sketch_scale;
 	float noise = ((fbm((downscaled_uv / 0.005f) * 20.0f * scaled_viewport, 2, 2.0f, 0.5f)) * 1.2f) - 0.7f;
 	float noised_value = edged_value + (floor(noise * 9.0f) * noise_factor / 9.0f);
 	// posterise
@@ -170,7 +178,7 @@ void fragment()
 
 	// apply solid background
 	//float ld = linear_depth(downscaled_uv, INV_PROJECTION_MATRIX);
-	float d = texture(depth_tex, downscaled_uv).r;
+	float d = texture(depth_tex, displaced_uv).r;
 	if (d == 0.0f)
 		sketched_value = background_value;
 
