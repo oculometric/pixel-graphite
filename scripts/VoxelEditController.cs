@@ -24,7 +24,7 @@ public partial class VoxelEditController : EditController
 		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 		UpdateOutlineMesh();
 		if (FileAccess.FileExists("res://startup.dat"))
-			voxel_grid.Load("res://startup.dat");
+			save_manager.ReadSaveFile("res://startup.dat");
 		else
 			GD.Print("startup file missing!");
 

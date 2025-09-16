@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class RenderOptionsPanel : Control
 {
@@ -354,5 +355,16 @@ public partial class RenderOptionsPanel : Control
         load_save_dialog.FileMode = FileDialog.FileModeEnum.OpenFile;
         load_save_dialog.OkButtonText = "load";
         load_save_dialog.Visible = true;
+    }
+
+    public byte[] SerialiseConfig()
+    {
+        // TODO: serialise rendering config
+        return [0xFF, 0xCC];
+    }
+
+    public void DeserialiseConfig(byte[] data)
+    {
+        // TODO: deserialise rendering config
     }
 }

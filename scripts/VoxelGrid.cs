@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -881,36 +882,34 @@ public partial class VoxelGrid : Node3D
         map[position.X, position.Y, position.Z] = value;
 	}
 
-	public void Save(string path)
+	public byte[] SerialiseMap()
 	{
-		byte[] save_data = map.Serialise();
-		Godot.FileAccess file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Write);
-		file.StoreBuffer(save_data);
-		file.Close();
+		return map.Serialise();
     }
 
-    public void Load(string path)
+	public void DeserialiseMap(byte[] data)
 	{
-		GD.Print("loading file " + path);
         foreach (MeshInstance3D mi in chunks.Values)
             mi.QueueFree();
-		chunks.Clear();
+        chunks.Clear();
 
-        Godot.FileAccess file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Read);
-		if (file == null)
+		if (data == null)
+		{
+            Rebuild();
 			return;
-		byte[] save_data = file.GetBuffer((long)file.GetLength());
-		file.Close();
-		try
-		{
-			map = new ChunkedGridMap3D<Voxel>(save_data, new Voxel(0, 0));
-		} catch
-		{
-			GD.Print("unable to load file");
-			ui_controller.ShowErrorDialog("the selected voxel data file could not be loaded. it may be corrupt or in an unsupported format.");
-			map = new ChunkedGridMap3D<Voxel>(new Voxel(0, 0), chunk_size);
-		}
-		Rebuild();
+        }
+
+        try
+        {
+            map = new ChunkedGridMap3D<Voxel>(data, new Voxel(0, 0));
+        }
+        catch
+        {
+            GD.Print("unable to load file");
+            ui_controller.ShowErrorDialog("the selected voxel data file could not be loaded. it may be corrupt or in an unsupported format.");
+            map = new ChunkedGridMap3D<Voxel>(new Voxel(0, 0), chunk_size);
+        }
+        Rebuild();
     }
 
 	public void Export(string path)
