@@ -73,6 +73,38 @@ _subresources={
 "lods/normal_merge_angle": 60.0,
 "save_to_file/enabled": true,
 "save_to_file/path": "res://meshes/voxels_Stairs.res"
+},
+"voxels_Wall": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"save_to_file/enabled": true,
+"save_to_file/path": "res://meshes/voxels_Wall.res"
+},
+"voxels_WallArch": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"save_to_file/enabled": true,
+"save_to_file/path": "res://meshes/voxels_WallArch.res"
+},
+"voxels_WallCorner": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"save_to_file/enabled": true,
+"save_to_file/path": "res://meshes/voxels_WallCorner.res"
+},
+"voxels_WallPost": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"save_to_file/enabled": true,
+"save_to_file/path": "res://meshes/voxels_WallPost.res"
 }
 }
 }

@@ -217,7 +217,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-current_tab = 1
+current_tab = 2
 tabs_visible = false
 tab_focus_mode = 0
 
@@ -297,6 +297,7 @@ Ctrl+H"
 vertical_alignment = 1
 
 [node name="RenderOptionsPanel" type="CenterContainer" parent="TabContainer" node_paths=PackedStringArray("pixels_label", "pixels_down_but", "pixels_up_but", "pixels_reset", "contrast_label", "contrast_slider", "contrast_reset", "edge_label", "edge_slider", "edge_reset", "noise_label", "noise_slider", "noise_reset", "sketch_label", "sketch_slider", "sketch_reset", "posterise_label", "posterise_next_but", "posterise_back_but", "posterise_reset", "picker", "pal_high_label", "pal_high_but", "pal_high_reset", "pal_low_label", "pal_low_but", "pal_low_reset", "pal_mid_label", "pal_mid_but", "pal_mid_reset", "pal_tri_but", "pal_tri_reset", "background_but", "background_reset", "save_palette_but", "load_palette_but", "load_save_dialog")]
+visible = false
 material = ExtResource("4_c7spg")
 layout_mode = 2
 script = ExtResource("4_dnh2e")
@@ -803,7 +804,6 @@ disable_3d = true
 title = "save palette"
 initial_position = 2
 theme = ExtResource("4_lfx6u")
-ok_button_text = "save"
 dialog_hide_on_ok = true
 cancel_button_text = "cancel"
 mode_overrides_title = false
@@ -811,7 +811,6 @@ access = 1
 filters = PackedStringArray("*.exr")
 
 [node name="EscapeMenu" type="CenterContainer" parent="TabContainer"]
-visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 

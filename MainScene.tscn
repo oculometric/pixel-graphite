@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://btcypf82vp58i"]
+[gd_scene load_steps=46 format=3 uid="uid://btcypf82vp58i"]
 
 [ext_resource type="Script" uid="uid://cbrn1h350ncs6" path="res://scripts/MainSceneController.cs" id="1_mctxq"]
 [ext_resource type="Material" uid="uid://clxdn3738bnir" path="res://materials/GraphitePostProcess.tres" id="2_h86nx"]
@@ -20,11 +20,15 @@
 [ext_resource type="Texture2D" uid="uid://b1jbbjk8bw4tf" path="res://textures/voxel_icon_arch.png" id="19_f3pw5"]
 [ext_resource type="ArrayMesh" uid="uid://bnaw8i1b0c6je" path="res://meshes/voxels_NarrowArch.res" id="20_nlw8m"]
 [ext_resource type="Texture2D" uid="uid://db7bana4t4w2q" path="res://textures/voxel_icon_narrowarch.png" id="21_r1x6n"]
+[ext_resource type="ArrayMesh" uid="uid://bg0xuf2xl4akx" path="res://meshes/voxels_Wall.res" id="21_v3bin"]
+[ext_resource type="ArrayMesh" uid="uid://v83fs6vucly3" path="res://meshes/voxels_WallPost.res" id="22_6dw4c"]
 [ext_resource type="ArrayMesh" uid="uid://c1k8806eeonoq" path="res://meshes/voxels_Slope.res" id="22_kvyqs"]
+[ext_resource type="ArrayMesh" uid="uid://dtt4qhg60bg0q" path="res://meshes/voxels_WallCorner.res" id="23_cxdnd"]
 [ext_resource type="Texture2D" uid="uid://dmfwu725xlh5m" path="res://textures/voxel_icon_slope.png" id="23_i1thg"]
 [ext_resource type="Texture2D" uid="uid://12vw8x0vukrq" path="res://textures/mode_icon_lighting.png" id="23_obg7t"]
 [ext_resource type="Script" uid="uid://bv402urnm2ct7" path="res://scripts/LightEditController.cs" id="24_a28bb"]
 [ext_resource type="ArrayMesh" uid="uid://ckkm2enqeh8nb" path="res://meshes/sand_demo.res" id="24_h86nx"]
+[ext_resource type="ArrayMesh" uid="uid://dd5i21lptg1p5" path="res://meshes/voxels_WallArch.res" id="24_ro037"]
 [ext_resource type="PackedScene" uid="uid://cf6yem4r5l5y4" path="res://meshes/the opaque eye.glb" id="25_7jkkr"]
 [ext_resource type="Script" uid="uid://do5i0w3g22xwy" path="res://scripts/SaveManager.cs" id="25_amtbh"]
 
@@ -109,6 +113,34 @@ ui_texture = ExtResource("23_i1thg")
 solid_face_flags = 24
 metadata/_custom_type_script = "uid://c53hk58dbog3k"
 
+[sub_resource type="Resource" id="Resource_6dw4c"]
+script = ExtResource("12_v3bin")
+name = "wall"
+geometry = ExtResource("21_v3bin")
+solid_face_flags = 4
+metadata/_custom_type_script = "uid://c53hk58dbog3k"
+
+[sub_resource type="Resource" id="Resource_ro037"]
+script = ExtResource("12_v3bin")
+name = "corner"
+geometry = ExtResource("23_cxdnd")
+solid_face_flags = 6
+metadata/_custom_type_script = "uid://c53hk58dbog3k"
+
+[sub_resource type="Resource" id="Resource_cxdnd"]
+script = ExtResource("12_v3bin")
+name = "post"
+geometry = ExtResource("22_6dw4c")
+solid_face_flags = 0
+metadata/_custom_type_script = "uid://c53hk58dbog3k"
+
+[sub_resource type="Resource" id="Resource_lppff"]
+script = ExtResource("12_v3bin")
+name = "wall arch"
+geometry = ExtResource("24_ro037")
+solid_face_flags = 0
+metadata/_custom_type_script = "uid://c53hk58dbog3k"
+
 [node name="MainScene" type="Node3D" node_paths=PackedStringArray("ui_controller", "save_manager", "editors")]
 script = ExtResource("1_mctxq")
 ui_controller = NodePath("UIViewport/EditingUI")
@@ -154,7 +186,7 @@ scene_controller = NodePath("..")
 [node name="VoxelGrid" type="Node3D" parent="." node_paths=PackedStringArray("ui_controller")]
 script = ExtResource("11_obg7t")
 ui_controller = NodePath("../UIViewport/EditingUI")
-voxel_types = Array[Object]([SubResource("Resource_rf2cd"), SubResource("Resource_a814b"), SubResource("Resource_5crlr"), SubResource("Resource_yvb8b"), SubResource("Resource_3hf6u"), SubResource("Resource_4mcbk")])
+voxel_types = Array[Object]([SubResource("Resource_rf2cd"), SubResource("Resource_a814b"), SubResource("Resource_5crlr"), SubResource("Resource_yvb8b"), SubResource("Resource_3hf6u"), SubResource("Resource_4mcbk"), SubResource("Resource_6dw4c"), SubResource("Resource_ro037"), SubResource("Resource_cxdnd"), SubResource("Resource_lppff")])
 material = ExtResource("11_yvb8b")
 
 [node name="LightEditController" type="Node3D" parent="." node_paths=PackedStringArray("sun", "scene_controller")]

@@ -151,6 +151,10 @@ public partial class VoxelEditController : EditController
 					case Key.Key3: cell_type_index = 3; erase_mode = false; break;
 					case Key.Key4: cell_type_index = 4; erase_mode = false; break;
 					case Key.Key5: cell_type_index = 5; erase_mode = false; break;
+					case Key.Key6: cell_type_index = 6; erase_mode = false; break;
+					case Key.Key7: cell_type_index = 7; erase_mode = false; break;
+					case Key.Key8: cell_type_index = 8; erase_mode = false; break;
+					case Key.Key9: cell_type_index = 9; erase_mode = false; break;
 					case Key.D: current_cell_type.orientation = (byte)((((current_cell_type.orientation & 0b11) + 3) % 4) | (current_cell_type.orientation & 0b100)); break;
 					case Key.A: current_cell_type.orientation = (byte)((((current_cell_type.orientation & 0b11) + 1) % 4) | (current_cell_type.orientation & 0b100)); break;
 					case Key.F: current_cell_type.orientation = (byte)(current_cell_type.orientation ^ 0b100); break;
