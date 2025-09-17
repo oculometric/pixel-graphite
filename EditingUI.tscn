@@ -41,7 +41,7 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 1, 1, 1)
 
-[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "top_label", "file_dialog", "confirm_discard_dialog", "accept_dialog", "help_panel", "voxel_palette", "save_button", "save_as_button", "load_button", "export_button", "return_button")]
+[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "top_label", "file_dialog", "confirm_discard_dialog", "accept_dialog", "help_panel", "render_options", "voxel_palette", "save_button", "save_as_button", "load_button", "export_button", "return_button")]
 texture_filter = 1
 layout_mode = 3
 anchors_preset = 15
@@ -59,6 +59,7 @@ file_dialog = NodePath("FileDialog")
 confirm_discard_dialog = NodePath("ConfirmDiscardDialog")
 accept_dialog = NodePath("AcceptDialog")
 help_panel = NodePath("TabContainer")
+render_options = NodePath("TabContainer/RenderOptionsPanel")
 voxel_palette = NodePath("VoxelPaletteContainer/VoxelPalette")
 save_button = NodePath("TabContainer/EscapeMenu/VBoxContainer/SaveButton")
 save_as_button = NodePath("TabContainer/EscapeMenu/VBoxContainer/SaveAsButton")

@@ -13,6 +13,7 @@ public partial class EditingUIController : Control
 	[Export] private AcceptDialog accept_dialog;
 
 	[Export] private TabContainer help_panel;
+	[Export] public RenderOptionsPanel render_options { get; private set; }
 
     [Export] private VBoxContainer voxel_palette;
 	private MainSceneController scene_controller;
