@@ -216,9 +216,10 @@ mesh = ExtResource("24_h86nx")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 6.8, 0.4)
 visible = false
 
-[node name="SaveManager" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid", "ui_controller")]
+[node name="SaveManager" type="Node3D" parent="." node_paths=PackedStringArray("voxel_grid", "light_editor", "ui_controller")]
 script = ExtResource("25_amtbh")
 voxel_grid = NodePath("../VoxelGrid")
+light_editor = NodePath("../LightEditController")
 ui_controller = NodePath("../UIViewport/EditingUI")
 
 [node name="UIViewport" type="SubViewport" parent="."]

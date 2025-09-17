@@ -56,8 +56,9 @@ public struct SaveHelpers
 public partial class SaveManager : Node3D
 {
     [Export] public VoxelGrid voxel_grid { get; private set; }
+    [Export] private LightEditController light_editor;
     [Export] public EditingUIController ui_controller { get; private set; }
-    [Export] public float autosave_time = 10.0f;
+    [Export] public float autosave_time = 60.0f;
 
     private string current_file_name = "Untitled";
     private bool has_been_saved = false;
@@ -77,6 +78,8 @@ public partial class SaveManager : Node3D
         ui_controller.save_callback = SaveData;
         ui_controller.load_callback = LoadData;
         ui_controller.render_options.save_manager = this;
+        light_editor.save_manager = this;
+
         GetWindow().CloseRequested += () =>
         {
             if (has_unsaved_changes)
@@ -243,8 +246,9 @@ public partial class SaveManager : Node3D
         byte[] voxel_data = voxel_grid.SerialiseMap();
         int voxel_data_offset = WriteDataBlockHeader(ref data_offset, voxel_data.Length, ref bytes);
 
-        // TODO: grab light data
-        int light_data_offset = WriteDataBlockHeader(ref data_offset, 0, ref bytes);
+        // grab light data
+        byte[] light_data = light_editor.SerialiseData();
+        int light_data_offset = WriteDataBlockHeader(ref data_offset, light_data.Length, ref bytes);
 
         // grab rendering config
         byte[] rendering_config = ui_controller.render_options.SerialiseConfig();
@@ -258,7 +262,7 @@ public partial class SaveManager : Node3D
 
         // write voxel data blocks
         WriteDataBlock(voxel_data_offset, in voxel_data, ref bytes);
-        // TODO: write light data block
+        WriteDataBlock(light_data_offset, in light_data, ref bytes);
         WriteDataBlock(rendering_config_offset, in rendering_config, ref bytes);
 
         Godot.FileAccess file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Write);
@@ -281,6 +285,8 @@ public partial class SaveManager : Node3D
         if (signature != 0xCA504701)
         {
             voxel_grid.DeserialiseMap(bytes);
+            light_editor.DeserialiseData(null);
+            ui_controller.render_options.DeserialiseConfig(null);
             return;
         }
 
@@ -309,7 +315,8 @@ public partial class SaveManager : Node3D
         // grab voxel data
         voxel_grid.DeserialiseMap(ReadDataBlock(0, "voxel", in data_blocks, in bytes_as_array));
 
-        // TODO: grab light data
+        // grab light data
+        light_editor.DeserialiseData(ReadDataBlock(1, "light", in data_blocks, in bytes_as_array));
 
         // grab rendering config
         ui_controller.render_options.DeserialiseConfig(ReadDataBlock(2, "rendering", in data_blocks, in bytes_as_array));

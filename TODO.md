@@ -29,7 +29,7 @@
 - [x] fix fonts in popups
 - [x] add icons for new voxel types
 - [x] reimplement displacement in shader
-- [ ] implement saving of lighting data, rendering config, ivy data, sand, etc (new file format with multiple sub-headers/datablocks within, including legacy support)
+- [x] implement saving of lighting data, rendering config, ivy data, sand, etc (new file format with multiple sub-headers/datablocks within, including legacy support)
 
 # v0.7
 - [ ] ivy growth engine/editor mode
