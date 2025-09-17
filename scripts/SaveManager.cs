@@ -307,16 +307,12 @@ public partial class SaveManager : Node3D
         List<byte> bytes_as_array = new(bytes);
 
         // grab voxel data
-        byte[] voxel_data = ReadDataBlock(0, "voxel", in data_blocks, in bytes_as_array);
-        if (voxel_data != null)
-            voxel_grid.DeserialiseMap(voxel_data);
+        voxel_grid.DeserialiseMap(ReadDataBlock(0, "voxel", in data_blocks, in bytes_as_array));
 
         // TODO: grab light data
 
         // grab rendering config
-        byte[] rendering_config = ReadDataBlock(2, "rendering", in data_blocks, in bytes_as_array);
-        if (rendering_config != null)
-            ui_controller.render_options.DeserialiseConfig(rendering_config);
+        ui_controller.render_options.DeserialiseConfig(ReadDataBlock(2, "rendering", in data_blocks, in bytes_as_array));
 
         // grab ivy data
     }
