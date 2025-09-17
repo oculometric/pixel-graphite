@@ -69,6 +69,8 @@ public partial class RenderOptionsPanel : Control
     [Export] private Button load_palette_but;
     [Export] private FileDialog load_save_dialog;
 
+    public SaveManager save_manager;
+
     public override void _Ready()
     {
         pixels_down_but.Pressed += () =>
@@ -297,18 +299,19 @@ public partial class RenderOptionsPanel : Control
             pal_mid = material.GetShaderParameter("palette_mid").AsColor();
             three_col = material.GetShaderParameter("use_palette_mid").AsBool();
             displace = material.GetShaderParameter("enable_displacement").AsBool();
-            contrast_slider.Value = contrast;
-            edge_slider.Value = edge;
-            noise_slider.Value = noise;
-            sketch_slider.Value = sketch;
-            pal_tri_but.ButtonPressed = three_col;
-            displace_but.ButtonPressed = displace;
+            
             UpdateLabels();
         };
     }
 
     private void UpdateLabels()
     {
+        contrast_slider.Value = contrast;
+        edge_slider.Value = edge;
+        noise_slider.Value = noise;
+        sketch_slider.Value = sketch;
+        pal_tri_but.ButtonPressed = three_col;
+        displace_but.ButtonPressed = displace;
         pixels_label.Text = pixels.ToString();
         contrast_label.Text = contrast.ToString("0.00");
         edge_label.Text = edge.ToString("0.00");
@@ -323,9 +326,12 @@ public partial class RenderOptionsPanel : Control
         displace_but.Text = displace ? "enabled" : "disabled";
     }
 
-    private void UpdateShader()
+    private void UpdateShader(bool set_unsaved_flag = true)
     {
         UpdateLabels();
+
+        if (set_unsaved_flag && save_manager != null)
+            save_manager.SetUnsavedFlag();
 
         material.SetShaderParameter("pixelation_size", pixels);
         material.SetShaderParameter("contrast", contrast);
@@ -359,12 +365,54 @@ public partial class RenderOptionsPanel : Control
 
     public byte[] SerialiseConfig()
     {
-        // TODO: serialise rendering config
-        return [0xFF, 0xCC];
+        List<byte> bytes = new List<byte>();
+        bytes.Add((byte)'R');
+        bytes.Add((byte)'C');
+        bytes.Add((byte)'P');
+        bytes.Add((byte)'G');
+
+        SaveHelpers.WriteInt32(pixels, ref bytes);
+        SaveHelpers.WriteFloat(contrast, ref bytes);
+        SaveHelpers.WriteFloat(edge, ref bytes);
+        SaveHelpers.WriteFloat(noise, ref bytes);
+        SaveHelpers.WriteFloat(sketch, ref bytes);
+        SaveHelpers.WriteInt16(posterise_index, ref bytes);
+        SaveHelpers.WriteFloat(pal_high.R, ref bytes);
+        SaveHelpers.WriteFloat(pal_high.G, ref bytes);
+        SaveHelpers.WriteFloat(pal_high.B, ref bytes);
+        SaveHelpers.WriteFloat(pal_low.R, ref bytes);
+        SaveHelpers.WriteFloat(pal_low.G, ref bytes);
+        SaveHelpers.WriteFloat(pal_low.B, ref bytes);
+        SaveHelpers.WriteFloat(pal_mid.R, ref bytes);
+        SaveHelpers.WriteFloat(pal_mid.G, ref bytes);
+        SaveHelpers.WriteFloat(pal_mid.B, ref bytes);
+        bytes.Add(three_col ? (byte)1 : (byte)0);
+        bytes.Add(is_high ? (byte)1 : (byte)0);
+        bytes.Add(displace ? (byte)1 : (byte)0);
+
+        return bytes.ToArray();
     }
 
-    public void DeserialiseConfig(byte[] data)
+    public void DeserialiseConfig(byte[] bytes)
     {
-        // TODO: deserialise rendering config
+        if (bytes.Length < 65)
+            return;
+        if (!(bytes[0] == 'R' && bytes[1] == 'C' && bytes[2] == 'P' && bytes[3] == 'G'))
+            return;
+
+        pixels = SaveHelpers.ReadInt32(in bytes, 4);
+        contrast = SaveHelpers.ReadFloat(in bytes, 8);
+        edge = SaveHelpers.ReadFloat(in bytes, 12);
+        noise = SaveHelpers.ReadFloat(in bytes, 16);
+        sketch = SaveHelpers.ReadFloat(in bytes, 20);
+        posterise_index = SaveHelpers.ReadInt16(in bytes, 24);
+        pal_high = new(SaveHelpers.ReadFloat(in bytes, 26), SaveHelpers.ReadFloat(in bytes, 30), SaveHelpers.ReadFloat(in bytes, 34));
+        pal_low = new(SaveHelpers.ReadFloat(in bytes, 38), SaveHelpers.ReadFloat(in bytes, 42), SaveHelpers.ReadFloat(in bytes, 46));
+        pal_mid = new(SaveHelpers.ReadFloat(in bytes, 50), SaveHelpers.ReadFloat(in bytes, 54), SaveHelpers.ReadFloat(in bytes, 58));
+        three_col = bytes[62] > 0;
+        is_high = bytes[63] > 0;
+        displace = bytes[64] > 0;
+
+        UpdateShader(false);
     }
 }

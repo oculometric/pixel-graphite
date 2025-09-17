@@ -2,6 +2,57 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
+public struct SaveHelpers
+{
+    public static void WriteInt32(int i, ref List<byte> arr)
+    {
+        arr.Add((byte)(i & 0xFF));
+        arr.Add((byte)((i >> 8) & 0xFF));
+        arr.Add((byte)((i >> 16) & 0xFF));
+        arr.Add((byte)((i >> 24) & 0xFF));
+    }
+
+    public static void WriteInt16(int i, ref List<byte> arr)
+    {
+        arr.Add((byte)(i & 0xFF));
+        arr.Add((byte)((i >> 8) & 0xFF));
+    }
+
+    public static void WriteUInt32(uint i, ref List<byte> arr)
+    {
+        arr.Add((byte)(i & 0xFF));
+        arr.Add((byte)((i >> 8) & 0xFF));
+        arr.Add((byte)((i >> 16) & 0xFF));
+        arr.Add((byte)((i >> 24) & 0xFF));
+    }
+
+    public static void WriteFloat(float f, ref List<byte> arr)
+    {
+        arr.AddRange(BitConverter.GetBytes(f));
+    }
+
+    public static float ReadFloat(in byte[] arr, uint offset)
+    {
+        return BitConverter.ToSingle(arr, (int)offset);
+    }
+
+    public static int ReadInt32(in byte[] arr, uint offset)
+    {
+        return (arr[offset + 3] << 24) | (arr[offset + 2] << 16) | (arr[offset + 1] << 8) | arr[offset];
+    }
+
+    public static uint ReadUInt32(in byte[] arr, uint offset)
+    {
+        return ((uint)(arr[offset + 3]) << 24) | ((uint)(arr[offset + 2]) << 16) | ((uint)(arr[offset + 1]) << 8) | (uint)(arr[offset]);
+    }
+
+    public static int ReadInt16(in byte[] arr, uint offset)
+    {
+        return (arr[offset + 1] << 8) | arr[offset];
+    }
+
+}
+
 public partial class SaveManager : Node3D
 {
     [Export] public VoxelGrid voxel_grid { get; private set; }
@@ -25,6 +76,7 @@ public partial class SaveManager : Node3D
         UpdateTitle();
         ui_controller.save_callback = SaveData;
         ui_controller.load_callback = LoadData;
+        ui_controller.render_options.save_manager = this;
         GetWindow().CloseRequested += () =>
         {
             if (has_unsaved_changes)
@@ -113,43 +165,6 @@ public partial class SaveManager : Node3D
         UpdateTitle();
     }
 
-    private void WriteInt32(int i, ref List<byte> arr)
-    {
-        arr.Add((byte)(i & 0xFF));
-        arr.Add((byte)((i >> 8) & 0xFF));
-        arr.Add((byte)((i >> 16) & 0xFF));
-        arr.Add((byte)((i >> 24) & 0xFF));
-    }
-
-    private void WriteInt16(int i, ref List<byte> arr)
-    {
-        arr.Add((byte)(i & 0xFF));
-        arr.Add((byte)((i >> 8) & 0xFF));
-    }
-
-    private void WriteUInt32(uint i, ref List<byte> arr)
-    {
-        arr.Add((byte)(i & 0xFF));
-        arr.Add((byte)((i >> 8) & 0xFF));
-        arr.Add((byte)((i >> 16) & 0xFF));
-        arr.Add((byte)((i >> 24) & 0xFF));
-    }
-
-    private int ReadInt32(in byte[] arr, uint offset)
-    {
-        return (arr[offset + 3] << 24) | (arr[offset + 2] << 16) | (arr[offset + 1] << 8) | arr[offset];
-    }
-
-    private uint ReadUInt32(in byte[] arr, uint offset)
-    {
-        return ((uint)(arr[offset + 3]) << 24) | ((uint)(arr[offset + 2]) << 16) | ((uint)(arr[offset + 1]) << 8) | (uint)(arr[offset]);
-    }
-
-    private int ReadInt16(in byte[] arr, uint offset)
-    {
-        return (arr[offset + 1] << 8) | arr[offset];
-    }
-
     private int CalcHeaderSize(int entries)
     {
         return 4 + 4 + (8 * entries) + 4;
@@ -158,8 +173,8 @@ public partial class SaveManager : Node3D
     private int WriteDataBlockHeader(ref int data_offset, int data_size, ref List<byte> bytes)
     {
         int old_data_offset = data_offset;
-        WriteInt32(data_offset, ref bytes);
-        WriteInt32(data_size, ref bytes);
+        SaveHelpers.WriteInt32(data_offset, ref bytes);
+        SaveHelpers.WriteInt32(data_size, ref bytes);
         data_offset += data_size + 4;
         return old_data_offset;
     }
@@ -173,7 +188,7 @@ public partial class SaveManager : Node3D
             bytes.RemoveRange(data_offset, bytes.Count - data_offset);
 
         bytes.AddRange(data);
-        WriteInt32(0, ref bytes);
+        SaveHelpers.WriteInt32(0, ref bytes);
     }
 
     private byte[] ReadDataBlock(int block_index, string block_desc, in List<Tuple<int, int>> data_blocks, in List<byte> bytes)
@@ -211,16 +226,16 @@ public partial class SaveManager : Node3D
         // 4 byte size of ivy data (0x0 if not present)
         // etc...
         // 4 byte padding
-        // voxel data (as described by voxel data info in header table
+        // voxel data (as described by voxel data info in header table)
         // ... etc
 
         // generate the file header
         List<byte> bytes = new List<byte>();
-        WriteUInt32(0xCA504701, ref bytes);
+        SaveHelpers.WriteUInt32(0xCA504701, ref bytes);
         int header_entries = 8; // space for eight entries
         int header_size = CalcHeaderSize(header_entries);
-        WriteInt16(header_size, ref bytes);
-        WriteInt16(header_entries, ref bytes);
+        SaveHelpers.WriteInt16(header_size, ref bytes);
+        SaveHelpers.WriteInt16(header_entries, ref bytes);
 
         int data_offset = header_size;
 
@@ -262,15 +277,15 @@ public partial class SaveManager : Node3D
         byte[] bytes = file.GetBuffer((long)file.GetLength());
         file.Close();
 
-        uint signature = ReadUInt32(in bytes, 0);
+        uint signature = SaveHelpers.ReadUInt32(in bytes, 0);
         if (signature != 0xCA504701)
         {
             voxel_grid.DeserialiseMap(bytes);
             return;
         }
 
-        int header_size = ReadInt16(in bytes, 4);
-        int header_entries = ReadInt16(in bytes, 6);
+        int header_size = SaveHelpers.ReadInt16(in bytes, 4);
+        int header_entries = SaveHelpers.ReadInt16(in bytes, 6);
         if (header_size < CalcHeaderSize(header_entries))
         {
             GD.Print("invalid savefile header size");
@@ -285,7 +300,7 @@ public partial class SaveManager : Node3D
         uint offset = 8;
         for (int i = 0; i < header_entries; i++)
         {
-            data_blocks.Add(new(ReadInt32(in bytes, offset), ReadInt32(in bytes, offset + 4)));
+            data_blocks.Add(new(SaveHelpers.ReadInt32(in bytes, offset), SaveHelpers.ReadInt32(in bytes, offset + 4)));
             offset += 8;
         }
 

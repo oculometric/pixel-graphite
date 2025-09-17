@@ -144,19 +144,6 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 		return dead_chunks;
 	}
 
-	private void WriteInt32(int i, ref List<byte> arr)
-	{
-		arr.Add((byte)(i & 0xFF));
-		arr.Add((byte)((i >> 8) & 0xFF));
-		arr.Add((byte)((i >> 16) & 0xFF));
-		arr.Add((byte)((i >> 24) & 0xFF));
-	}
-
-	private int ReadInt32(in byte[] arr, uint offset)
-    {
-        return (arr[offset + 3] << 24) | (arr[offset + 2] << 16) | (arr[offset + 1] << 8) | arr[offset];
-    }
-
 	public byte[] Serialise()
 	{
 		// file structure
@@ -190,23 +177,23 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 		int chunk_data_length = T.GetSize() * chunk_size * chunk_size * chunk_size;
 
 		List<byte> data = new List<byte>((4 * 5) + ((12 + chunk_data_length) * storage.Count));
-		WriteInt32(0x43535402, ref data);
+        SaveHelpers.WriteInt32(0x43535402, ref data);
 
 		data.Add((byte)chunk_size);
 		data.Add((byte)T.GetSize());
 		data.Add(0);
 		data.Add(0);
 
-		WriteInt32(12 + chunk_data_length, ref data);
-		WriteInt32(storage.Count, ref data);
+        SaveHelpers.WriteInt32(12 + chunk_data_length, ref data);
+        SaveHelpers.WriteInt32(storage.Count, ref data);
 
-		WriteInt32(0, ref data);
+        SaveHelpers.WriteInt32(0, ref data);
 
 		foreach (KeyValuePair<Vector3I, T[]> chunk in storage)
 		{
-			WriteInt32(chunk.Key.X, ref data);
-			WriteInt32(chunk.Key.Y, ref data);
-			WriteInt32(chunk.Key.Z, ref data);
+            SaveHelpers.WriteInt32(chunk.Key.X, ref data);
+            SaveHelpers.WriteInt32(chunk.Key.Y, ref data);
+            SaveHelpers.WriteInt32(chunk.Key.Z, ref data);
 
 			List<byte> chunk_data = new List<byte>(chunk_data_length);
 			foreach (T voxel in chunk.Value)
@@ -239,10 +226,10 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 			compressed_data.Add(current_counter);
 			compressed_data.Add(current_value);
 
-			WriteInt32(compressed_data.Count, ref data);
+            SaveHelpers.WriteInt32(compressed_data.Count, ref data);
 			data.AddRange(compressed_data);
 
-			WriteInt32(0, ref data);
+            SaveHelpers.WriteInt32(0, ref data);
 		}
 
         return data.ToArray();
@@ -257,8 +244,8 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 		int data_size = serialised_data[5];
 		if (data_size != T.GetSize())
             throw new Exception("invalid voxel data type size");
-		int chunk_length = ReadInt32(serialised_data, 8);
-		int chunk_count = ReadInt32(serialised_data, 12);
+		int chunk_length = SaveHelpers.ReadInt32(serialised_data, 8);
+		int chunk_count = SaveHelpers.ReadInt32(serialised_data, 12);
 		if (chunk_length < 12)
 			throw new Exception("invalid voxel grid data");
 		if (chunk_count < 0)
@@ -267,8 +254,8 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 		int offset = 20;
 		for (int i = 0; i < chunk_count; i++)
 		{
-			Vector3I position = new(ReadInt32(serialised_data, (uint)offset), ReadInt32(serialised_data, (uint)offset + 4), ReadInt32(serialised_data, (uint)offset + 8));
-			int size = ReadInt32(serialised_data, (uint)offset + 12);
+			Vector3I position = new(SaveHelpers.ReadInt32(serialised_data, (uint)offset), SaveHelpers.ReadInt32(serialised_data, (uint)offset + 4), SaveHelpers.ReadInt32(serialised_data, (uint)offset + 8));
+			int size = SaveHelpers.ReadInt32(serialised_data, (uint)offset + 12);
 			List<byte> raw_data = new List<byte>(data_size * chunk_size * chunk_size * chunk_size);
 			for (int bo = 0; bo < size - 1; bo += 2)
 			{
@@ -346,7 +333,7 @@ public class ChunkedGridMap3D<T> where T : Serialiseable
 		if (serialised_data.Length < (4 * 5))
 			throw new Exception("invalid voxel grid data");
 
-		int signature = ReadInt32(in serialised_data, 0);
+		int signature = SaveHelpers.ReadInt32(in serialised_data, 0);
 		if (signature == 0x43535402)
 			DeserialiseV4Data(serialised_data);
 		else
@@ -521,19 +508,6 @@ public class GridMap3D<T> where T : Serialiseable
 		}
 	}
 
-	private void WriteInt32(int i, ref List<byte> arr)
-	{
-        arr.Add((byte)(i & 0xFF));
-        arr.Add((byte)((i >> 8) & 0xFF));
-        arr.Add((byte)((i >> 16) & 0xFF));
-        arr.Add((byte)((i >> 24) & 0xFF));
-    }
-
-	private int ReadInt32(in byte[] arr, uint offset)
-    {
-        return (arr[offset + 3] << 24) | (arr[offset + 2] << 16) | (arr[offset + 1] << 8) | arr[offset];
-    }
-
 	public byte[] Serialise()
 	{
 		// file structure
@@ -558,15 +532,15 @@ public class GridMap3D<T> where T : Serialiseable
 		// ...
 
 		List<byte> data = new List<byte>((4 * 8) + (2 * map_size.X * map_size.Y * map_size.Z));
-		WriteInt32(0x43535401, ref data);
+        SaveHelpers.WriteInt32(0x43535401, ref data);
 
-		WriteInt32(map_size.X, ref data);
-		WriteInt32(map_size.Y, ref data);
-		WriteInt32(map_size.Z, ref data);
+        SaveHelpers.WriteInt32(map_size.X, ref data);
+        SaveHelpers.WriteInt32(map_size.Y, ref data);
+        SaveHelpers.WriteInt32(map_size.Z, ref data);
 
-		WriteInt32(map_origin.X, ref data);
-		WriteInt32(map_origin.Y, ref data);
-		WriteInt32(map_origin.Z, ref data);
+        SaveHelpers.WriteInt32(map_origin.X, ref data);
+        SaveHelpers.WriteInt32(map_origin.Y, ref data);
+        SaveHelpers.WriteInt32(map_origin.Z, ref data);
 
 		data.Add(0b00000001); // data will be RLE compressed
         data.Add(0);
@@ -643,8 +617,8 @@ public class GridMap3D<T> where T : Serialiseable
         // 3 byte index into name index
 
 		GD.Print("deserialising voxel data v1");
-        map_size = new Vector3I(ReadInt32(in serialised_data, 0), ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8));
-        map_origin = new Vector3I(ReadInt32(in serialised_data, 12), ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20));
+        map_size = new Vector3I(SaveHelpers.ReadInt32(in serialised_data, 0), SaveHelpers.ReadInt32(in serialised_data, 4), SaveHelpers.ReadInt32(in serialised_data, 8));
+        map_origin = new Vector3I(SaveHelpers.ReadInt32(in serialised_data, 12), SaveHelpers.ReadInt32(in serialised_data, 16), SaveHelpers.ReadInt32(in serialised_data, 20));
         if (map_size.X < 0 || map_size.Y < 0 || map_size.Z < 0)
             throw new Exception("invalid voxel grid data");
         if (serialised_data.Length < (4 * 12))
@@ -652,7 +626,7 @@ public class GridMap3D<T> where T : Serialiseable
         map_min = -map_origin;
         map_max = map_size - (Vector3I.One + map_origin);
 
-        uint byte_offset = (uint)ReadInt32(in serialised_data, 32);
+        uint byte_offset = (uint)SaveHelpers.ReadInt32(in serialised_data, 32);
         map = new List<List<List<T>>>(map_size.Z);
         for (int k = 0; k < map_size.Z; k++)
         {
@@ -691,8 +665,8 @@ public class GridMap3D<T> where T : Serialiseable
         // ...
 
 		GD.Print("deserialising voxel data v2");
-        map_size = new Vector3I(ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8), ReadInt32(in serialised_data, 12));
-        map_origin = new Vector3I(ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20), ReadInt32(in serialised_data, 24));
+        map_size = new Vector3I(SaveHelpers.ReadInt32(in serialised_data, 4), SaveHelpers.ReadInt32(in serialised_data, 8), SaveHelpers.ReadInt32(in serialised_data, 12));
+        map_origin = new Vector3I(SaveHelpers.ReadInt32(in serialised_data, 16), SaveHelpers.ReadInt32(in serialised_data, 20), SaveHelpers.ReadInt32(in serialised_data, 24));
 		if (map_size.X < 0 || map_size.Y < 0 || map_size.Z < 0)
 			throw new Exception("invalid voxel grid data");
         map_min = -map_origin;
@@ -720,8 +694,8 @@ public class GridMap3D<T> where T : Serialiseable
     private void DeserialiseV3Data(byte[] serialised_data)
     {
 		GD.Print("deserialising voxel data v3");
-        map_size = new Vector3I(ReadInt32(in serialised_data, 4), ReadInt32(in serialised_data, 8), ReadInt32(in serialised_data, 12));
-        map_origin = new Vector3I(ReadInt32(in serialised_data, 16), ReadInt32(in serialised_data, 20), ReadInt32(in serialised_data, 24));
+        map_size = new Vector3I(SaveHelpers.ReadInt32(in serialised_data, 4), SaveHelpers.ReadInt32(in serialised_data, 8), SaveHelpers.ReadInt32(in serialised_data, 12));
+        map_origin = new Vector3I(SaveHelpers.ReadInt32(in serialised_data, 16), SaveHelpers.ReadInt32(in serialised_data, 20), SaveHelpers.ReadInt32(in serialised_data, 24));
         if (map_size.X < 0 || map_size.Y < 0 || map_size.Z < 0)
             throw new Exception("invalid voxel grid data");
         map_min = -map_origin;
@@ -770,7 +744,7 @@ public class GridMap3D<T> where T : Serialiseable
 		if (serialised_data.Length < (4 * 8))
 			throw new Exception("invalid voxel grid data");
 
-		int signature = ReadInt32(in serialised_data, 0);
+		int signature = SaveHelpers.ReadInt32(in serialised_data, 0);
 		if (signature == 0x4a6b7900)
 			DeserialiseV2Data(serialised_data);
 		else if (signature == 0x43535401)
