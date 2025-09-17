@@ -32,10 +32,18 @@
 - [x] implement saving of lighting data, rendering config, ivy data, sand, etc (new file format with multiple sub-headers/datablocks within, including legacy support)
 
 # v0.7
+- [ ] reset camera on load
+- [ ] update adjacent chunks on edit
+- [ ] lock camera when ui consumes input
+- [ ] fix twisted camera
+- [ ] erase mode indicator
+- [ ] convert controls to use inputactions
+- [ ] check palette saving (force add .exr?)
 - [ ] ivy growth engine/editor mode
-
-
+- [ ] add pillar blocks
+- [ ] improve block selection palette
 - [ ] improve raytracing in voxel mode
+
 - [ ] add main menu
 - [ ] custom cursor
 - [ ] sand editing/toggle
