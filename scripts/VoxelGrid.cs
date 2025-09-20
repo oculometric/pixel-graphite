@@ -869,7 +869,8 @@ public partial class VoxelGrid : Node3D
 
 		if (data == null)
 		{
-            Rebuild();
+            map = new ChunkedGridMap3D<Voxel>(new Voxel(0, 0), 8);
+			Rebuild();
 			return;
         }
 

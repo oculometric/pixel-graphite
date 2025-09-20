@@ -149,7 +149,7 @@ void fragment()
 	vec2 downscaled_uv = floor(SCREEN_UV * downscaled_viewport_size/* * float(pixelation_size)*/) / downscaled_viewport_size;
 	/*if (downscaled_uv.x > 1.0f || downscaled_uv.y > 1.0f)
 		discard;*/ // for a slight performance boost, this (and the code above) can be uncommented
-	
+
 	vec2 scaled_viewport = VIEWPORT_SIZE / noise_sketch_scale;
 	vec2 displaced_uv = downscaled_uv;
 	if (enable_displacement)

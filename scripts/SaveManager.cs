@@ -67,7 +67,7 @@ public partial class SaveManager : Node3D
 
     public void UpdateTitle()
     {
-        GetWindow().Title = "pixel graphite - " + current_file_name + (has_unsaved_changes ? "*" : "") + " (" + Engine.GetFramesPerSecond().ToString("000.0") + " fps)";
+        GetWindow().Title = "pixel graphite - " + current_file_name + (has_unsaved_changes ? "*" : "");
     }
 
     public void SetUnsavedFlag() { has_unsaved_changes = true; UpdateTitle(); }
@@ -106,22 +106,6 @@ public partial class SaveManager : Node3D
         autosave_timer.Start(autosave_time);
     }
 
-    public void CallSave(bool save_as)
-    {
-        if (has_been_saved && !save_as)
-            SaveData(current_file_name);
-        else
-            ui_controller.ShowSaveDialog(current_file_name);
-    }
-
-    public void CallLoad()
-    {
-        if (has_unsaved_changes)
-            ui_controller.ShowConfirmDialog("discard unsaved changes?", "you have made changes which are not saved. are you sure you want to discard them and open another file?", "discard changes", "cancel", ConfirmDiscard);
-        else
-            ui_controller.ShowLoadDialog(current_file_name);
-    }
-
     public override void _UnhandledInput(InputEvent @event)
     {
         if (@event is InputEventKey)
@@ -132,24 +116,58 @@ public partial class SaveManager : Node3D
             if (key.IsPressed())
             {
                 if (key.Keycode == Key.S)
-                    CallSave(key.ShiftPressed);
+                    TrySaveFile(key.ShiftPressed);
                 else if (key.Keycode == Key.O)
-                    CallLoad();
+                    TryLoadFile();
+                else if (key.Keycode == Key.N)
+                    TryResetFile();
             }
         }
     }
 
-    public void DiscardAndQuit()
+    private void DiscardAndQuit()
     {
         GetTree().Quit();
     }
 
-    public void ConfirmDiscard()
+    private void ConfirmDiscard()
     {
         ui_controller.ShowLoadDialog(current_file_name);
     }
 
-    public void SaveData(string file)
+    public void TrySaveFile(bool save_as)
+    {
+        if (has_been_saved && !save_as)
+            SaveData(current_file_name);
+        else
+            ui_controller.ShowSaveDialog(current_file_name);
+    }
+
+    public void TryLoadFile()
+    {
+        if (has_unsaved_changes)
+            ui_controller.ShowConfirmDialog("discard unsaved changes?", "you have made changes which are not saved. are you sure you want to discard them and open another file?", "discard changes", "cancel", ConfirmDiscard);
+        else
+            ui_controller.ShowLoadDialog(current_file_name);
+    }
+
+    public void TryResetFile()
+    {
+        if (has_unsaved_changes)
+            ui_controller.ShowConfirmDialog("discard unsaved changes?", "you have made changes which are not saved. are you sure you want to discard them and open a new file?", "discard changes", "cancel", LoadBlankSaveUnchecked);
+        else
+            LoadBlankSaveUnchecked();
+    }
+
+    public void TryQuit()
+    {
+        if (has_unsaved_changes)
+            ui_controller.ShowConfirmDialog("discard unsaved changes?", "you have made changes which are not saved. are you sure you want to close without saving?", "discard changes", "cancel", DiscardAndQuit);
+        else
+            GetTree().Quit();
+    }
+
+    private void SaveData(string file)
     {
         WriteSaveFile(file);
         has_been_saved = true;
@@ -159,9 +177,9 @@ public partial class SaveManager : Node3D
         UpdateTitle();
     }
 
-    public void LoadData(string file)
+    private void LoadData(string file)
     {
-        ReadSaveFile(file);
+        ReadSaveFileUnchecked(file);
         has_been_saved = true;
         current_file_name = file;
         has_unsaved_changes = false;
@@ -270,9 +288,22 @@ public partial class SaveManager : Node3D
         file.Close();
     }
 
-    public void ReadSaveFile(string path)
+    public void LoadBlankSaveUnchecked()
+    {
+        current_file_name = "Untitled";
+        has_been_saved = false;
+        has_unsaved_changes = true;
+        voxel_grid.DeserialiseMap(null);
+        light_editor.DeserialiseData(null);
+        ui_controller.render_options.DeserialiseConfig(null);
+        UpdateTitle();
+    }
+
+    public void ReadSaveFileUnchecked(string path)
     {
         GD.Print("loading file " + path);
+
+        LoadBlankSaveUnchecked();
 
         Godot.FileAccess file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Read);
         if (file == null)
@@ -285,8 +316,6 @@ public partial class SaveManager : Node3D
         if (signature != 0xCA504701)
         {
             voxel_grid.DeserialiseMap(bytes);
-            light_editor.DeserialiseData(null);
-            ui_controller.render_options.DeserialiseConfig(null);
             return;
         }
 

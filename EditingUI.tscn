@@ -41,7 +41,7 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 1, 1, 1)
 
-[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "top_label", "file_dialog", "confirm_discard_dialog", "accept_dialog", "help_panel", "render_options", "voxel_palette", "save_button", "save_as_button", "load_button", "export_button", "return_button")]
+[node name="EditingUi" type="Control" node_paths=PackedStringArray("editing_mode_label", "mode_modal", "top_label", "file_dialog", "confirm_discard_dialog", "accept_dialog", "help_panel", "render_options", "voxel_palette", "new_button", "save_button", "save_as_button", "load_button", "export_button", "return_button")]
 texture_filter = 1
 layout_mode = 3
 anchors_preset = 15
@@ -61,6 +61,7 @@ accept_dialog = NodePath("AcceptDialog")
 help_panel = NodePath("TabContainer")
 render_options = NodePath("TabContainer/RenderOptionsPanel")
 voxel_palette = NodePath("VoxelPaletteContainer/VoxelPalette")
+new_button = NodePath("TabContainer/EscapeMenu/VBoxContainer/NewButton")
 save_button = NodePath("TabContainer/EscapeMenu/VBoxContainer/SaveButton")
 save_as_button = NodePath("TabContainer/EscapeMenu/VBoxContainer/SaveAsButton")
 load_button = NodePath("TabContainer/EscapeMenu/VBoxContainer/LoadButton")
@@ -218,7 +219,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-current_tab = 1
+current_tab = 2
 tabs_visible = false
 tab_focus_mode = 0
 
@@ -250,7 +251,8 @@ offset_right = -24.0
 offset_bottom = 14.0
 grow_horizontal = 0
 grow_vertical = 2
-text = "open
+text = "new file
+open
 save
 save as
 save screenshot
@@ -279,7 +281,8 @@ offset_top = -14.0
 offset_right = 46.0
 offset_bottom = 14.0
 grow_vertical = 2
-text = "Ctrl+O
+text = "Ctrl+N
+Ctrl+O
 Ctrl+S
 Ctrl+Shift+S
 P
@@ -298,6 +301,7 @@ Ctrl+H"
 vertical_alignment = 1
 
 [node name="RenderOptionsPanel" type="CenterContainer" parent="TabContainer" node_paths=PackedStringArray("pixels_label", "pixels_down_but", "pixels_up_but", "pixels_reset", "contrast_label", "contrast_slider", "contrast_reset", "edge_label", "edge_slider", "edge_reset", "noise_label", "noise_slider", "noise_reset", "sketch_label", "sketch_slider", "sketch_reset", "posterise_label", "posterise_next_but", "posterise_back_but", "posterise_reset", "picker", "pal_high_label", "pal_high_but", "pal_high_reset", "pal_low_label", "pal_low_but", "pal_low_reset", "pal_mid_label", "pal_mid_but", "pal_mid_reset", "pal_tri_but", "pal_tri_reset", "background_but", "background_reset", "displace_but", "displace_reset", "save_palette_but", "load_palette_but", "load_save_dialog")]
+visible = false
 material = ExtResource("4_c7spg")
 layout_mode = 2
 script = ExtResource("4_dnh2e")
@@ -840,7 +844,6 @@ access = 1
 filters = PackedStringArray("*.exr")
 
 [node name="EscapeMenu" type="CenterContainer" parent="TabContainer"]
-visible = false
 layout_mode = 2
 metadata/_tab_index = 2
 
@@ -849,13 +852,19 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="TabContainer/EscapeMenu/VBoxContainer"]
 layout_mode = 2
-text = "[ pixel-graphite editor - v0.6 - oculometric ]"
+text = "[ pixel-graphite editor - v0.7 - oculometric ]"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="TabContainer/EscapeMenu/VBoxContainer"]
 custom_minimum_size = Vector2(640, 0)
 layout_mode = 2
 theme_override_styles/separator = SubResource("StyleBoxLine_4nd0v")
+
+[node name="NewButton" type="Button" parent="TabContainer/EscapeMenu/VBoxContainer"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+focus_mode = 0
+text = "new file"
 
 [node name="SaveButton" type="Button" parent="TabContainer/EscapeMenu/VBoxContainer"]
 custom_minimum_size = Vector2(0, 42)

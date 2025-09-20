@@ -18,8 +18,9 @@ public partial class EditingUIController : Control
     [Export] private VBoxContainer voxel_palette;
 	private MainSceneController scene_controller;
 
+	[Export] private Button new_button;
 	[Export] private Button save_button;
-	[Export] private Button save_as_button;
+    [Export] private Button save_as_button;
 	[Export] private Button load_button;
 	[Export] private Button export_button;
 	[Export] private Button return_button;
@@ -86,17 +87,12 @@ public partial class EditingUIController : Control
 		SetModalVisible(false);
 		help_panel.Visible = false;
 
-		save_button.Pressed += () => { scene_controller.save_manager.CallSave(false); };
-        save_as_button.Pressed += () => { scene_controller.save_manager.CallSave(true); };
-		load_button.Pressed += () => { scene_controller.save_manager.CallLoad(); };
+		new_button.Pressed += () => { scene_controller.save_manager.TryResetFile(); };
+		save_button.Pressed += () => { scene_controller.save_manager.TrySaveFile(false); };
+        save_as_button.Pressed += () => { scene_controller.save_manager.TrySaveFile(true); };
+		load_button.Pressed += () => { scene_controller.save_manager.TryLoadFile(); };
 		export_button.Pressed += ShowExportDialog;
-		return_button.Pressed += () => 
-		{
-            if (scene_controller.save_manager.has_unsaved_changes)
-                ShowConfirmDialog("discard unsaved changes?", "you have made changes which are not saved. are you sure you want to close without saving?", "discard changes", "cancel", scene_controller.save_manager.DiscardAndQuit);
-            else
-                GetTree().Quit();
-        };
+		return_button.Pressed += () => { scene_controller.save_manager.TryQuit(); };
     }
 
     public Action<string> save_callback;

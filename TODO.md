@@ -37,6 +37,8 @@
 - [ ] lock camera when ui consumes input
 - [ ] fix twisted camera
 - [ ] erase mode indicator
+- [ ] fix broken obj exporter
+- [x] new file button
 - [ ] convert controls to use inputactions
 - [ ] check palette saving (force add .exr?)
 - [ ] ivy growth engine/editor mode
